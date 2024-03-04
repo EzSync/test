@@ -70,3 +70,5 @@ vless://baf139ff-0a6e-454e-b623-81eaa3d3de7d@www.whoer.net:443?security=tls&sni=
 vless://baf139ff-0a6e-454e-b623-81eaa3d3de7d@www.wto.org:443?security=tls&sni=231223.ezbiz365.cloudns.org&fp=random&type=ws&path=/?ed%3D2048&host=231223.ezbiz365.cloudns.org&encryption=none#231223
 vless://ab51359f-2fd4-4f07-8242-e504604188b6@www.zsu.gov.ua:443?security=tls&sni=231216.ezbiz365.cloudns.org&fp=random&type=ws&path=/?ed%3D2048&host=231216.ezbiz365.cloudns.org&encryption=none#231216
 vless://ab51359f-2fd4-4f07-8242-e504604188b6@xn--b6gac.eu.org:443?security=tls&sni=231216.ezbiz365.cloudns.org&fp=random&type=ws&path=/?ed%3D2048&host=231216.ezbiz365.cloudns.org&encryption=none#231216
+vless://24b0513c-c1a9-4604-a0e4-12ffe0f65306@cf.090227.xyz:443?encryption=none&security=tls&sni=240224.ezbiz365.cloudns.org&fp=randomized&type=ws&host=240224.ezbiz365.cloudns.org&path=%2F%3Fed%3D2048#240224
+vless://24b0513c-c1a9-4604-a0e4-12ffe0f65306@zsf-5fa.pages.dev:443?encryption=none&security=tls&sni=240224.ezbiz365.cloudns.org&fp=randomized&type=ws&host=240224.ezbiz365.cloudns.org&path=%2F%3Fed%3D2048#240224
