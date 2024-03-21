@@ -1,28 +1,26 @@
-Mysubs:
-WPsub:
-https://tg.ezbiz365.cloudns.org/dac89ddd-1a89-4732-88dd-105cfaaf5ab8
-EPsub:
-https://esubcm.ezbiz.dynv6.net/3dd86e92-1aa7-4227-b5c8-af7470be5f36
+1.Mysubs:
+  WPsub:
+  https://tg.ezbiz365.cloudns.org/dac89ddd-1a89-4732-88dd-105cfaaf5ab8
+  EPsub:
+  https://esubcm.ezbiz.dynv6.net/3dd86e92-1aa7-4227-b5c8-af7470be5f36
 
-CMLiu:
-快速体验订阅地址：
-https://vless.fxxk.dedyn.io/auto
-https://vmess.fxxk.dedyn.io/auto
+2.CMLiu:
+  快速体验订阅地址：
+  https://vless.fxxk.dedyn.io/auto
+  https://vmess.fxxk.dedyn.io/auto
 
 
-3Kmfi6HP大佬  提供维护 
-https://sub.xf.free.hr/auto
+3.3Kmfi6HP大佬  提供维护 
+  https://sub.xf.free.hr/auto
 
-变量SUB = 3k.fxxk.dedyn.io（CM镜像站）
+  变量SUB = 3k.fxxk.dedyn.io（CM镜像站）
 
-Moist_R大佬 提供维护 注意！该订阅器不支持汇聚订阅！
-https://moistr.freenods.sbs/mianfei
+4.Moist_R大佬 提供维护 注意！该订阅器不支持汇聚订阅！
+  https://moistr.freenods.sbs/mianfei
 
-OTC大佬 提供维护
-变量SUB = sub.kaiche.tk
+5.OTC大佬 提供维护
+  变量SUB = sub.kaiche.tk
 
-King大佬 提供维护
-
-快速体验订阅地址：
-http://allsub.king361.cf
-
+6.King大佬 提供维护
+  快速体验订阅地址：
+  http://allsub.king361.cf
