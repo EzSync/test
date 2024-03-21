@@ -1,3 +1,9 @@
+Mysubs:
+WPsub:
+https://tg.ezbiz365.cloudns.org/dac89ddd-1a89-4732-88dd-105cfaaf5ab8
+EPsub:
+https://esubcm.ezbiz.dynv6.net/3dd86e92-1aa7-4227-b5c8-af7470be5f36
+
 CMLiu:
 快速体验订阅地址：
 https://vless.fxxk.dedyn.io/auto
