@@ -70,3 +70,7 @@ vless://3dd86e92-1aa7-4227-b5c8-af7470be5f36@www.wto.org:443?encryption=none&sec
 vless://3dd86e92-1aa7-4227-b5c8-af7470be5f36@www.zsu.gov.ua:443?encryption=none&security=tls&sni=esubcm.ezbiz.dynv6.net&fp=randomized&type=ws&host=esubcm.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFEP
 vless://3dd86e92-1aa7-4227-b5c8-af7470be5f36@xn--b6gac.eu.org:443?encryption=none&security=tls&sni=esubcm.ezbiz.dynv6.net&fp=randomized&type=ws&host=esubcm.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFEP
 vless://3dd86e92-1aa7-4227-b5c8-af7470be5f36@zsf-5fa.pages.dev:443?encryption=none&security=tls&sni=esubcm.ezbiz.dynv6.net&fp=randomized&type=ws&host=esubcm.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFEP
+vless://3dd86e92-1aa7-4227-b5c8-af7470be5f36@086181.xyz:443?encryption=none&security=tls&sni=esubcm.ezbiz.dynv6.net&fp=randomized&type=ws&host=esubcm.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFEP
+vless://3dd86e92-1aa7-4227-b5c8-af7470be5f36@cloudflare.cfgo.cc:443?encryption=none&security=tls&sni=esubcm.ezbiz.dynv6.net&fp=randomized&type=ws&host=esubcm.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFEP
+vless://3dd86e92-1aa7-4227-b5c8-af7470be5f36@stock.hostmonit.com:443?encryption=none&security=tls&sni=esubcm.ezbiz.dynv6.net&fp=randomized&type=ws&host=esubcm.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFEP
+vless://3dd86e92-1aa7-4227-b5c8-af7470be5f36@wm.wmzuv.com:443?encryption=none&security=tls&sni=esubcm.ezbiz.dynv6.net&fp=randomized&type=ws&host=esubcm.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFEP
