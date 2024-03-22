@@ -70,3 +70,4 @@ vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.wto.org:443?encryption=none&sec
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.zsu.gov.ua:443?encryption=none&security=tls&sni=tg.ezbiz365.cloudns.org&fp=randomized&type=ws&host=tg.ezbiz365.cloudns.org&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@xn--b6gac.eu.org:443?encryption=none&security=tls&sni=tg.ezbiz365.cloudns.org&fp=randomized&type=ws&host=tg.ezbiz365.cloudns.org&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@zsf-5fa.pages.dev:443?encryption=none&security=tls&sni=tg.ezbiz365.cloudns.org&fp=randomized&type=ws&host=tg.ezbiz365.cloudns.org&path=%2F%3Fed%3D2048#CFWP
+vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@zjstv.cc:443?encryption=none&security=tls&sni=tg.ezbiz365.cloudns.org&fp=randomized&type=ws&host=tg.ezbiz365.cloudns.org&path=%2F%3Fed%3D2048#CFWP
