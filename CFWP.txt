@@ -1,15 +1,11 @@
-vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@104.16.61.119:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
-vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@104.16.81.251:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
-vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@104.17.247.80:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
-vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@190.93.246.13:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@443.xiangmq1969.xyz:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@achk.cloudflarest.link:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@alejandracaiccedo.com:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@ali.055500.xyz:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
-vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@cdn-all.xn--b6gac.eu.org:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
-vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@cdn-b100.xn--b6gac.eu.org:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@cdn.anycast.eu.org:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@cdn.shanggan.pp.ua:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
+vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@cdn-all.xn--b6gac.eu.org:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
+vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@cdn-b100.xn--b6gac.eu.org:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@cdnhk.huabuxiang.vip:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@cf.090227.xyz:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@cip.951535.xyz:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
@@ -58,10 +54,10 @@ vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.shopify.com:443?encryption=none
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.udacity.com:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.udemy.com:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.visa.co.jp:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
-vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.visa.com:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.visa.com.hk:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.visa.com.sg:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.visa.com.tw:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
+vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.visa.com:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.visakorea.com:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.whatismyip.com:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.who.int:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
@@ -69,5 +65,5 @@ vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.whoer.net:443?encryption=none&s
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.wto.org:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@www.zsu.gov.ua:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@xn--b6gac.eu.org:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
-vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@zsf-5fa.pages.dev:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
 vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@zjstv.cc:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
+vless://dac89ddd-1a89-4732-88dd-105cfaaf5ab8@zsf-5fa.pages.dev:443?encryption=none&security=tls&sni=wpedt.ezbiz.dynv6.net&fp=randomized&type=ws&host=wpedt.ezbiz.dynv6.net&path=%2F%3Fed%3D2048#CFWP
