@@ -19,9 +19,9 @@
   nl.ipdb.rr.nu
   sg.ipdb.rr.nu
   us.ipdb.rr.nu
-
-hk.cf.zhetengsha.eu.org
-jp.cf.zhetengsha.eu.org
-sg.cf.zhetengsha.eu.org
-us.cf.zhetengsha.eu.org
+  
+  hk.cf.zhetengsha.eu.org
+  jp.cf.zhetengsha.eu.org
+  sg.cf.zhetengsha.eu.org
+  us.cf.zhetengsha.eu.org
 
