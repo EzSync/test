@@ -6,6 +6,7 @@
   https://ipdb.api.030101.xyz/?type=bestcf
   https://raw.githubusercontent.com/zamzhang/ip/main/ip1.txt
   https://ip.164746.xyz/ipTop.html
+  https://raw.githubusercontent.com/ansoncloud8/am-tunnel/dev/ipv4.txt
 
 反代IP：
   https://ipdb.api.030101.xyz/?type=bestproxy
