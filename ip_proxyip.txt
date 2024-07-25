@@ -1,5 +1,6 @@
 优选域名：
   https://raw.githubusercontent.com/EzSync/test/main/optdoms.txt
+
 优选IP：
   https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesapi.txt
   https://ipdb.api.030101.xyz/?type=bestcf
