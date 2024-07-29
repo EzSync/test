@@ -15,6 +15,11 @@ https://raw.githubusercontent.com/zamzhang/ip/main/ip1.txt
 优选IP网站：https://github.com/EzSync/cfipcaiji
 https://raw.githubusercontent.com/EzSync/cfipcaiji/main/ip.txt
 
+IP优选、测速网站：
+https://ip.164746.xyz/
+https://cf.090227.xyz/
+https://monitor.gacjie.cn/page/cloudflare/ipv4.html
+
 优选IP网站：https://github.com/darkqiank/best_cf_ip
 https://raw.githubusercontent.com/darkqiank/best_cf_ip/master/addressesapi.txt
 https://raw.githubusercontent.com/darkqiank/best_cf_ip/master/addressesapi_1.txt
