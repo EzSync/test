@@ -8,12 +8,10 @@ iplocation.io
 japan.com
 log.bpminecraft.com
 russia.com
-skk.moe
 whatismyipaddress.com
 www.4chan.org
 www.baipiao.eu.org
 www.boba88slot.com
-www.csgo.com
 www.d-555.com
 www.digitalocean.com
 www.gco.gov.qa
@@ -29,7 +27,6 @@ www.iplocation.net
 www.okcupid.com
 www.pcmag.com
 www.sean-now.com
-www.shopify.com
 www.udacity.com
 www.udemy.com
 www.visa.co.jp
@@ -39,7 +36,6 @@ www.visa.com.sg
 www.visa.com.tw
 www.visakorea.com
 www.whatismyip.com
-www.who.int
 www.whoer.net
 www.wto.org
 www.zsu.gov.ua
