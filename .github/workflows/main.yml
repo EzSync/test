@@ -1,0 +1,34 @@
+import os
+import re
+import schedule
+import time
+
+def process_ipv6_file():
+    # Read the file
+    with open('optipv6.txt', 'r') as f:
+        ipv6_addresses = f.readlines()
+
+    # Check if each line is enclosed in []
+    updated_addresses = []
+    for address in ipv6_addresses:
+        address = address.strip()
+        if not address.startswith('[') and address:
+            updated_addresses.append(f'[{address}]')
+        elif address:
+            updated_addresses.append(address)
+
+    # Check for and remove duplicates
+    unique_addresses = list(set(updated_addresses))
+
+    # Write the updated file
+    with open('optipv6.txt', 'w') as f:
+        f.write('\n'.join(unique_addresses))
+
+    print('Workflow completed successfully!')
+
+# Run the workflow every 10 minutes
+schedule.every(10).minutes.do(process_ipv6_file)
+
+while True:
+    schedule.run_pending()
+    time.sleep(1)
