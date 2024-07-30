@@ -1,0 +1,37 @@
+name: IPv6 Merge
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update_ipv6_addresses:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Ensure ipv6collect.txt lines are enclosed in brackets
+        run: |
+          if [ -f ipv6collect.txt ]; then
+            sed -i -e 's/^\(\S\+\)$/[\1]/' ipv6collect.txt
+          else
+            touch ipv6collect.txt
+          fi
+
+      - name: Fetch IPv6 addresses from webpage
+        run: |
+          curl -s https://monitor.gacjie.cn/page/cloudflare/ipv6.html | \
+          grep -oE '([0-9a-fA-F:]{2,39})' | \
+          sed 's/^/[/' | sed 's/$/]/' > fetched_ipv6.txt
+
+      - name: Merge and deduplicate IPv6 addresses
+        run: |
+          cat ipv6collect.txt fetched_ipv6.txt | \
+          sort -u > merged_ipv6.txt
+
+      - name: Update ipv6collect.txt
+        run: |
+          mv merged_ipv6.txt ipv6collect.txt
