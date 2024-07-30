@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        repository: 'your-github-username/test'  # Replace with your GitHub username and repository name
+        repository: 'EzSync/test'  # Replace with your GitHub username and repository name
     
     - name: Set up Python
       uses: actions/setup-python@v2
