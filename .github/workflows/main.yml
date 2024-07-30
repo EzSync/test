@@ -1,68 +1,31 @@
-name: Remove Duplicates in optdoms.txt
+name: Check for Duplicates
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
-  workflow_dispatch: # 允许手动触发
-  push: # 允许提交触发
+    - cron: '*/5 * * * *'  # Runs every 5 minutes
 
 jobs:
-
-  remove-duplicates:
+  check_duplicates:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.9
-        
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pillow
-        
-    - name: Remove duplicates in optdoms.txt
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        import os
-        import time
-        from datetime import datetime, time, timedelta
-        from io import BytesIO
-        from base64 import b64encode
-        import requests
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-        github_account = 'EzSync'
-        repo_name = 'test'
-        file_name = 'optdoms.txt'
-
-        file_path = os.path.join(repo_name, file_name)
-
-        def remove_duplicates():
-            file_url = f"https://raw.githubusercontent.com/{github_account}/{repo_name}/main/{file_name}"
-            response = requests.get(file_url)
-            lines = response.text.splitlines()
-            unique_lines = list(set(lines))
-            update_file(unique_lines)
-            print(f"Removed duplicates in {file_path} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-
-        def update_file(lines):
-            file_url = f"https://api.github.com/repos/{github_account}/{repo_name}/contents/{file_name}"
-            headers = {
-                "Authorization": f"token {os.environ['GITHUB_TOKEN']}",
-                "Accept": "application/vnd.github.v3+json"
-            }
-            data = {
-                "message": "Update file",
-                "content": b64encode("\n".join(lines).encode()).decode("utf-8")
-            }
-            response = requests.put(file_url, headers=headers, json=data)
-            if response.status_code == 200:
-                print(f"File {file_path} updated on GitHub.")
-            else:
-                print(f"Failed to update {file_path} on GitHub: {response.text}")
-
-        remove_duplicates()
+      - name: Check for duplicate lines
+        id: check_duplicates
+        run: |
+          # Read the file and remove duplicates
+          sort -u optdoms.txt -o optdoms.txt
+          
+          # Check if the file has changed
+          if ! git diff --quiet; then
+            echo "Duplicates found and removed. Updating the file."
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add optdoms.txt
+            git commit -m "Remove duplicate lines from optdoms.txt"
+            git push
+          else
+            echo "No duplicates found."
+          fi
