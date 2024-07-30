@@ -27,19 +27,17 @@ jobs:
         import os
         import re
         from datetime import datetime
-        from PIL import Image
 
         file_path = os.environ['FILE_PATH']
 
         def check_and_update_ipv6_file():
             # Read the contents of the file
             with open(file_path, "r") as file:
-                ipv6_addresses = file.readlines()
+                ipv6_addresses = [line.strip() for line in file.readlines()]
 
             # Check if each IPv6 address is enclosed in []
             updated_addresses = []
             for address in ipv6_addresses:
-                address = address.strip()
                 if not address.startswith("[") or not address.endswith("]"):
                     address = f"[{address}]"
                 updated_addresses.append(address)
