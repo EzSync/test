@@ -1,12 +1,14 @@
-import os
-import re
 import schedule
 import time
 
 def process_ipv6_file():
     # Read the file
-    with open('optipv6.txt', 'r') as f:
-        ipv6_addresses = f.readlines()
+    try:
+        with open('optipv6.txt', 'r') as f:
+            ipv6_addresses = f.readlines()
+    except FileNotFoundError:
+        print("Error: 'optipv6.txt' file not found.")
+        return
 
     # Check if each line is enclosed in []
     updated_addresses = []
@@ -21,8 +23,12 @@ def process_ipv6_file():
     unique_addresses = list(set(updated_addresses))
 
     # Write the updated file
-    with open('optipv6.txt', 'w') as f:
-        f.write('\n'.join(unique_addresses))
+    try:
+        with open('optipv6.txt', 'w') as f:
+            f.write('\n'.join(unique_addresses))
+    except IOError:
+        print("Error: Unable to write to 'optipv6.txt' file.")
+        return
 
     print('Workflow completed successfully!')
 
