@@ -4,7 +4,18 @@ https://raw.githubusercontent.com/EzSync/test/main/optdoms.txt
 IP优选、测速网站：
 https://monitor.gacjie.cn/page/cloudflare/ipv4.html
 https://ip.164746.xyz
+
+---------------------------------------
 https://cf.090227.xyz
+
+IPV4:
+https://addressesapi.090227.xyz/ct
+https://addressesapi.090227.xyz/cmcc
+https://ipdb.api.030101.xyz/?type=bestcf&country=true
+
+IPV6:
+https://addressesapi.090227.xyz/cmcc-ipv6
+------------------------------------------
 
 优选IP网站：https://github.com/ansoncloud8/am-tunnel
 https://raw.githubusercontent.com/ansoncloud8/am-tunnel/dev/ipv4.txt
