@@ -1,33 +1,64 @@
-import os
-import time
-from datetime import datetime
+name: Remove Duplicates in optdoms.txt
 
-# Path to the file to check
-file_path = 'optdoms.txt'
+on:
+  schedule:
+    - cron: '*/5 6-22 * * *'
 
-def remove_duplicates():
-    """
-    Reads the contents of the file, removes any duplicate lines, and writes the updated contents back to the file.
-    """
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
+jobs:
 
-    # Remove duplicate lines
-    unique_lines = list(set(lines))
-
-    # Write the updated contents back to the file
-    with open(file_path, 'w') as file:
-        file.writelines(unique_lines)
-
-    print(f"Removed duplicates in {file_path} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-
-def main():
-    """
-    Runs the workflow every 10 minutes.
-    """
-    while True:
+  remove-duplicates:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+        
+    - name: Remove duplicates in optdoms.txt
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        import os
+        import time
+        from datetime import datetime, time, timedelta
+        import requests
+        
+        github_account = 'EzSync'
+        repo_name = 'test'
+        file_name = 'optdoms.txt'
+        
+        file_path = os.path.join(repo_name, file_name)
+        
+        def remove_duplicates():
+            file_url = f"https://raw.githubusercontent.com/{github_account}/{repo_name}/main/{file_name}"
+            response = requests.get(file_url)
+            lines = response.text.splitlines()
+            unique_lines = list(set(lines))
+            update_file(unique_lines)
+            print(f"Removed duplicates in {file_path} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        def update_file(lines):
+            file_url = f"https://api.github.com/repos/{github_account}/{repo_name}/contents/{file_name}"
+            headers = {
+                "Authorization": f"token {os.environ['GITHUB_TOKEN']}",
+                "Accept": "application/vnd.github.v3+json"
+            }
+            data = {
+                "message": "Update file",
+                "content": "\n".join(lines).encode("base64")
+            }
+            response = requests.put(file_url, headers=headers, json=data)
+            if response.status_code == 200:
+                print(f"File {file_path} updated on GitHub.")
+            else:
+                print(f"Failed to update {file_path} on GitHub: {response.text}")
+        
         remove_duplicates()
-        time.sleep(300)  # Wait 5 minutes before running the workflow again
-
-if __name__ == "__main__":
-    main()
