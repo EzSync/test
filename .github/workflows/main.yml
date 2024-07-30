@@ -1,40 +1,33 @@
-import schedule
-import time
+import os
+import re
+from datetime import datetime
 
-def process_ipv6_file():
-    # Read the file
-    try:
-        with open('optipv6.txt', 'r') as f:
-            ipv6_addresses = f.readlines()
-    except FileNotFoundError:
-        print("Error: 'optipv6.txt' file not found.")
-        return
+# Set the path to the "optipv6.txt" file
+file_path = "optipv6.txt"
 
-    # Check if each line is enclosed in []
+def check_and_update_ipv6_file():
+    # Read the contents of the file
+    with open(file_path, "r") as file:
+        ipv6_addresses = file.readlines()
+
+    # Check if each IPv6 address is enclosed in []
     updated_addresses = []
     for address in ipv6_addresses:
         address = address.strip()
-        if not address.startswith('[') and address:
-            updated_addresses.append(f'[{address}]')
-        elif address:
-            updated_addresses.append(address)
+        if not address.startswith("[") or not address.endswith("]"):
+            address = f"[{address}]"
+        updated_addresses.append(address)
 
-    # Check for and remove duplicates
+    # Remove duplicate IPv6 addresses
     unique_addresses = list(set(updated_addresses))
 
-    # Write the updated file
-    try:
-        with open('optipv6.txt', 'w') as f:
-            f.write('\n'.join(unique_addresses))
-    except IOError:
-        print("Error: Unable to write to 'optipv6.txt' file.")
-        return
+    # Update the file with the cleaned up and unique IPv6 addresses
+    with open(file_path, "w") as file:
+        file.write("\n".join(unique_addresses))
 
-    print('Workflow completed successfully!')
+    print(f"IPv6 file updated at {datetime.now()}")
 
-# Run the workflow every 10 minutes
-schedule.every(10).minutes.do(process_ipv6_file)
-
+# Run the check and update function every 10 minutes
 while True:
-    schedule.run_pending()
-    time.sleep(1)
+    check_and_update_ipv6_file()
+    os.system("sleep 600")  # Wait for 10 minutes
