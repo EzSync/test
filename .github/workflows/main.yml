@@ -1,0 +1,33 @@
+import os
+import time
+from datetime import datetime
+
+# Path to the file to check
+file_path = 'optdoms.txt'
+
+def remove_duplicates():
+    """
+    Reads the contents of the file, removes any duplicate lines, and writes the updated contents back to the file.
+    """
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    # Remove duplicate lines
+    unique_lines = list(set(lines))
+
+    # Write the updated contents back to the file
+    with open(file_path, 'w') as file:
+        file.writelines(unique_lines)
+
+    print(f"Removed duplicates in {file_path} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+def main():
+    """
+    Runs the workflow every 10 minutes.
+    """
+    while True:
+        remove_duplicates()
+        time.sleep(300)  # Wait 5 minutes before running the workflow again
+
+if __name__ == "__main__":
+    main()
