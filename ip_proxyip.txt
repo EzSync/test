@@ -1,5 +1,7 @@
 优选域名：
+https://raw.githubusercontent.com/EzSync/test/main/optdoms-yg.txt
 https://raw.githubusercontent.com/EzSync/test/main/optdoms.txt
+
 
 IP优选、测速网站：
 https://monitor.gacjie.cn/page/cloudflare/ipv4.html
