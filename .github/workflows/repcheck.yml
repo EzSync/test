@@ -13,12 +13,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Check and Enclose Lines in Brackets
+      - name: Enclose Lines in Brackets
         run: |
           FILE="test/optipv6.txt"
           if [ -f "$FILE" ]; then
-            # Enclose lines not in brackets
-            awk '{ if ($0 ~ /^\[.*\]$/) print $0; else print "[" $0 "]"; }' "$FILE" > temp && mv temp "$FILE"
+            # Create a new file with lines enclosed in brackets
+            while IFS= read -r line; do
+              # Check if the line is already enclosed in brackets
+              if [[ ! "$line" =~ ^\[.*\]$ ]]; then
+                echo "[$line]" >> temp.txt
+              else
+                echo "$line" >> temp.txt
+              fi
+            done < "$FILE"
+            mv temp.txt "$FILE"
           else
             echo "File $FILE does not exist."
             exit 1
@@ -29,7 +37,7 @@ jobs:
           FILE="test/optipv6.txt"
           if [ -f "$FILE" ]; then
             # Remove duplicates and save to a temporary file
-            awk '!seen[$0]++' "$FILE" > temp && mv temp "$FILE"
+            sort -u "$FILE" -o "$FILE"
           else
             echo "File $FILE does not exist."
             exit 1
