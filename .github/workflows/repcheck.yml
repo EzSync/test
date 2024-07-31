@@ -1,55 +1,32 @@
-name: IPv6 File Check Workflow
+name: Check for Duplicates on Change
 
 on:
   push:
     paths:
-      - 'test/optipv6.txt'  # Trigger the workflow when this file changes
+      - optipv6.txt  # Trigger the workflow when optipv6.txt changes
 
 jobs:
-  check_optipv6:
+  check_duplicates:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Enclose Lines in Brackets
+      - name: Check for duplicate lines
+        id: check_duplicates
         run: |
-          FILE="test/optipv6.txt"
-          if [ -f "$FILE" ]; then
-            # Create a new file with lines enclosed in brackets
-            while IFS= read -r line; do
-              # Check if the line is already enclosed in brackets
-              if [[ ! "$line" =~ ^\[.*\]$ ]]; then
-                echo "[$line]" >> temp.txt
-              else
-                echo "$line" >> temp.txt
-              fi
-            done < "$FILE"
-            mv temp.txt "$FILE"
+          # Read the file and remove duplicates
+          sort -u optipv6.txtt -o optipv6.txt
+          
+          # Check if the file has changed
+          if ! git diff --quiet; then
+            echo "Duplicates found and removed. Updating the file."
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add optipv6.txt
+            git commit -m "Remove duplicate lines from optipv6.txt"
+            git push
           else
-            echo "File $FILE does not exist."
-            exit 1
-          fi
-
-      - name: Remove Duplicates
-        run: |
-          FILE="test/optipv6.txt"
-          if [ -f "$FILE" ]; then
-            # Remove duplicates and save to a temporary file
-            sort -u "$FILE" -o "$FILE"
-          else
-            echo "File $FILE does not exist."
-            exit 1
-          fi
-
-      - name: Sort Lines
-        run: |
-          FILE="test/optipv6.txt"
-          if [ -f "$FILE" ]; then
-            # Sort the lines and save back to the original file
-            sort -o "$FILE" "$FILE"
-          else
-            echo "File $FILE does not exist."
-            exit 1
+            echo "No duplicates found."
           fi
