@@ -18,7 +18,7 @@ jobs:
           FILE="test/optipv6.txt"
           if [ -f "$FILE" ]; then
             # Enclose lines not in brackets
-            sed -i -E 's/^(?!\[)(.*)(?<!\])$/[\1]/' "$FILE"
+            awk '{ if ($0 ~ /^\[.*\]$/) print $0; else print "[" $0 "]"; }' "$FILE" > temp && mv temp "$FILE"
           else
             echo "File $FILE does not exist."
             exit 1
@@ -28,6 +28,7 @@ jobs:
         run: |
           FILE="test/optipv6.txt"
           if [ -f "$FILE" ]; then
+            # Remove duplicates and save to a temporary file
             awk '!seen[$0]++' "$FILE" > temp && mv temp "$FILE"
           else
             echo "File $FILE does not exist."
@@ -38,7 +39,8 @@ jobs:
         run: |
           FILE="test/optipv6.txt"
           if [ -f "$FILE" ]; then
-            sort -u "$FILE" -o "$FILE"
+            # Sort the lines and save back to the original file
+            sort -o "$FILE" "$FILE"
           else
             echo "File $FILE does not exist."
             exit 1
