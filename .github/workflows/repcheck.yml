@@ -3,7 +3,7 @@ name: IPv6 File Check Workflow
 on:
   push:
     paths:
-      - 'text/optipv6.txt'  # Trigger the workflow when this file changes
+      - 'test/optipv6.txt'  # Trigger the workflow when this file changes
 
 jobs:
   check_optipv6:
@@ -15,7 +15,7 @@ jobs:
 
       - name: Check and Enclose Lines in Brackets
         run: |
-          FILE="text/optipv6.txt"
+          FILE="test/optipv6.txt"
           if [ -f "$FILE" ]; then
             # Enclose lines not in brackets
             sed -i -E 's/^([^[])(.*)$/[&]/' "$FILE"
@@ -26,7 +26,7 @@ jobs:
 
       - name: Remove Duplicates
         run: |
-          FILE="text/optipv6.txt"
+          FILE="test/optipv6.txt"
           if [ -f "$FILE" ]; then
             awk '!seen[$0]++' "$FILE" > temp && mv temp "$FILE"
           else
@@ -36,7 +36,7 @@ jobs:
 
       - name: Sort Lines
         run: |
-          FILE="text/optipv6.txt"
+          FILE="test/optipv6.txt"
           if [ -f "$FILE" ]; then
             sort -u "$FILE" -o "$FILE"
           else
