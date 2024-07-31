@@ -1,8 +1,9 @@
 name: IPv6 File Check Workflow
 
 on:
-  schedule:
-    - cron: '*/10 * * * *'  # Runs every 10 minutes
+  push:
+    paths:
+      - 'text/optipv6.txt'  # Trigger the workflow when this file changes
 
 jobs:
   check_optipv6:
