@@ -3,6 +3,8 @@ name: IPv6 Merge Workflow
 on:
   schedule:
     - cron: '*/10 * * * *'  # Runs every 10 minutes
+  push:
+  
 
 jobs:
   update_ipv6_addresses:
