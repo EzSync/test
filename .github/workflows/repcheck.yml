@@ -1,4 +1,4 @@
-name: Check for Duplicates on Change
+name: repCheck for Duplicates on Change
 
 on:
   push:
