@@ -17,7 +17,7 @@ jobs:
         id: check_duplicates
         run: |
           # Read the file and remove duplicates
-          sort -u optipv6.txtt -o optipv6.txt
+          sort -u optipv6.txt -o optipv6.txt
           
           # Check if the file has changed
           if ! git diff --quiet; then
