@@ -16,7 +16,7 @@ jobs:
 
       - name: Check and Enclose Lines in Brackets
         run: |
-          FILE="text/ipv6collect.txt"
+          FILE="test/ipv6collect.txt"
           if [ -f "$FILE" ]; then
             sed -i -E 's/^([^[])(.*)$/[&]/' "$FILE"  # Enclose lines not in brackets
           fi
