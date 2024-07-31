@@ -16,7 +16,7 @@ jobs:
 
       - name: Check and Enclose Lines in Brackets
         run: |
-          FILE="test/ipv6collect.txt"
+          FILE="ipv6collect.txt"
           if [ -f "$FILE" ]; then
             # Enclose lines not in brackets
             sed -i -E 's/^([^[])(.*)$/[&]/' "$FILE"
@@ -27,14 +27,14 @@ jobs:
 
       - name: Fetch IPv6 Addresses
         run: |
-          FILE="test/ipv6collect.txt"
+          FILE="ipv6collect.txt"
           curl -s https://monitor.gacjie.cn/page/cloudflare/ipv6.html | \
           grep -oP '([0-9a-fA-F:]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F:]{1,4}:){1,7}:|([0-9a-fA-F:]{1,6}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F:]{1,5}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F:]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F:]{1,3}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F:]{1,2}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F:]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)' | \
           sed 's/^/[/' | sed 's/$/]/' >> "$FILE"
 
       - name: Remove Duplicates
         run: |
-          FILE="test/ipv6collect.txt"
+          FILE="ipv6collect.txt"
           if [ -f "$FILE" ]; then
             awk '!seen[$0]++' "$FILE" > temp && mv temp "$FILE"
           else
@@ -44,7 +44,7 @@ jobs:
 
       - name: Sort IPv6 Addresses
         run: |
-          FILE="test/ipv6collect.txt"
+          FILE="ipv6collect.txt"
           if [ -f "$FILE" ]; then
             sort -u "$FILE" -o "$FILE"
           else
