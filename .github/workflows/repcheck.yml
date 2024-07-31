@@ -18,7 +18,7 @@ jobs:
           FILE="test/optipv6.txt"
           if [ -f "$FILE" ]; then
             # Enclose lines not in brackets
-            sed -i -E 's/^([^[])(.*)$/[&]/' "$FILE"
+            sed -i -E 's/^(?!\[)(.*)(?<!\])$/[\1]/' "$FILE"
           else
             echo "File $FILE does not exist."
             exit 1
