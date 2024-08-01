@@ -1,71 +1,32 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
 import time
 
-# Set up Chrome options
-chrome_options = Options()
-chrome_options.add_argument("--headless")  # Run in headless mode
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--disable-dev-shm-usage")
+# Initialize the webdriver (replace the path with the location of your chromedriver)
+driver = webdriver.Chrome('/path/to/chromedriver')
 
-# Start the Chrome driver
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+# Navigate to the target website
+driver.get('https://example.com')
 
-# URL of the webpage to scrape
-url = 'https://stock.hostmonit.com/CloudFlareYesV6'
-driver.get(url)
+# Create a WebDriverWait instance with a longer timeout
+wait = WebDriverWait(driver, 30)
 
-# Wait for the page to load completely
-wait = WebDriverWait(driver, 15)  # Increase the wait time to 15 seconds
-table_presence = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'tr.el-table__row')))
+# Wait for the table element to be present and clickable
+try:
+    table_presence = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'table.el-table')))
+    table_clickable = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'table.el-table')))
+except TimeoutException:
+    print("Error: Table element not found within the specified timeout.")
+    driver.quit()
+    exit(1)
 
-# Extract IPv6 addresses from the table
-ipv6_addresses = set()  # Use a set to avoid duplicates
-rows = driver.find_elements(By.CSS_SELECTOR, 'tr.el-table__row')
+# Perform your desired actions on the table
+table_rows = driver.find_elements(By.CSS_SELECTOR, 'tr.el-table__row')
+for row in table_rows:
+    # Extract data from the row
+    # ...
 
-# Log the number of rows found
-print(f"Number of rows found: {len(rows)}")
-
-for row in rows:
-    cells = row.find_elements(By.CSS_SELECTOR, 'div.cell')
-    if len(cells) > 1:
-        ipv6_address = cells[1].text.strip()
-        if ipv6_address:  # Ensure the address is not empty
-            ipv6_addresses.add(ipv6_address)
-
-# Log the fetched addresses
-print("Fetched IPv6 Addresses:")
-if ipv6_addresses:
-    for address in ipv6_addresses:
-        print(address)
-else:
-    print("No IPv6 addresses found.")
-
-# Write the unique IPv6 addresses to a file with brackets
-if ipv6_addresses:  # Only write to the file if there are new addresses
-    with open('ipv6collect2.txt', 'w') as f:
-        for address in ipv6_addresses:
-            f.write(f"[{address}]\n")  # Enclose each address in brackets
-    print("Updated ipv6collect2.txt with new addresses.")
-else:
-    print("No new IPv6 addresses found. File not updated.")
-
-# Check for duplicates
-with open('ipv6collect2.txt', 'r') as f:
-    lines = f.readlines()
-
-unique_lines = set(lines)  # Remove duplicates
-if len(unique_lines) < len(lines):
-    print("Duplicates found and removed.")
-    with open('ipv6collect2.txt', 'w') as f:
-        f.writelines(unique_lines)
-else:
-    print("No duplicates found.")
-
-# Close the driver
+# Close the browser
 driver.quit()
