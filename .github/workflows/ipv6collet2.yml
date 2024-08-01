@@ -32,8 +32,8 @@ jobs:
           echo "    const browser = await puppeteer.launch();" >> fetchIPv6.js
           echo "    const page = await browser.newPage();" >> fetchIPv6.js
           echo "    await page.goto('https://stock.hostmonit.com/CloudFlareYesV6', { waitUntil: 'networkidle2' });" >> fetchIPv6.js
-          echo "    await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds" >> fetchIPv6.js
-          echo "    await page.waitForSelector('tr td:nth-child(2)'); // Wait for the elements to load" >> fetchIPv6.js
+          echo "    await new Promise(resolve => setTimeout(resolve, 10000)); // Wait for 10 seconds" >> fetchIPv6.js
+          echo "    await page.waitForSelector('table'); // Wait for the table to load" >> fetchIPv6.js
           echo "    const ipv6Addresses = await page.evaluate(() => {" >> fetchIPv6.js
           echo "        const addresses = [];" >> fetchIPv6.js
           echo "        const elements = document.querySelectorAll('tr td:nth-child(2)');" >> fetchIPv6.js
@@ -45,6 +45,7 @@ jobs:
           echo "    fs.writeFileSync('ipv6collect2.txt', ipv6Addresses.join('\\n'));" >> fetchIPv6.js
           echo "    await browser.close();" >> fetchIPv6.js
           echo "})();" >> fetchIPv6.js
+
 
           # Run the script
           node fetchIPv6.js
