@@ -23,5 +23,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests beautifulsoup4
 
+    - name: List files for debugging
+      run: ls -la
+
     - name: Fetch and process IPv6 addresses
-      run: python fetch_ipv6.py
+      run: |
+        echo "Running fetch_ipv6.py..."
+        python fetch_ipv6.py
