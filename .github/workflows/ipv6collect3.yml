@@ -18,8 +18,9 @@ jobs:
       with:
         node-version: '14'
 
-    - name: Install dependencies
-      run: npm install puppeteer
+    - name: Install Puppeteer
+      run: |
+        npm install puppeteer
 
     - name: Collect IPV6 addresses
       run: |
