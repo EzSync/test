@@ -1,4 +1,4 @@
-name: optdomsCheck for Duplicates on Change
+name: Check for Duplicates on Change
 
 on:
   push:
