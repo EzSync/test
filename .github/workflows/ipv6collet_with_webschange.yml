@@ -36,8 +36,8 @@ jobs:
           echo "$CONTENT2"
 
           # Extract IPv6 addresses using a simplified regex from both contents
-          IPV6_ADDRESSES1=$(echo "$CONTENT1" | grep -oP '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}' | sort -u)
-          IPV6_ADDRESSES2=$(echo "$CONTENT2" | grep -oP '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}' | sort -u)
+          IPV6_ADDRESSES1=$(echo "$CONTENT1" | grep -oP '([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}' | sort -u)
+          IPV6_ADDRESSES2=$(echo "$CONTENT2" | grep -oP '([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}' | sort -u)
 
           # Combine the extracted IPv6 addresses from both sources
           ALL_IPV6_ADDRESSES=$(echo -e "$IPV6_ADDRESSES1\n$IPV6_ADDRESSES2" | sort -u)
