@@ -41,9 +41,13 @@ for address in ipv6_addresses:
     print(address)
 
 # Write the unique IPv6 addresses to a file with brackets
-with open('ipv6collect2.txt', 'w') as f:
-    for address in ipv6_addresses:
-        f.write(f"[{address}]\n")  # Enclose each address in brackets
+if ipv6_addresses:  # Only write to the file if there are new addresses
+    with open('ipv6collect2.txt', 'w') as f:
+        for address in ipv6_addresses:
+            f.write(f"[{address}]\n")  # Enclose each address in brackets
+    print("Updated ipv6collect2.txt with new addresses.")
+else:
+    print("No new IPv6 addresses found. File not updated.")
 
 # Check for duplicates
 with open('ipv6collect2.txt', 'r') as f:
