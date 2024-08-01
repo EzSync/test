@@ -1,4 +1,4 @@
-name: Collect IPv4 from with Webpage Change
+name: Collect IPv4 As Webpage Change
 
 on:
   schedule:
