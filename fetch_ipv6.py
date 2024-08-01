@@ -37,8 +37,11 @@ for row in rows:
 
 # Log the fetched addresses
 print("Fetched IPv6 Addresses:")
-for address in ipv6_addresses:
-    print(address)
+if ipv6_addresses:
+    for address in ipv6_addresses:
+        print(address)
+else:
+    print("No IPv6 addresses found.")
 
 # Write the unique IPv6 addresses to a file with brackets
 if ipv6_addresses:  # Only write to the file if there are new addresses
