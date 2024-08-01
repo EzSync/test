@@ -1,8 +1,9 @@
-name: Update IPv4 Collect with Webpage Change
+name: Collect IPv4 from with Webpage Change
 
 on:
   schedule:
     - cron: '5 6-22/1 * * *'  # Runs every 30 minutes
+  workflow_dispatch:
   push:
 
 jobs:
@@ -33,21 +34,11 @@ jobs:
           IP_ADDRESSES1=$(echo "$CONTENT1" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b')
           IP_ADDRESSES2=$(echo "$CONTENT2" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b')
 
-          # Combine the IP addresses
-          ALL_IP_ADDRESSES=$(echo -e "$IP_ADDRESSES1\n$IP_ADDRESSES2")
+          # Combine the IP addresses and remove duplicates
+          ALL_IP_ADDRESSES=$(echo -e "$IP_ADDRESSES1\n$IP_ADDRESSES2" | sort -u)
 
-          # Append new IPs to ipv4collect.txt
-          echo "$ALL_IP_ADDRESSES" >> ipv4collect.txt
-
-      - name: Remove duplicates and sort IPs
-        run: |
-          # Check if the ipv4collect.txt file exists
-          if [ -f "ipv4collect.txt" ]; then
-            # Remove duplicates and sort the file
-            sort -u ipv4collect.txt -o ipv4collect.txt
-          else
-            echo "ipv4collect.txt does not exist."
-          fi
+          # Replace the contents of ipv4collect.txt with the new IPs
+          echo "$ALL_IP_ADDRESSES" > ipv4collect.txt
 
       - name: Commit and push changes
         run: |
