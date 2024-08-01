@@ -1,32 +1,27 @@
-import requests
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+
+# Set up Chrome options
+chrome_options = Options()
+chrome_options.add_argument("--headless")  # Run in headless mode
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
+
+# Start the Chrome driver
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
 # URL of the webpage to scrape
 url = 'https://stock.hostmonit.com/CloudFlareYesV6'
-
-# Set headers to mimic a real browser
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.74 Safari/537.36',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Connection': 'keep-alive',
-}
-
-# Fetch the webpage
-response = requests.get(url, headers=headers)
-print(f"Fetched URL: {url} with status code: {response.status_code}")
-
-# Check if the request was successful
-if response.status_code != 200:
-    print("Failed to retrieve the webpage.")
-    exit(1)
-
-soup = BeautifulSoup(response.text, 'html.parser')
+driver.get(url)
 
 # Extract IPv6 addresses from the table
 ipv6_addresses = set()  # Use a set to avoid duplicates
-for row in soup.select('tr.el-table__row'):
-    cells = row.find_all('div', class_='cell')
+rows = driver.find_elements(By.CSS_SELECTOR, 'tr.el-table__row')
+for row in rows:
+    cells = row.find_elements(By.CSS_SELECTOR, 'div.cell')
     if len(cells) > 1:
         ipv6_address = cells[1].text.strip()
         ipv6_addresses.add(ipv6_address)
@@ -52,3 +47,6 @@ if len(unique_lines) < len(lines):
         f.writelines(unique_lines)
 else:
     print("No duplicates found.")
+
+# Close the driver
+driver.quit()
