@@ -1,4 +1,4 @@
-name: IPv6 Collection and Update No.2
+name: IPv6 Collection and Update
 
 on:
   schedule:
@@ -13,27 +13,48 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16' # Use the latest LTS version
+
+      - name: Install Puppeteer
+        run: |
+          npm install puppeteer
+
       - name: Fetch IPv6 addresses
         run: |
-          # Install required tools
-          sudo apt-get update
-          sudo apt-get install -y curl jq
+          # Create a script to fetch IPv6 addresses
+          echo "const puppeteer = require('puppeteer');" > fetchIPv6.js
+          echo "const fs = require('fs');" >> fetchIPv6.js
+          echo "(async () => {" >> fetchIPv6.js
+          echo "    const browser = await puppeteer.launch();" >> fetchIPv6.js
+          echo "    const page = await browser.newPage();" >> fetchIPv6.js
+          echo "    await page.goto('https://stock.hostmonit.com/CloudFlareYesV6');" >> fetchIPv6.js
+          echo "    await page.waitForSelector('#app');" >> fetchIPv6.js
+          echo "    const ipv6Addresses = await page.evaluate(() => {" >> fetchIPv6.js
+          echo "        const addresses = [];" >> fetchIPv6.js
+          echo "        const elements = document.querySelectorAll('p');" >> fetchIPv6.js
+          echo "        elements.forEach(el => {" >> fetchIPv6.js
+          echo "            const text = el.innerText;" >> fetchIPv6.js
+          echo "            const match = text.match(/([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}/);" >> fetchIPv6.js
+          echo "            if (match) {" >> fetchIPv6.js
+          echo "                addresses.push(match[0]);" >> fetchIPv6.js
+          echo "            }" >> fetchIPv6.js
+          echo "        });" >> fetchIPv6.js
+          echo "        return [...new Set(addresses)];" >> fetchIPv6.js
+          echo "    });" >> fetchIPv6.js
+          echo "    fs.writeFileSync('ipv6collect2.txt', ipv6Addresses.join('\\n'));" >> fetchIPv6.js
+          echo "    await browser.close();" >> fetchIPv6.js
+          echo "})();" >> fetchIPv6.js
 
-          # Fetch the webpage and extract IPv6 addresses
-          curl -s https://stock.hostmonit.com/CloudFlareYesV6 | \
-          grep -oE '([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]|[1-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]|[1-9]){0,1}[0-9])' | \
-          sort -u > new_ipv6collect.txt
+          # Run the script
+          node fetchIPv6.js
 
-      - name: Replace ipv6collect2.txt with new addresses
+      - name: Remove duplicates in ipv6collect2.txt
         run: |
-          # Check if the file exists
           if [ -f ipv6collect2.txt ]; then
-            # Combine old and new addresses, sort and remove duplicates
-            cat ipv6collect2.txt new_ipv6collect.txt | sort -u > combined_ipv6collect.txt
-            mv combined_ipv6collect.txt ipv6collect2.txt
-          else
-            # If the file doesn't exist, rename the new file
-            mv new_ipv6collect.txt ipv6collect2.txt
+            sort -u ipv6collect2.txt -o ipv6collect2.txt
           fi
 
       - name: Commit changes
