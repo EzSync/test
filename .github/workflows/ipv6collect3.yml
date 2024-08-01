@@ -3,8 +3,6 @@ name: IPV6Collect No.3
 on:
   schedule:
     - cron: '0 */6 * * *' # Run every 6 hours
-  workflow_dispatch:
-  push:
   watch:
     paths:
       - 'https://stock.hostmonit.com/CloudFlareYesV6'
@@ -19,38 +17,18 @@ jobs:
       with:
         repository: EzSync/test
         
-    - name: Analyze IPV6 format
-      run: |
-        # Use a tool like BeautifulSoup or Scrapy to parse the HTML
-        # and identify the format of the IPV6 addresses
-        ipv6_format="(?:[0-9A-F]{1,4}:){7}[0-9A-F]{1,4}"
-        
     - name: Fetch IPV6 addresses
       run: |
-        # Use a web scraping library to fetch the IPV6 addresses
-        # from the webpage using the identified format
-        import requests
-        from bs4 import BeautifulSoup
+        # Use curl to fetch the HTML content of the webpage
+        curl -s https://stock.hostmonit.com/CloudFlareYesV6 | \
+        # Use grep to extract the IPV6 addresses
+        grep -oE '([0-9A-F]{1,4}:){7}[0-9A-F]{1,4}' > ipv6collect2.txt
         
-        url = "https://stock.hostmonit.com/CloudFlareYesV6"
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-        
-        ipv6_addresses = re.findall(ipv6_format, soup.text)
-        
-        # Write the IPV6 addresses to a file
-        with open("ipv6collect2.txt", "w") as f:
-            f.write("\n".join(ipv6_addresses))
-            
     - name: Remove duplicates
       run: |
         # Remove any duplicate IPV6 addresses from the file
-        with open("ipv6collect2.txt", "r") as f:
-            ipv6_addresses = set(f.read().splitlines())
+        sort -u ipv6collect2.txt -o ipv6collect2.txt
         
-        with open("ipv6collect2.txt", "w") as f:
-            f.write("\n".join(ipv6_addresses))
-            
     - name: Commit changes
       uses: EndBug/add-and-commit@v7
       with:
