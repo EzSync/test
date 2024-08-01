@@ -6,6 +6,13 @@ url = 'https://stock.hostmonit.com/CloudFlareYesV6'
 
 # Fetch the webpage
 response = requests.get(url)
+print(f"Fetched URL: {url} with status code: {response.status_code}")
+
+# Check if the request was successful
+if response.status_code != 200:
+    print("Failed to retrieve the webpage.")
+    exit(1)
+
 soup = BeautifulSoup(response.text, 'html.parser')
 
 # Extract IPv6 addresses from the table
@@ -16,14 +23,15 @@ for row in soup.select('tr.el-table__row'):
         ipv6_address = cells[1].text.strip()
         ipv6_addresses.add(ipv6_address)
 
+# Log the fetched addresses
+print("Fetched IPv6 Addresses:")
+for address in ipv6_addresses:
+    print(address)
+
 # Write the unique IPv6 addresses to a file
 with open('ipv6collect2.txt', 'w') as f:
     for address in ipv6_addresses:
         f.write(f"{address}\n")
-
-print("Fetched and saved the following IPv6 addresses:")
-for address in ipv6_addresses:
-    print(address)
 
 # Check for duplicates
 with open('ipv6collect2.txt', 'r') as f:
