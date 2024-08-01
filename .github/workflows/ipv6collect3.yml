@@ -2,65 +2,58 @@ name: IPV6 Address Collector No.3
 
 on:
   schedule:
-    - cron: '0 */6 * * *' # Run every 6 hours
+    - cron: '0 0 * * *'  # Run the workflow daily at midnight
   workflow_dispatch:
-  push:
-  watch:
-    paths:
-      - 'https://stock.hostmonit.com/CloudFlareYesV6'
 
 jobs:
 
   collect_ipv6:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v2
-      with:
-        repository: EzSync/test
-        
-    - name: Install Node.js
+
+    - name: Setup Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: 18
-        
-    - name: Fetch IPV6 addresses
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm install puppeteer
+
+    - name: Collect IPV6 addresses
       run: |
-        # Install Puppeteer
-        npm install puppeteer
-        
-        # Use Puppeteer to fetch the IPV6 addresses
-        node - <<'EOF'
         const puppeteer = require('puppeteer');
-        
+
         (async () => {
-          const browser = await puppeteer.launch();
-          const page = await browser.newPage();
-          await page.goto('https://stock.hostmonit.com/CloudFlareYesV6');
-          
-          const ipv6Addresses = await page.evaluate(() => {
-            const ipv6Regex = /([0-9A-F]{1,4}:){7}[0-9A-F]{1,4}/g;
-            const ipv6Elements = document.body.innerText.match(ipv6Regex);
-            return ipv6Elements || [];
-          });
-          
-          await browser.close();
-          
-          // Write the IPV6 addresses to a file
-          const fs = require('fs');
-          fs.writeFileSync('ipv6collect2.txt', ipv6Addresses.join('\n'));
+          try {
+            const browser = await puppeteer.launch();
+            const page = await browser.newPage();
+            await page.goto('https://stock.hostmonit.com/CloudFlareYesV6');
+
+            const ipv6Addresses = await page.evaluate(() => {
+              const ipv6Regex = /([0-9A-F]{1,4}:){7}[0-9A-F]{1,4}/g;
+              const ipv6Elements = document.body.innerText.match(ipv6Regex);
+              return ipv6Elements || [];
+            });
+
+            console.log('IPV6 Addresses:', ipv6Addresses);
+
+            if (ipv6Addresses.length > 0) {
+              const fs = require('fs');
+              fs.writeFileSync('ipv6collect2.txt', ipv6Addresses.join('\n'));
+              console.log('IPV6 addresses saved to ipv6collect2.txt');
+            } else {
+              console.log('No IPV6 addresses found on the webpage.');
+            }
+
+            await browser.close();
+          } catch (error) {
+            console.error('Error:', error);
+          }
         })();
-        EOF
-        
-    - name: Remove duplicates
+      shell: node {0}
+
+    - name: Check IPV6 addresses
       run: |
-        # Remove any duplicate IPV6 addresses from the file
-        sort -u ipv6collect2.txt -o ipv6collect2.txt
-        
-    - name: Commit changes
-      uses: EndBug/add-and-commit@v7
-      with:
-        author_name: GitHub Actions
-        author_email: actions@github.com
-        message: 'Update IPV6 addresses'
-        add: '*.txt'
+        cat ipv6collect2.txt
