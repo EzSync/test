@@ -1,0 +1,47 @@
+name: IPv6 Collection with Web Change No.3
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Check every 30 minutes
+  workflow_dispatch:
+
+jobs:
+  fetch_ipv6:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq
+
+      - name: Fetch IPv6 addresses
+        id: fetch_ipv6
+        run: |
+          # Fetch the webpage content
+          content=$(curl -s https://monitor.gacjie.cn/page/cloudflare/ipv6.html)
+
+          # Extract IPv6 addresses using regex
+          ipv6_addresses=$(echo "$content" | grep -oE '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::([0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4}' | sort -u)
+
+          # Enclose each IPv6 address in brackets
+          formatted_addresses=$(echo "$ipv6_addresses" | sed 's/^/[/' | sed 's/$/]/')
+
+          # Save to ipv6collect.txt
+          echo "$formatted_addresses" > ipv6collect.txt
+
+      - name: Remove duplicates
+        run: |
+          # Remove duplicates from ipv6collect.txt
+          awk '!seen[$0]++' ipv6collect.txt > temp.txt && mv temp.txt ipv6collect.txt
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ipv6collect.txt
+          git commit -m "Update ipv6collect.txt with new IPv6 addresses" || echo "No changes to commit"
+          git push
