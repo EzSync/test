@@ -2,7 +2,7 @@ name: Collect IPv4 As Webpage Change
 
 on:
   schedule:
-    - cron: '5 6-22/1 * * *'  # Runs every 30 minutes
+    - cron: '*/30 6-22 * * *'  # Runs every 30 minutes
   workflow_dispatch:
   push:
 
