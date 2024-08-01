@@ -21,25 +21,33 @@ jobs:
       - name: Fetch and extract IPv6 addresses
         id: fetch_ips
         run: |
-          # Define the URL to monitor
-          URL="https://monitor.gacjie.cn/page/cloudflare/ipv6.html"
+          # Define the URLs to monitor
+          URL1="https://monitor.gacjie.cn/page/cloudflare/ipv6.html"
+          URL2="https://stock.hostmonit.com/CloudFlareYesV6"
           
-          # Fetch the current content of the page
-          CONTENT=$(curl -s "$URL")
+          # Fetch the current content of the pages
+          CONTENT1=$(curl -s "$URL1")
+          CONTENT2=$(curl -s "$URL2")
 
-          # Debug: Print the fetched content
-          echo "Fetched Content:"
-          echo "$CONTENT"
+          # Debug: Print the fetched content from both URLs
+          echo "Fetched Content from URL1:"
+          echo "$CONTENT1"
+          echo "Fetched Content from URL2:"
+          echo "$CONTENT2"
 
-          # Extract IPv6 addresses using a simplified regex
-          IPV6_ADDRESSES=$(echo "$CONTENT" | grep -oP '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}' | sort -u)
+          # Extract IPv6 addresses using a simplified regex from both contents
+          IPV6_ADDRESSES1=$(echo "$CONTENT1" | grep -oP '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}' | sort -u)
+          IPV6_ADDRESSES2=$(echo "$CONTENT2" | grep -oP '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}' | sort -u)
 
-          # Debug: Print the extracted IPv6 addresses
-          echo "Extracted IPv6 Addresses:"
-          echo "$IPV6_ADDRESSES"
+          # Combine the extracted IPv6 addresses from both sources
+          ALL_IPV6_ADDRESSES=$(echo -e "$IPV6_ADDRESSES1\n$IPV6_ADDRESSES2" | sort -u)
+
+          # Debug: Print the combined IPv6 addresses
+          echo "Combined Extracted IPv6 Addresses:"
+          echo "$ALL_IPV6_ADDRESSES"
 
           # Replace the contents of ipv6collect.txt with the new IPs
-          echo "$IPV6_ADDRESSES" > ipv6collect.txt
+          echo "$ALL_IPV6_ADDRESSES" > ipv6collect.txt
 
       - name: Commit and push changes
         run: |
