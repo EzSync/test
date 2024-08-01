@@ -1,67 +1,67 @@
-name: IPv6 Collection and Update No.2
+name: IPv6 Address Collector
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # Check every 30 minutes
-  workflow_dispatch: # Allows manual triggering of the workflow
-  repository_dispatch: # Allows triggering from external events (like a webhook)
+    - cron: '*/30 * * * *'  # Runs every 30 minutes
+  workflow_dispatch:
 
 jobs:
-  update_ipv6_addresses:
+  collect_ipv6:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16' # Use the latest LTS version
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
 
-      - name: Install Puppeteer
-        run: |
-          npm install puppeteer
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests beautifulsoup4
 
-      - name: Fetch IPv6 addresses
-        run: |
-          # Create a script to fetch IPv6 addresses
-          echo "const puppeteer = require('puppeteer');" > fetchIPv6.js
-          echo "const fs = require('fs');" >> fetchIPv6.js
-          echo "(async () => {" >> fetchIPv6.js
-          echo "    const browser = await puppeteer.launch();" >> fetchIPv6.js
-          echo "    const page = await browser.newPage();" >> fetchIPv6.js
-          echo "    await page.goto('https://stock.hostmonit.com/CloudFlareYesV6', { waitUntil: 'networkidle2' });" >> fetchIPv6.js
-          echo "    await new Promise(resolve => setTimeout(resolve, 10000)); // Wait for 10 seconds" >> fetchIPv6.js
-          echo "    const content = await page.content(); // Get the page content" >> fetchIPv6.js
-          echo "    console.log(content); // Log the page content" >> fetchIPv6.js
-          echo "    await page.waitForSelector('table'); // Wait for the table to load" >> fetchIPv6.js
-          echo "    const ipv6Addresses = await page.evaluate(() => {" >> fetchIPv6.js
-          echo "        const addresses = [];" >> fetchIPv6.js
-          echo "        const elements = document.querySelectorAll('tr td:nth-child(2)');" >> fetchIPv6.js
-          echo "        elements.forEach(el => {" >> fetchIPv6.js
-          echo "            addresses.push(el.innerText);" >> fetchIPv6.js
-          echo "        });" >> fetchIPv6.js
-          echo "        return [...new Set(addresses)];" >> fetchIPv6.js
-          echo "    });" >> fetchIPv6.js
-          echo "    fs.writeFileSync('ipv6collect2.txt', ipv6Addresses.join('\\n'));" >> fetchIPv6.js
-          echo "    await browser.close();" >> fetchIPv6.js
-          echo "})();" >> fetchIPv6.js
+    - name: Fetch and process IPv6 addresses
+      run: |
+        import requests
+        from bs4 import BeautifulSoup
 
+        # URL of the webpage to scrape
+        url = 'https://stock.hostmonit.com/CloudFlareYesV6'
+        
+        # Fetch the webpage
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
 
-          # Run the script
-          node fetchIPv6.js
+        # Extract IPv6 addresses from the table
+        ipv6_addresses = set()  # Use a set to avoid duplicates
+        for row in soup.select('tr.el-table__row'):
+            cells = row.find_all('div', class_='cell')
+            if len(cells) > 1:
+                ipv6_address = cells[1].text.strip()
+                ipv6_addresses.add(ipv6_address)
 
-      - name: Remove duplicates in ipv6collect2.txt
-        run: |
-          if [ -f ipv6collect2.txt ]; then
-            sort -u ipv6collect2.txt -o ipv6collect2.txt
-          fi
+        # Write the unique IPv6 addresses to a file
+        with open('ipv6collect2.txt', 'w') as f:
+            for address in ipv6_addresses:
+                f.write(f"{address}\n")
 
-      - name: Commit changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add ipv6collect2.txt
-          git commit -m "Update ipv6collect2.txt with new IPv6 addresses" || echo "No changes to commit"
-          git push
+        print("Fetched and saved the following IPv6 addresses:")
+        for address in ipv6_addresses:
+            print(address)
+
+    - name: Check for duplicates
+      run: |
+        # Read the file and check for duplicates
+        with open('ipv6collect2.txt', 'r') as f:
+            lines = f.readlines()
+        
+        unique_lines = set(lines)  # Remove duplicates
+        if len(unique_lines) < len(lines):
+            print("Duplicates found and removed.")
+            with open('ipv6collect2.txt', 'w') as f:
+                f.writelines(unique_lines)
+        else:
+            print("No duplicates found.")
