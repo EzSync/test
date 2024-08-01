@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl jq
+          sudo apt-get install -y curl
 
       - name: Fetch IPv6 addresses
         id: fetch_ipv6
@@ -27,7 +27,7 @@ jobs:
           # Extract IPv6 addresses using regex
           ipv6_addresses=$(echo "$content" | grep -oE '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::([0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4}' | sort -u)
 
-          # Enclose each IPv6 address in brackets
+          # Enclose each IPv6 address in square brackets
           formatted_addresses=$(echo "$ipv6_addresses" | sed 's/^/[/' | sed 's/$/]/')
 
           # Save to ipv6collect.txt
