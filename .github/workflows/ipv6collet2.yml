@@ -33,6 +33,8 @@ jobs:
           echo "    const page = await browser.newPage();" >> fetchIPv6.js
           echo "    await page.goto('https://stock.hostmonit.com/CloudFlareYesV6', { waitUntil: 'networkidle2' });" >> fetchIPv6.js
           echo "    await new Promise(resolve => setTimeout(resolve, 10000)); // Wait for 10 seconds" >> fetchIPv6.js
+          echo "    const content = await page.content(); // Get the page content" >> fetchIPv6.js
+          echo "    console.log(content); // Log the page content" >> fetchIPv6.js
           echo "    await page.waitForSelector('table'); // Wait for the table to load" >> fetchIPv6.js
           echo "    const ipv6Addresses = await page.evaluate(() => {" >> fetchIPv6.js
           echo "        const addresses = [];" >> fetchIPv6.js
