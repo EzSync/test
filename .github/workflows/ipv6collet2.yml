@@ -1,4 +1,4 @@
-name: IPv6 Collection and Update
+name: IPv6 Collection and Update No.2
 
 on:
   schedule:
@@ -31,16 +31,12 @@ jobs:
           echo "    const browser = await puppeteer.launch();" >> fetchIPv6.js
           echo "    const page = await browser.newPage();" >> fetchIPv6.js
           echo "    await page.goto('https://stock.hostmonit.com/CloudFlareYesV6');" >> fetchIPv6.js
-          echo "    await page.waitForSelector('#app');" >> fetchIPv6.js
+          echo "    await page.waitForSelector('.cell');" >> fetchIPv6.js
           echo "    const ipv6Addresses = await page.evaluate(() => {" >> fetchIPv6.js
           echo "        const addresses = [];" >> fetchIPv6.js
-          echo "        const elements = document.querySelectorAll('p');" >> fetchIPv6.js
+          echo "        const elements = document.querySelectorAll('.cell');" >> fetchIPv6.js
           echo "        elements.forEach(el => {" >> fetchIPv6.js
-          echo "            const text = el.innerText;" >> fetchIPv6.js
-          echo "            const match = text.match(/([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}/);" >> fetchIPv6.js
-          echo "            if (match) {" >> fetchIPv6.js
-          echo "                addresses.push(match[0]);" >> fetchIPv6.js
-          echo "            }" >> fetchIPv6.js
+          echo "            addresses.push(el.innerText);" >> fetchIPv6.js
           echo "        });" >> fetchIPv6.js
           echo "        return [...new Set(addresses)];" >> fetchIPv6.js
           echo "    });" >> fetchIPv6.js
