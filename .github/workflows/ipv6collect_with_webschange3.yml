@@ -32,15 +32,8 @@ jobs:
 
       - name: Replace ipv6collect.txt with new addresses
         run: |
-          # Check if the file exists
-          if [ -f ipv6collect.txt ]; then
-            # Combine old and new addresses, sort and remove duplicates
-            cat ipv6collect.txt new_ipv6collect.txt | sort -u > combined_ipv6collect.txt
-            mv combined_ipv6collect.txt ipv6collect.txt
-          else
-            # If the file doesn't exist, rename the new file
-            mv new_ipv6collect.txt ipv6collect.txt
-          fi
+          # Replace ipv6collect.txt with the new addresses
+          mv new_ipv6collect.txt ipv6collect.txt
 
       - name: Commit changes
         run: |
