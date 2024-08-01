@@ -11,20 +11,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Setup Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v4
       with:
         node-version: '14'
 
-    - name: Install Puppeteer
+    - name: Install Puppeteer Core
       run: |
-        npm install puppeteer
+        npm install puppeteer-core
 
     - name: Collect IPV6 addresses
       run: |
-        const puppeteer = require('puppeteer');
+        const puppeteer = require('puppeteer-core');
 
         (async () => {
           try {
