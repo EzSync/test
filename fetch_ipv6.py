@@ -4,8 +4,13 @@ from bs4 import BeautifulSoup
 # URL of the webpage to scrape
 url = 'https://stock.hostmonit.com/CloudFlareYesV6'
 
+# Set a User-Agent header
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+}
+
 # Fetch the webpage
-response = requests.get(url)
+response = requests.get(url, headers=headers)
 print(f"Fetched URL: {url} with status code: {response.status_code}")
 
 # Check if the request was successful
