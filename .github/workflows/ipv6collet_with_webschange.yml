@@ -1,50 +1,51 @@
-name: Update IPv6 Collect with Webpage Change 
+name: Collect IPv6 Addresses
 
-on: 
-  schedule: 
-    - cron: '*/30 * * * *'  # Runs every 30 minutes 
-  workflow_dispatch: 
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs every hour; adjust as needed
+  workflow_dispatch:
 
-jobs: 
-  update_ipv6_collect: 
-    runs-on: ubuntu-latest 
+jobs:
+  collect_ipv6:
+    runs-on: ubuntu-latest
 
-    steps: 
-      - name: Checkout repository 
-        uses: actions/checkout@v2 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Install dependencies 
-        run: | 
-          sudo apt-get update 
-          sudo apt-get install -y curl 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq
 
-      - name: Fetch and extract IPv6 addresses 
-        id: fetch_ips 
-        run: | 
-          # Define the URL to monitor 
-          URL="https://monitor.gacjie.cn/page/cloudflare/ipv6.html" 
+      - name: Fetch IPv6 addresses from the first webpage
+        id: fetch_ipv6_1
+        run: |
+          curl -s https://monitor.gacjie.cn/page/cloudflare/ipv6.html | \
+          grep -oE '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}' | \
+          sort -u > ipv6_addresses_1.txt
 
-          # Fetch the current content of the page 
-          CONTENT=$(curl -s "$URL") 
-  
-          # Debug: Print the fetched content 
-          echo "Fetched Content:" 
-          echo "$CONTENT" 
-  
-          # Extract IPv6 addresses using a simplified regex 
-          IPV6_ADDRESSES=$(echo "$CONTENT" | grep -oP '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}' | sort -u) 
-  
-          # Debug: Print the extracted IPv6 addresses 
-          echo "Extracted IPv6 Addresses:" 
-          echo "$IPV6_ADDRESSES" 
-  
-          # Replace the contents of ipv6collect.txt with the new IPs 
-          echo "$IPV6_ADDRESSES" > ipv6collect.txt 
-  
-      - name: Commit and push changes 
-        run: | 
-          git config --local user.email "action@github.com" 
-          git config --local user.name "GitHub Action" 
-          git add ipv6collect.txt 
-          git commit -m "Update ipv6collect.txt with new IPv6 addresses" || echo "No changes to commit" 
-          git push 
+      - name: Fetch IPv6 addresses from the second webpage
+        id: fetch_ipv6_2
+        run: |
+          curl -s https://stock.hostmonit.com/CloudFlareYesV6 | \
+          grep -oE '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}' | \
+          sort -u > ipv6_addresses_2.txt
+
+      - name: Combine and deduplicate IPv6 addresses
+        run: |
+          cat ipv6_addresses_1.txt ipv6_addresses_2.txt | sort -u > ipv6collect.txt
+
+      - name: Check for changes in ipv6collect.txt
+        id: check_changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git diff --exit-code ipv6collect.txt || echo "changed"
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changed == 'changed'
+        run: |
+          git add ipv6collect.txt
+          git commit -m "Update ipv6collect.txt with new IPv6 addresses"
+          git push
