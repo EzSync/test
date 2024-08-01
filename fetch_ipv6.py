@@ -2,6 +2,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 
@@ -19,7 +21,8 @@ url = 'https://stock.hostmonit.com/CloudFlareYesV6'
 driver.get(url)
 
 # Wait for the page to load completely
-time.sleep(5)  # Adjust the sleep time if necessary
+wait = WebDriverWait(driver, 15)  # Increase the wait time to 15 seconds
+table_presence = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'tr.el-table__row')))
 
 # Extract IPv6 addresses from the table
 ipv6_addresses = set()  # Use a set to avoid duplicates
