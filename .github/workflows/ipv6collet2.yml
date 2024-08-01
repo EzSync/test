@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: '*/30 * * * *' # Check every 30 minutes
   workflow_dispatch: # Allows manual triggering of the workflow
+  repository_dispatch: # Allows triggering from external events (like a webhook)
 
 jobs:
   update_ipv6_addresses:
