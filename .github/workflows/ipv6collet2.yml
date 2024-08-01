@@ -21,12 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install requests beautifulsoup4
-
-    - name: List files for debugging
-      run: ls -la
+        pip install selenium webdriver-manager
 
     - name: Fetch and process IPv6 addresses
-      run: |
-        echo "Running fetch_ipv6.py..."
-        python fetch_ipv6.py
+      run: python fetch_ipv6.py
