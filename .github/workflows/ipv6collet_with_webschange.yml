@@ -6,46 +6,40 @@ on:
   workflow_dispatch:
 
 jobs:
-  collect_ipv6:
+  update_ipv6_addresses:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install dependencies
+      - name: Fetch IPv6 addresses
         run: |
+          # Install required tools
           sudo apt-get update
           sudo apt-get install -y curl jq
 
-      - name: Fetch IPv6 addresses from the first webpage
-        id: fetch_ipv6_1
-        run: |
+          # Fetch the webpage and extract IPv6 addresses
           curl -s https://monitor.gacjie.cn/page/cloudflare/ipv6.html | \
-          grep -oE '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}' | \
-          sort -u > ipv6_addresses_1.txt
+          jq -r '.[] | .el-table_1_column_2' | \
+          sort -u > new_ipv6collect.txt
 
-      - name: Fetch IPv6 addresses from the second webpage
-        id: fetch_ipv6_2
+      - name: Remove duplicates and update ipv6collect.txt
         run: |
-          curl -s https://stock.hostmonit.com/CloudFlareYesV6 | \
-          grep -oE '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}' | \
-          sort -u > ipv6_addresses_2.txt
+          # Check if the file exists
+          if [ -f ipv6collect.txt ]; then
+            # Combine old and new addresses, sort and remove duplicates
+            cat ipv6collect.txt new_ipv6collect.txt | sort -u > combined_ipv6collect.txt
+            mv combined_ipv6collect.txt ipv6collect.txt
+          else
+            # If the file doesn't exist, rename the new file
+            mv new_ipv6collect.txt ipv6collect.txt
+          fi
 
-      - name: Combine and deduplicate IPv6 addresses
-        run: |
-          cat ipv6_addresses_1.txt ipv6_addresses_2.txt | sort -u > ipv6collect.txt
-
-      - name: Check for changes in ipv6collect.txt
-        id: check_changes
+      - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git diff --exit-code ipv6collect.txt || echo "changed"
-
-      - name: Commit and push changes
-        if: steps.check_changes.outputs.changed == 'changed'
-        run: |
           git add ipv6collect.txt
-          git commit -m "Update ipv6collect.txt with new IPv6 addresses"
+          git commit -m "Update ipv6collect.txt with new IPv6 addresses" || echo "No changes to commit"
           git push
