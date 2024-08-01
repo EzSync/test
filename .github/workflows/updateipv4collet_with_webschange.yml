@@ -3,6 +3,7 @@ name: Update IPv4 Collect with Webpage Change
 on:
   schedule:
     - cron: '*/30 * * * *'  # Runs every 30 minutes
+  push:
 
 jobs:
   update_ipv4_collect:
