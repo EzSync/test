@@ -24,22 +24,22 @@ jobs:
           grep -oE '([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]|[1-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]|[1-9]){0,1}[0-9])' | \
           sort -u > new_ipv6collect.txt
 
-      - name: Replace ipv6collect2.txt with new addresses
+      - name: Replace ipv6collect.txt with new addresses
         run: |
           # Check if the file exists
-          if [ -f ipv6collect2.txt ]; then
+          if [ -f ipv6collect.txt ]; then
             # Combine old and new addresses, sort and remove duplicates
-            cat ipv6collect2.txt new_ipv6collect.txt | sort -u > combined_ipv6collect.txt
-            mv combined_ipv6collect.txt ipv6collect2.txt
+            cat ipv6collect.txt new_ipv6collect.txt | sort -u > combined_ipv6collect.txt
+            mv combined_ipv6collect.txt ipv6collect.txt
           else
             # If the file doesn't exist, rename the new file
-            mv new_ipv6collect.txt ipv6collect2.txt
+            mv new_ipv6collect.txt ipv6collect.txt
           fi
 
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add ipv6collect2.txt
-          git commit -m "Update ipv6collect2.txt with new IPv6 addresses" || echo "No changes to commit"
+          git add ipv6collect.txt
+          git commit -m "Update ipv6collect.txt with new IPv6 addresses" || echo "No changes to commit"
           git push
