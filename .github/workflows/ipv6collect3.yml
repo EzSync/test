@@ -19,12 +19,38 @@ jobs:
       with:
         repository: EzSync/test
         
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+        
     - name: Fetch IPV6 addresses
       run: |
-        # Use curl to fetch the HTML content of the webpage
-        curl -s https://stock.hostmonit.com/CloudFlareYesV6 | \
-        # Use grep to extract the IPV6 addresses
-        grep -oE '([0-9A-F]{1,4}:){7}[0-9A-F]{1,4}' > ipv6collect2.txt
+        # Install Puppeteer
+        npm install puppeteer
+        
+        # Use Puppeteer to fetch the IPV6 addresses
+        node - <<'EOF'
+        const puppeteer = require('puppeteer');
+        
+        (async () => {
+          const browser = await puppeteer.launch();
+          const page = await browser.newPage();
+          await page.goto('https://stock.hostmonit.com/CloudFlareYesV6');
+          
+          const ipv6Addresses = await page.evaluate(() => {
+            const ipv6Regex = /([0-9A-F]{1,4}:){7}[0-9A-F]{1,4}/g;
+            const ipv6Elements = document.body.innerText.match(ipv6Regex);
+            return ipv6Elements || [];
+          });
+          
+          await browser.close();
+          
+          // Write the IPV6 addresses to a file
+          const fs = require('fs');
+          fs.writeFileSync('ipv6collect2.txt', ipv6Addresses.join('\n'));
+        })();
+        EOF
         
     - name: Remove duplicates
       run: |
