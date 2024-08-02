@@ -3,6 +3,7 @@ name: IPv6 Address Merge
 on:
   schedule:
     - cron: '0 21 * * *'  # Runs at 5:00 AM Beijing time (UTC+8)
+  workflow_dispatch:
 
 jobs:
 
