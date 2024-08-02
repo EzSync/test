@@ -28,16 +28,24 @@ jobs:
           echo "async function run() {" >> fetch.js
           echo "  const browser = await puppeteer.launch();" >> fetch.js
           echo "  const page = await browser.newPage();" >> fetch.js
-          echo "  await page.goto('https://stock.hostmonit.com/CloudFlareYesV6');" >> fetch.js
+          echo "  await page.goto('https://stock.hostmonit.com/CloudFlareYesV6', { waitUntil: 'networkidle2' });" >> fetch.js
           echo "  const ipv6s = await page.evaluate(() => {" >> fetch.js
           echo "    return Array.from(document.querySelectorAll('div.cell')).map(div => div.innerText).filter(text => text.match(/([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}/));" >> fetch.js
           echo "  });" >> fetch.js
-          echo "  console.log(ipv6s);" >> fetch.js
-          echo "  require('fs').writeFileSync('ipv6collect2.txt', ipv6s.map(ip => '[' + ip + ']').join('\\n'));" >> fetch.js
+          echo "  console.log('Fetched IPv6 addresses:', ipv6s);" >> fetch.js
+          echo "  if (ipv6s.length === 0) {" >> fetch.js
+          echo "    console.log('No IPv6 addresses found.');" >> fetch.js
+          echo "  } else {" >> fetch.js
+          echo "    require('fs').writeFileSync('ipv6collect2.txt', ipv6s.map(ip => '[' + ip + ']').join('\\n'));" >> fetch.js
+          echo "  }" >> fetch.js
           echo "  await browser.close();" >> fetch.js
           echo "}" >> fetch.js
           echo "run();" >> fetch.js
           node fetch.js
+
+      - name: Display contents of ipv6collect2.txt
+        run: |
+          cat ipv6collect2.txt || echo "File does not exist or is empty."
 
       - name: Remove duplicates
         run: |
