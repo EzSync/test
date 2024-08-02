@@ -1,0 +1,31 @@
+name: IPv6 Address Merge
+
+on:
+  schedule:
+    - cron: '0 21 * * *'  # Runs at 5:00 AM Beijing time (UTC+8)
+  workflow_dispatch:
+
+jobs:
+
+  merge-ipv6:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Fetch IPv6 Addresses
+      run: |
+        curl -s https://addressesapi.090227.xyz/cmcc-ipv6 >> ipv6-addresses.txt
+        curl -s https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt >> ipv6-addresses.txt
+        curl -s https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt >> ipv6-addresses.txt
+        curl -s https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt >> ipv6-addresses.txt
+
+    - name: Merge and Sort IPv6 Addresses
+      run: |
+        sort -u ipv6-addresses.txt -o ipv6-merge.txt
+
+    - name: Commit and Push Changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Update ipv6-merge.txt
+        file_pattern: ipv6-merge.txt
