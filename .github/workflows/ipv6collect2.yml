@@ -23,42 +23,45 @@ jobs:
           python -m pip install --upgrade pip
           pip install beautifulsoup4 requests
 
-      - name: Fetch and extract IPv6 addresses
+      - name: Create Python script
         run: |
-          import requests
-          from bs4 import BeautifulSoup
-          import re
+          echo "import requests" > fetch_ipv6.py
+          echo "from bs4 import BeautifulSoup" >> fetch_ipv6.py
+          echo "import re" >> fetch_ipv6.py
+          echo "" >> fetch_ipv6.py
+          echo "# Fetch the webpage" >> fetch_ipv6.py
+          echo "url = 'https://stock.hostmonit.com/CloudFlareYesV6'" >> fetch_ipv6.py
+          echo "response = requests.get(url)" >> fetch_ipv6.py
+          echo "response.raise_for_status()" >> fetch_ipv6.py
+          echo "" >> fetch_ipv6.py
+          echo "# Parse the HTML" >> fetch_ipv6.py
+          echo "soup = BeautifulSoup(response.text, 'html.parser')" >> fetch_ipv6.py
+          echo "" >> fetch_ipv6.py
+          echo "# Find all relevant table cells" >> fetch_ipv6.py
+          echo "cells = soup.find_all('td', class_='el-table_1_column_2')" >> fetch_ipv6.py
+          echo "" >> fetch_ipv6.py
+          echo "# Extract IPv6 addresses from the second occurrence" >> fetch_ipv6.py
+          echo "ipv6_addresses = []" >> fetch_ipv6.py
+          echo "if len(cells) > 1:  # Check if there are at least two occurrences" >> fetch_ipv6.py
+          echo "    for address in cells[1].find_all('div', class_='cell'):" >> fetch_ipv6.py
+          echo "        ipv6 = address.get_text(strip=True)" >> fetch_ipv6.py
+          echo "        if re.match(r'^[0-9a-fA-F:]+$', ipv6):  # Validate IPv6 format" >> fetch_ipv6.py
+          echo "            ipv6_addresses.append(f'[{ipv6}]')" >> fetch_ipv6.py
+          echo "" >> fetch_ipv6.py
+          echo "# Write to ipv6_addresses.txt" >> fetch_ipv6.py
+          echo "with open('ipv6_addresses.txt', 'w') as f:" >> fetch_ipv6.py
+          echo "    for addr in ipv6_addresses:" >> fetch_ipv6.py
+          echo "        f.write(f'{addr}\\n')" >> fetch_ipv6.py
+          echo "" >> fetch_ipv6.py
+          echo "# Output the results" >> fetch_ipv6.py
+          echo "if ipv6_addresses:" >> fetch_ipv6.py
+          echo "    print('Extracted IPv6 addresses:')" >> fetch_ipv6.py
+          echo "    print('\\n'.join(ipv6_addresses))" >> fetch_ipv6.py
+          echo "else:" >> fetch_ipv6.py
+          echo "    print('No IPv6 addresses found.')" >> fetch_ipv6.py
 
-          # Fetch the webpage
-          url = "https://stock.hostmonit.com/CloudFlareYesV6"
-          response = requests.get(url)
-          response.raise_for_status()  # Raise an error for bad responses
-
-          # Parse the HTML
-          soup = BeautifulSoup(response.text, 'html.parser')
-
-          # Find all relevant table cells
-          cells = soup.find_all('td', class_='el-table_1_column_2')
-
-          # Extract IPv6 addresses from the second occurrence
-          ipv6_addresses = []
-          if len(cells) > 1:  # Check if there are at least two occurrences
-              for address in cells[1].find_all('div', class_='cell'):
-                  ipv6 = address.get_text(strip=True)
-                  if re.match(r'^[0-9a-fA-F:]+$', ipv6:  # Validate IPv6 format
-                      ipv6_addresses.append(f"[{ipv6}]")
-
-          # Write to ipv6_addresses.txt
-          with open('ipv6_addresses.txt', 'w') as f:
-              for addr in ipv6_addresses:
-                  f.write(f"{addr}\n")
-
-          # Output the results
-          if ipv6_addresses:
-              print("Extracted IPv6 addresses:")
-              print("\n".join(ipv6_addresses))
-          else:
-              print("No IPv6 addresses found.")
+      - name: Run Python script
+        run: python fetch_ipv6.py
 
       - name: Update ipv6collect2.txt
         run: |
