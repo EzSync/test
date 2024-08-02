@@ -13,20 +13,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install htmlq
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y htmlq
-
-      - name: Fetch IPv6 addresses
+      - name: Fetch webpage
         run: |
           # Fetch the webpage and output the raw HTML for debugging
           curl -s https://stock.hostmonit.com/CloudFlareYesV6 -o webpage.html
           echo "Raw HTML content:"
           cat webpage.html  # Output the raw HTML content for debugging
-          
-          # Extract IPv6 addresses using htmlq
-          cat webpage.html | htmlq -t 'td.el-table_1_column_2 div.cell' | grep -E '[0-9a-fA-F:]{2,}' > ipv6_addresses.txt || echo "No IPv6 addresses found."
+
+      - name: Extract relevant section
+        run: |
+          # Extract the relevant section of the HTML for debugging
+          cat webpage.html | grep -A 20 '<col name="el-table_1_column_2"' > relevant_section.html
+          echo "Relevant section of HTML:"
+          cat relevant_section.html
+
+      - name: Extract IPv6 addresses
+        run: |
+          # Extract IPv6 addresses from the second occurrence of the column
+          awk -F'<td' '/el-table_1_column_2/{count++} count==2 {print $2}' relevant_section.html | \
+          grep -oP '[0-9a-fA-F:]{2,}' | sed 's/^/[/; s/$/]/' > ipv6_addresses.txt || echo "No IPv6 addresses found."
 
           # Debugging: Check the contents of ipv6_addresses.txt
           echo "Extracted IPv6 addresses:"
