@@ -15,10 +15,13 @@ jobs:
 
       - name: Fetch IPv6 addresses
         run: |
-          # Fetch the webpage and extract IPv6 addresses
-          curl -s https://stock.hostmonit.com/CloudFlareYesV6 | \
-          grep -oP '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|::([0-9a-fA-F]{1,4}:){1,6}[0-9a-fA-F]{1,4}' | \
-          sed 's/^/[/; s/$/]/' > ipv6_addresses.txt
+          # Fetch the webpage and output the raw HTML for debugging
+          curl -s https://stock.hostmonit.com/CloudFlareYesV6 -o webpage.html
+          cat webpage.html  # Output the raw HTML content for debugging
+          
+          # Extract IPv6 addresses from the specific column
+          grep -oP '(?<=<tdrowspan="1" colspan="1" class="el-table_1_column_2  "><div class="cell">)[0-9a-fA-F:]+(?=</div>)' webpage.html | \
+          sed 's/^/[/; s/$/]/' > ipv6_addresses.txt || echo "No IPv6 addresses found."
 
       - name: Update ipv6collect2.txt
         run: |
