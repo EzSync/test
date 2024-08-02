@@ -1,8 +1,9 @@
-name: Collect IPv6 Addresses
+name: IPv6 Address Collector No.2
 
 on:
   schedule:
     - cron: '0 * * * *' # Run the workflow every hour
+  workflow_dispatch:
 
 jobs:
 
