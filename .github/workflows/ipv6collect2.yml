@@ -1,0 +1,48 @@
+name: IPv6 Address Collector No.2
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Run the workflow every hour
+  workflow_dispatch:
+
+jobs:
+
+  collect_ipv6:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Fetch IPv6 addresses
+      run: |
+        # Install necessary dependencies
+        sudo apt-get update
+        sudo apt-get install -y jq
+
+        # Fetch the webpage content
+        webpage_content=$(curl -s https://stock.hostmonit.com/CloudFlareYesV6)
+
+        # Extract IPv6 addresses from the HTML table
+        ipv6_addresses=$(echo "$webpage_content" | jq -r '.data | .[] | .ipv6')
+
+        # Enclose the IPv6 addresses in square brackets
+        ipv6_addresses=$(echo "$ipv6_addresses" | sed 's/^/[/' | sed 's/$/ ]/')
+
+        # Save the IPv6 addresses to a file
+        echo "$ipv6_addresses" > ipv6collect2.txt
+
+        # Remove duplicate IPv6 addresses
+        sort ipv6collect2.txt | uniq > ipv6collect2_temp.txt
+        mv ipv6collect2_temp.txt ipv6collect2.txt
+
+    - name: Commit changes
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add ipv6collect2.txt
+        git commit -m "Update IPv6 addresses" || echo "No changes to commit"
+        git push origin main
