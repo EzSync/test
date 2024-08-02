@@ -1,4 +1,4 @@
-name: Ipv6 RepCheck on Change
+name: Remove ipv6 Duplicates on Change
 
 on:
   push:
