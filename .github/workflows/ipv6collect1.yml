@@ -30,15 +30,15 @@ jobs:
           sed -i 's/^/[/' new_ipv6collect1.txt
           sed -i 's/$/]/' new_ipv6collect1.txt
 
-      - name: Replace ipv6collect1.txt with new addresses
+      - name: Append new addresses to ipv6collect1.txt
         run: |
-          # Replace ipv6collect1.txt with the new addresses
-          mv new_ipv6collect1.txt ipv6collect1.txt
+          # Append new addresses to ipv6collect1.txt
+          cat new_ipv6collect1.txt >> ipv6collect1.txt
 
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add ipv6collect1.txt
-          git commit -m "Update ipv6collect1.txt with new IPv6 addresses" || echo "No changes to commit"
+          git commit -m "Append new IPv6 addresses to ipv6collect1.txt" || echo "No changes to commit"
           git push
