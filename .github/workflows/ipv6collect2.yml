@@ -17,20 +17,26 @@ jobs:
         run: |
           # Fetch the webpage and output the raw HTML for debugging
           curl -s https://stock.hostmonit.com/CloudFlareYesV6 -o webpage.html
+          echo "Raw HTML content:"
           cat webpage.html  # Output the raw HTML content for debugging
           
           # Extract IPv6 addresses from the specific column
           grep -oP '(?<=<tdrowspan="1" colspan="1" class="el-table_1_column_2  "><div class="cell">)[0-9a-fA-F:]+(?=</div>)' webpage.html | \
           sed 's/^/[/; s/$/]/' > ipv6_addresses.txt || echo "No IPv6 addresses found."
 
+          # Debugging: Check the contents of ipv6_addresses.txt
+          echo "Extracted IPv6 addresses:"
+          cat ipv6_addresses.txt
+
       - name: Update ipv6collect2.txt
         run: |
           # Remove duplicates and write to ipv6collect2.txt
           sort -u ipv6_addresses.txt > ipv6collect2.txt
+          echo "Updated ipv6collect2.txt with unique IPv6 addresses."
 
       - name: Check for changes
         run: |
           # Check if ipv6collect2.txt has changed
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git diff --exit-code ipv6collect2.txt || git commit -am "Update ipv6collect2.txt with new IPv6 addresses" && git push
+          git diff --exit-code ipv6collect2.txt || (git commit -am "Update ipv6collect2.txt with new IPv6 addresses" && git push)
