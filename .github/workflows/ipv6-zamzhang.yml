@@ -1,4 +1,4 @@
-name: Update IPv6 Addresses
+name: IPv6 from zamzhang
 
 on:
   schedule:
