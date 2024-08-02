@@ -24,17 +24,23 @@ jobs:
         run: |
           # Check for the occurrence of the column in the HTML
           echo "Searching for column occurrences:"
-          grep '<col name="el-table_1_column_2"' webpage.html -A 5
+          if ! grep -n '<col name="el-table_1_column_2"' webpage.html; then
+            echo "Column not found."
+          fi
 
       - name: Extract IPv6 addresses
         run: |
           # Extract IPv6 addresses from the second occurrence of the column
           awk -F'<td' '/el-table_1_column_2/{count++} count==2 {print $2}' webpage.html | \
-          grep -oP '[0-9a-fA-F:]{2,}' | sed 's/^/[/; s/$/]/' > ipv6_addresses.txt || echo "No IPv6 addresses found."
+          grep -oP '[0-9a-fA-F:]{2,}' | sed 's/^/[/; s/$/]/' > ipv6_addresses.txt
 
-          # Debugging: Check the contents of ipv6_addresses.txt
-          echo "Extracted IPv6 addresses:"
-          cat ipv6_addresses.txt
+          # Check if any addresses were found
+          if [ -s ipv6_addresses.txt ]; then
+            echo "Extracted IPv6 addresses:"
+            cat ipv6_addresses.txt
+          else
+            echo "No IPv6 addresses found."
+          fi
 
       - name: Update ipv6collect2.txt
         run: |
