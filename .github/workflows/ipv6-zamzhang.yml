@@ -13,12 +13,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Fetch IPv6 addresses
+      - name: Fetch and debug IPv6 addresses
         run: |
-          # Fetch the content from the URL and extract IPv6 addresses
-          curl -s https://raw.githubusercontent.com/zamzhang/ip/main/ip1.txt | \
-          grep -oP '\[\K[0-9a-fA-F:]+\(?=\])' | \
-          sort -u > ipv6-zamzhang.txt
+          content=$(curl -sf https://raw.githubusercontent.com/zamzhang/ip/main/ip1.txt)
+          echo "$content"  # Debugging output
+          echo "$content" | grep -oP '[0-9a-fA-F:]{2,}(:[0-9a-fA-F]{1,4}){0,7}' | sort -u > ipv6-zamzhang.txt
+
+      - name: Check file content
+        run: |
+          cat ipv6-zamzhang.txt
 
       - name: Commit and push changes
         run: |
