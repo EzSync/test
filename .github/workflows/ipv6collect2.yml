@@ -1,48 +1,56 @@
-name: IPv6 Address Collector No.2
+name: Collect IPv6 Addresses
 
 on:
   schedule:
-    - cron: '0 * * * *' # Run the workflow every hour
-  workflow_dispatch:
+    - cron: '*/15 * * * *'  # Runs every 5 minutes
+  workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
-
-  collect_ipv6:
+  fetch_ipv6:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      
-    - name: Fetch IPv6 addresses
-      run: |
-        # Install necessary dependencies
-        sudo apt-get update
-        sudo apt-get install -y jq
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-        # Fetch the webpage content
-        webpage_content=$(curl -s https://stock.hostmonit.com/CloudFlareYesV6)
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'  # Specify the Python version
 
-        # Extract IPv6 addresses from the HTML table
-        ipv6_addresses=$(echo "$webpage_content" | jq -r '.data | .[] | .ipv6')
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install beautifulsoup4 requests
 
-        # Enclose the IPv6 addresses in square brackets
-        ipv6_addresses=$(echo "$ipv6_addresses" | sed 's/^/[/' | sed 's/$/ ]/')
+      - name: Fetch and process IPv6 addresses
+        run: |
+          import requests
+          from bs4 import BeautifulSoup
 
-        # Save the IPv6 addresses to a file
-        echo "$ipv6_addresses" > ipv6collect2.txt
+          # Fetch the webpage
+          url = 'https://stock.hostmonit.com/CloudFlareYesV6'
+          response = requests.get(url)
+          soup = BeautifulSoup(response.text, 'html.parser')
 
-        # Remove duplicate IPv6 addresses
-        sort ipv6collect2.txt | uniq > ipv6collect2_temp.txt
-        mv ipv6collect2_temp.txt ipv6collect2.txt
+          # Extract IPv6 addresses from the table
+          ipv6_addresses = []
+          for row in soup.select('tr.el-table__row'):
+              ip_cell = row.select_one('td.el-table_1_column_2 .cell')
+              if ip_cell:
+                  ipv6_addresses.append(f"[{ip_cell.text.strip()}]")
 
-    - name: Commit changes
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add ipv6collect2.txt
-        git commit -m "Update IPv6 addresses" || echo "No changes to commit"
-        git push origin main
+          # Remove duplicates while preserving order
+          unique_ipv6_addresses = list(dict.fromkeys(ipv6_addresses))
+
+          # Write to file
+          with open('ipv6collect2.txt', 'w') as f:
+              f.write('\n'.join(unique_ipv6_addresses))
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ipv6collect2.txt
+          git commit -m "Update IPv6 addresses" || echo "No changes to commit"
+          git push
