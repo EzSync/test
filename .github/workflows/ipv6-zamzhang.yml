@@ -13,13 +13,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Fetch and process IPv6 addresses
+      - name: Fetch content from URL
+        id: fetch_content
         run: |
-          # Fetch the content from the URL
-          curl -s https://raw.githubusercontent.com/zamzhang/ip/main/ip1.txt | \
-          # Filter lines to keep only IPv6 addresses enclosed in brackets
-          grep -oP '\[\K[0-9a-fA-F:]+\(?=\])' | \
-          # Sort the addresses and remove duplicates
+          # Fetch the content from the URL and output it for debugging
+          curl -s https://raw.githubusercontent.com/zamzhang/ip/main/ip1.txt > ip_content.txt
+          cat ip_content.txt  # Output the content for debugging
+
+      - name: Extract and process IPv6 addresses
+        run: |
+          # Extract IPv6 addresses enclosed in brackets
+          grep -oP '\[[0-9a-fA-F:]+\]' ip_content.txt | \
           sort -u > ipv6-zamzhang.txt
 
       - name: Check file content
