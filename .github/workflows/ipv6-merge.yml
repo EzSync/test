@@ -15,10 +15,20 @@ jobs:
 
       - name: Fetch IPv6 addresses
         run: |
-          curl -s https://addressesapi.090227.xyz/cmcc-ipv6 >> ipv6-merge.txt
-          curl -s https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt >> ipv6-merge.txt
-          curl -s https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt >> ipv6-merge.txt
-          curl -s https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt >> ipv6-merge.txt
+          for url in \
+            "https://addressesapi.090227.xyz/cmcc-ipv6" \
+            "https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt" \
+            "https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt" \
+            "https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt"; do
+              echo "Fetching $url"
+              response=$(curl -s -w "%{http_code}" -o temp.txt "$url")
+              if [ "$response" -eq 200 ]; then
+                cat temp.txt >> ipv6-merge.txt
+              else
+                echo "Error fetching $url: HTTP status $response"
+              fi
+          done
+          rm temp.txt
 
       - name: Sort and remove duplicates
         run: |
