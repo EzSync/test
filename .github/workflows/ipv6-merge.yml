@@ -1,31 +1,33 @@
-name: IPv6 Address Merge
+name: Merge IPv6 Addresses
 
 on:
   schedule:
-    - cron: '0 21 * * *'  # Runs at 5:00 AM Beijing time (UTC+8)
+    - cron: '0 21 * * *' # This is 5:00 AM Beijing time (UTC+8) in UTC time
   workflow_dispatch:
 
 jobs:
-
-  merge-ipv6:
+  merge_ipv6:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Fetch IPv6 Addresses
-      run: |
-        curl -s https://addressesapi.090227.xyz/cmcc-ipv6 >> ipv6-addresses.txt
-        curl -s https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt >> ipv6-addresses.txt
-        curl -s https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt >> ipv6-addresses.txt
-        curl -s https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt >> ipv6-addresses.txt
+      - name: Fetch IPv6 addresses
+        run: |
+          curl -s https://addressesapi.090227.xyz/cmcc-ipv6 >> ipv6-merge.txt
+          curl -s https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt >> ipv6-merge.txt
+          curl -s https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt >> ipv6-merge.txt
+          curl -s https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt >> ipv6-merge.txt
 
-    - name: Merge and Sort IPv6 Addresses
-      run: |
-        sort -u ipv6-addresses.txt -o ipv6-merge.txt
+      - name: Sort and remove duplicates
+        run: |
+          sort -u ipv6-merge.txt -o ipv6-merge.txt
 
-    - name: Commit and Push Changes
-      uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: Update ipv6-merge.txt
-        file_pattern: ipv6-merge.txt
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ipv6-merge.txt
+          git commit -m "Update ipv6-merge.txt with merged and sorted IPv6 addresses" || echo "No changes to commit"
+          git push
