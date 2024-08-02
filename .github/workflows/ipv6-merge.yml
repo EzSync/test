@@ -13,22 +13,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Fetch IPv6 addresses
+      - name: Fetch and merge IPv6 addresses
         run: |
+          # Create or clear the ipv6-merge.txt file
+          > ipv6-merge.txt
+          
+          # Fetch contents from the URLs and append to ipv6-merge.txt
           for url in \
             "https://addressesapi.090227.xyz/cmcc-ipv6" \
             "https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt" \
             "https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt" \
             "https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt"; do
               echo "Fetching $url"
-              response=$(curl -s -w "%{http_code}" -o temp.txt -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" -L "$url")
-              if [ "$response" -eq 200 ]; then
-                cat temp.txt >> ipv6-merge.txt
-              else
-                echo "Error fetching $url: HTTP status $response"
-              fi
+              curl -s "$url" >> ipv6-merge.txt
           done
-          rm temp.txt
 
       - name: Sort and remove duplicates
         run: |
