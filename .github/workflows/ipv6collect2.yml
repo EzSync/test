@@ -20,17 +20,16 @@ jobs:
           echo "Raw HTML content:"
           cat webpage.html  # Output the raw HTML content for debugging
 
-      - name: Extract relevant section
+      - name: Check for column occurrence
         run: |
-          # Extract the relevant section of the HTML for debugging
-          cat webpage.html | grep -A 20 '<col name="el-table_1_column_2"' > relevant_section.html
-          echo "Relevant section of HTML:"
-          cat relevant_section.html
+          # Check for the occurrence of the column in the HTML
+          echo "Searching for column occurrences:"
+          grep '<col name="el-table_1_column_2"' webpage.html -A 5
 
       - name: Extract IPv6 addresses
         run: |
           # Extract IPv6 addresses from the second occurrence of the column
-          awk -F'<td' '/el-table_1_column_2/{count++} count==2 {print $2}' relevant_section.html | \
+          awk -F'<td' '/el-table_1_column_2/{count++} count==2 {print $2}' webpage.html | \
           grep -oP '[0-9a-fA-F:]{2,}' | sed 's/^/[/; s/$/]/' > ipv6_addresses.txt || echo "No IPv6 addresses found."
 
           # Debugging: Check the contents of ipv6_addresses.txt
