@@ -1,0 +1,29 @@
+name: Update IPv6 Addresses
+
+on:
+  schedule:
+    - cron: '0 5 * * *'  # Runs every day at 5:00 AM UTC
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  update-ipv6:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Fetch IPv6 addresses
+        run: |
+          # Fetch the content from the URL and extract IPv6 addresses
+          curl -s https://raw.githubusercontent.com/zamzhang/ip/main/ip1.txt | \
+          grep -oP '\[\K[0-9a-fA-F:]+\(?=\])' | \
+          sort -u > ipv6-zamzhang.txt
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ipv6-zamzhang.txt
+          git commit -m "Update ipv6-zamzhang.txt with new IPv6 addresses" || echo "No changes to commit"
+          git push
