@@ -1,56 +1,33 @@
-name: Collect IPv6 Addresses
+name: IPv6 Address Collector No.2
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # Runs every 5 minutes
+    - cron: '*/30 * * * *'  # Runs every 30 minutes
   workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
-  fetch_ipv6:
+  fetch_ipv6_addresses:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.8'  # Specify the Python version
-
-      - name: Install dependencies
+      - name: Fetch IPv6 addresses
         run: |
-          python -m pip install --upgrade pip
-          pip install beautifulsoup4 requests
+          # Fetch the webpage and extract IPv6 addresses
+          curl -s https://stock.hostmonit.com/CloudFlareYesV6 | \
+          grep -oP '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|::([0-9a-fA-F]{1,4}:){1,6}[0-9a-fA-F]{1,4}' | \
+          sed 's/^/[/; s/$/]/' > ipv6_addresses.txt
 
-      - name: Fetch and process IPv6 addresses
+      - name: Update ipv6collect2.txt
         run: |
-          import requests
-          from bs4 import BeautifulSoup
+          # Remove duplicates and write to ipv6collect2.txt
+          sort -u ipv6_addresses.txt > ipv6collect2.txt
 
-          # Fetch the webpage
-          url = 'https://stock.hostmonit.com/CloudFlareYesV6'
-          response = requests.get(url)
-          soup = BeautifulSoup(response.text, 'html.parser')
-
-          # Extract IPv6 addresses from the table
-          ipv6_addresses = []
-          for row in soup.select('tr.el-table__row'):
-              ip_cell = row.select_one('td.el-table_1_column_2 .cell')
-              if ip_cell:
-                  ipv6_addresses.append(f"[{ip_cell.text.strip()}]")
-
-          # Remove duplicates while preserving order
-          unique_ipv6_addresses = list(dict.fromkeys(ipv6_addresses))
-
-          # Write to file
-          with open('ipv6collect2.txt', 'w') as f:
-              f.write('\n'.join(unique_ipv6_addresses))
-
-      - name: Commit changes
+      - name: Check for changes
         run: |
+          # Check if ipv6collect2.txt has changed
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add ipv6collect2.txt
-          git commit -m "Update IPv6 addresses" || echo "No changes to commit"
-          git push
+          git diff --exit-code ipv6collect2.txt || git commit -am "Update ipv6collect2.txt with new IPv6 addresses" && git push
