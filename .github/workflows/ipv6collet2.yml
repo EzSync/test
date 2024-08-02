@@ -1,4 +1,4 @@
-name: Collect IPv6 Addresses No.2
+name: IPv6 Address Collector No.2
 
 on:
   schedule:
