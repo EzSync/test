@@ -13,34 +13,52 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Fetch webpage
-        run: |
-          # Fetch the webpage and output the raw HTML for debugging
-          curl -s https://stock.hostmonit.com/CloudFlareYesV6 -o webpage.html
-          echo "Raw HTML content:"
-          cat webpage.html  # Output the raw HTML content for debugging
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'  # Specify the Python version
 
-      - name: Check for column occurrence
+      - name: Install dependencies
         run: |
-          # Check for the occurrence of the column in the HTML
-          echo "Searching for column occurrences:"
-          if ! grep -n '<col name="el-table_1_column_2"' webpage.html; then
-            echo "Column not found."
-          fi
+          python -m pip install --upgrade pip
+          pip install beautifulsoup4 requests
 
-      - name: Extract IPv6 addresses
+      - name: Fetch and extract IPv6 addresses
         run: |
-          # Extract IPv6 addresses from the second occurrence of the column
-          awk -F'<td' '/el-table_1_column_2/{count++} count==2 {print $2}' webpage.html | \
-          grep -oP '[0-9a-fA-F:]{2,}' | sed 's/^/[/; s/$/]/' > ipv6_addresses.txt
+          import requests
+          from bs4 import BeautifulSoup
+          import re
 
-          # Check if any addresses were found
-          if [ -s ipv6_addresses.txt ]; then
-            echo "Extracted IPv6 addresses:"
-            cat ipv6_addresses.txt
-          else
-            echo "No IPv6 addresses found."
-          fi
+          # Fetch the webpage
+          url = "https://stock.hostmonit.com/CloudFlareYesV6"
+          response = requests.get(url)
+          response.raise_for_status()  # Raise an error for bad responses
+
+          # Parse the HTML
+          soup = BeautifulSoup(response.text, 'html.parser')
+
+          # Find all relevant table cells
+          cells = soup.find_all('td', class_='el-table_1_column_2')
+
+          # Extract IPv6 addresses from the second occurrence
+          ipv6_addresses = []
+          if len(cells) > 1:  # Check if there are at least two occurrences
+              for address in cells[1].find_all('div', class_='cell'):
+                  ipv6 = address.get_text(strip=True)
+                  if re.match(r'^[0-9a-fA-F:]+$', ipv6:  # Validate IPv6 format
+                      ipv6_addresses.append(f"[{ipv6}]")
+
+          # Write to ipv6_addresses.txt
+          with open('ipv6_addresses.txt', 'w') as f:
+              for addr in ipv6_addresses:
+                  f.write(f"{addr}\n")
+
+          # Output the results
+          if ipv6_addresses:
+              print("Extracted IPv6 addresses:")
+              print("\n".join(ipv6_addresses))
+          else:
+              print("No IPv6 addresses found.")
 
       - name: Update ipv6collect2.txt
         run: |
