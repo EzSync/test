@@ -40,10 +40,17 @@ jobs:
           # Sort the file and remove duplicates
           sort -u ipv6collect1.txt -o ipv6collect1.txt
 
+      - name: Limit to 20 latest IPv6 addresses
+        run: |
+          # Limit the file to the latest 20 addresses
+          if [ $(wc -l < ipv6collect1.txt) -gt 20 ]; then
+            head -n 20 ipv6collect1.txt > temp_ipv6collect1.txt && mv temp_ipv6collect1.txt ipv6collect1.txt
+          fi
+
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add ipv6collect1.txt
-          git commit -m "Append new IPv6 addresses to ipv6collect1.txt and remove duplicates" || echo "No changes to commit"
+          git commit -m "Append new IPv6 addresses to ipv6collect1.txt, remove duplicates, and limit to 20 addresses" || echo "No changes to commit"
           git push
