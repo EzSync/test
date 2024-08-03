@@ -1,10 +1,9 @@
 name: Merge IPv6 Addresses
 
-# This workflow runs on pushes and manually triggered workflows
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 6 * * *'  # Run at 6:00 AM every day
+    - cron: '0 6 * * *'
 
 jobs:
   merge-ipv6:
@@ -18,6 +17,18 @@ jobs:
           curl -sL https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt >> ipv6merge.txt
           curl -sL https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt >> ipv6merge.txt
           curl -sL https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt >> ipv6merge.txt
+
+      - name: Check if file exists
+        run: |
+          if [ -f ipv6merge.txt ]; then
+            echo "ipv6merge.txt exists"
+          else
+            echo "ipv6merge.txt does not exist"
+          fi
+
+      - name: Print file contents (for debugging)
+        run: |
+          cat ipv6merge.txt
 
       - name: Sort and deduplicate IPv6 addresses
         run: |
