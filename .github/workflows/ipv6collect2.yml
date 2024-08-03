@@ -1,7 +1,9 @@
 name: IPv6_hostmonit
 
 on:
-  workflow_dispatch:
+  schedule:
+    - cron: '15 */2 * * *'  # Runs every 2 hours
+  workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
   update_ipv6:
