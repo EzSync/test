@@ -1,25 +1,46 @@
 name: Update IPv6 Addresses Manually
 
 on:
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
   update_ipv6:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3  # Checkout the repository code
+      - uses: actions/checkout@v3
 
-      - name: Install required tools
+      - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install jq curl
+          python -m pip install beautifulsoup4 requests
 
-      - name: Fetch IPv6 addresses
-        id: fetch_ipv6
+      - name: Fetch webpage content
+        id: fetch_page
         run: |
-          curl 'https://stock.hostmonit.com/CloudFlareYesV6' | 
-          grep -o '(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){5}:([0-9a-fA-F]{1,4}:){2}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){4}:([0-9a-fA-F]{1,4}:){3}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){3}:([0-9a-fA-F]{1,4}:){4}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){2}:([0-9a-fA-F]{1,4}:){5}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1}:([0-9a-fA-F]{1,4}:){6}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){0}:([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4})' |
-          jq -r '.[]' > ipv6_addresses.txt
+          curl -s https://stock.hostmonit.com/CloudFlareYesV6 > webpage.html
+
+      - name: Extract IPv6 addresses
+        id: extract_ipv6
+        run: |
+          python -c "
+          import requests
+          from bs4 import BeautifulSoup
+
+          response = requests.get('webpage.html')
+          soup = BeautifulSoup(response.text, 'html.parser')
+
+          ipv6_addresses = []
+          table = soup.find('table')  # Adjust selector if needed
+          rows = table.find_all('tr')
+          for row in rows:
+              cells = row.find_all('td')
+              if len(cells) >= 2:  # Assuming IPv6 address is in the second column
+                  ipv6_address = cells[1].text.strip()
+                  ipv6_addresses.append(ipv6_address)
+
+          with open('ipv6_addresses.txt', 'w') as f:
+              for address in ipv6_addresses:
+                  f.write(f'[{address}]\n')
+          "
 
       - name: Update ipv6collect2.txt
         run: |
@@ -38,5 +59,4 @@ jobs:
 
       - name: Push changes (if any)
         run: |
-          git push origin main  # Change "master" to "main" if your repository uses it
-
+          git push origin main
