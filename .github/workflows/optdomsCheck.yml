@@ -1,4 +1,4 @@
-name: Del Dom Dups on Change
+name: Del DomDups onChange
 
 on:
   push:
