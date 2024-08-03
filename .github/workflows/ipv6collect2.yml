@@ -38,4 +38,5 @@ jobs:
 
       - name: Push changes (if any)
         run: |
-          git push origin master
+          git push origin main  # Change "master" to "main" if your repository uses it
+
