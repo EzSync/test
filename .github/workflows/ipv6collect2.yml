@@ -1,4 +1,4 @@
-name: Update IPv6 Addresses Manually
+name: IPv6_hostmonit
 
 on:
   workflow_dispatch:
