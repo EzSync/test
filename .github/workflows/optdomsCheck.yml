@@ -1,4 +1,4 @@
-name: Remove Dom Duplicates on Change
+name: Del Dom Dups on Change
 
 on:
   push:
