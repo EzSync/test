@@ -14,12 +14,12 @@ jobs:
       - name: Create empty file
         run: touch ipv6merge.txt
 
-      - name: Download and append IPv6 addresses with error handling
+      - name: Download and append IPv6 addresses
         run: |
-          curl -sL https://addressesapi.090227.xyz/cmcc-ipv6 >> ipv6merge.txt || echo "Error downloading cmcc-ipv6"
-          curl -sL https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt | sed 's/\[//g' | sed 's/\]//g' >> ipv6merge.txt || echo "Error downloading ipv6-zamzhang.txt"
-          curl -sL https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt | sed 's/\[//g' | sed 's/\]//g' >> ipv6merge.txt || echo "Error downloading ipv6collect1.txt"
-          curl -sL https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt | sed 's/\[//g' | sed 's/\]//g' >> ipv6merge.txt || echo "Error downloading optipv6.txt"
+          curl -sL https://addressesapi.090227.xyz/cmcc-ipv6 >> ipv6merge.txt
+          curl -sL https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt | sed 's/\[//g' | sed 's/\]//g' >> ipv6merge.txt
+          curl -sL https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt | sed 's/\[//g' | sed 's/\]//g' >> ipv6merge.txt
+          curl -sL https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt | sed 's/\[//g' | sed 's/\]//g' >> ipv6merge.txt
 
       - name: Check file size and content
         run: |
@@ -29,12 +29,6 @@ jobs:
           else
             echo "ipv6merge.txt is empty"
           fi
-          ls -la
-
-      - name: Sort and deduplicate IPv6 addresses
-        run: |
-          sort -u ipv6merge.txt > tmp.txt
-          mv tmp.txt ipv6merge.txt
 
       - name: Commit and push changes
         uses: actions/checkout@v3
