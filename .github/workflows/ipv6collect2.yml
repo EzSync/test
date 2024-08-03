@@ -45,9 +45,10 @@ jobs:
               print('Table not found')
           "
 
-      - name: Update ipv6collect2.txt
+      - name: Create ipv6collect2.txt
         run: |
-          cp ipv6_addresses.txt ipv6collect2.txt
+          touch ipv6collect2.txt
+          cp -n ipv6_addresses.txt ipv6collect2.txt
 
       - name: Remove duplicates
         run: |
