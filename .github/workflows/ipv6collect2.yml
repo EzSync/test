@@ -1,8 +1,7 @@
-name: Update IPv6 Addresses
+name: Update IPv6 Addresses Manually
 
 on:
-  push:  # Runs on every push to the repository
-    branches: [ master ]  # Only runs on pushes to the master branch
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   update_ipv6:
