@@ -14,10 +14,11 @@ jobs:
 
       - name: Download IPv6 addresses
         run: |
-          wget https://addressesapi.090227.xyz/cmcc-ipv6 -O ipv6_list1.txt
+          wget --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" https://addressesapi.090227.xyz/cmcc-ipv6 -O ipv6_list1.txt
           wget https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt -O ipv6_list2.txt
           wget https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt -O ipv6_list3.txt
           wget https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt -O ipv6_list4.txt
+
 
 
 
