@@ -1,0 +1,38 @@
+name: Merge IPv6 Addresses
+
+# This workflow runs on pushes and manually triggered workflows
+on:
+  push:
+  schedule:
+    - cron: '0 6 * * *'  # Run at 6:00 AM every day
+
+jobs:
+  merge-ipv6:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download IPv6 addresses
+        run: |
+          curl -sL https://addressesapi.090227.xyz/cmcc-ipv6 >> ipv6merge.txt
+          curl -sL https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt >> ipv6merge.txt
+          curl -sL https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt >> ipv6merge.txt
+          curl -sL https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt >> ipv6merge.txt
+
+      - name: Sort and deduplicate IPv6 addresses
+        run: |
+          sort -u ipv6merge.txt > tmp.txt
+          mv tmp.txt ipv6merge.txt
+
+      - name: Commit changes
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+          git add ipv6merge.txt
+          git commit -m "Update ipv6merge.txt with merged and sorted IPv6 addresses"
+
+      - name: Push changes
+        uses: ad-action/github-push@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
