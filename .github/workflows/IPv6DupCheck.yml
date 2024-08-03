@@ -1,4 +1,4 @@
-name: Remove ipv6 Duplicates on Change
+name: Del IPv6 Dups on Change
 
 on:
   push:
