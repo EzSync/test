@@ -2,7 +2,7 @@ name: Merge IPv6 Addresses
 
 # This workflow runs on pushes and manually triggered workflows
 on:
-  push:
+  workflow_dispatch:
   schedule:
     - cron: '0 6 * * *'  # Run at 6:00 AM every day
 
