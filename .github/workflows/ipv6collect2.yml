@@ -22,28 +22,32 @@ jobs:
         id: extract_ipv6
         run: |
           python -c "
-          import bs4
-          from bs4 import BeautifulSoup
+import bs4
+from bs4 import BeautifulSoup
 
-          with open('webpage.html', 'r') as f:
-              soup = BeautifulSoup(f.read(), 'html.parser')
+with open('webpage.html', 'r') as f:
+    soup = BeautifulSoup(f.read(), 'html.parser')
 
-          table = soup.find('table')  # Adjust selector if needed
-          if table:
-              ipv6_addresses = []
-              rows = table.find_all('tr')
-              for row in rows:
-                  cells = row.find_all('td')
-                  if len(cells) >= 2:  # Assuming IPv6 address is in the second column
-                      ipv6_address = cells[1].text.strip()
-                      ipv6_addresses.append(ipv6_address)
+table = soup.find('table')  # Adjust selector if needed
+if table:
+    ipv6_addresses = []
+    rows = table.find_all('tr')
+    for row in rows:
+        cells = row.find_all('td')
+        if len(cells) >= 2:  # Assuming IPv6 address is in the second column
+            ipv6_address = cells[1].text.strip()
+            ipv6_addresses.append(ipv6_address)
+            print(ipv6_address)  # Add this line to print extracted addresses
 
-              with open('ipv6_addresses.txt', 'w') as f:
-                  for address in ipv6_addresses:
-                      f.write(f'[{address}]\n')
-          else:
-              print('Table not found')
-          "
+    if ipv6_addresses:
+        with open('ipv6_addresses.txt', 'w') as f:
+            for address in ipv6_addresses:
+                f.write(f'[{address}]\n')
+    else:
+        print("No IPv6 addresses found")
+else:
+    print("Table not found")
+
 
       - name: Create ipv6collect2.txt
         run: |
