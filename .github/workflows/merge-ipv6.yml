@@ -29,6 +29,7 @@ jobs:
           else
             echo "ipv6merge.txt is empty"
           fi
+          ls -la
 
       - name: Sort and deduplicate IPv6 addresses
         run: |
