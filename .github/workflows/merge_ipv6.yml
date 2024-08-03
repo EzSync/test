@@ -1,0 +1,26 @@
+name: Merge IPv6 Addresses
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天凌晨执行一次，可根据需要调整
+  workflow_dispatch:
+
+jobs:
+  merge_ipv6:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download IPv6 addresses
+        run: |
+          wget https://addressesapi.090227.xyz/cmcc-ipv6 -O ipv6_list1.txt
+          wget https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt -O ipv6_list2.txt
+          wget https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt -O ipv6_list3.txt
+          wget https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt -O ipv6_list4.txt
+
+
+
+      - name: Merge files
+        run: |
+          cat ipv6_list1.txt ipv6_list2.txt ipv6_list3.txt ipv6_list4.txt > test/merged_ipv6.txt
