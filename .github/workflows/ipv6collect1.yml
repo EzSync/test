@@ -2,7 +2,7 @@ name: IPv6 Address Collector No.1
 
 on:
   schedule:
-    - cron: '10 6-22 * * *'  # Runs every 30 minutes
+    - cron: '15 */2 * * *'  # Runs every hour
   workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
