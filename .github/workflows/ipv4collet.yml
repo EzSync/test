@@ -1,8 +1,8 @@
-name: Collect IPv4 As Webpage Change
+name: Fetch IPv4 onChange
 
 on:
   schedule:
-    - cron: '15 */2 * * *'  # Runs every 30 minutes
+    - cron: '15 */2 * * *'  # Runs every 2 hours
   workflow_dispatch:
   push:
 
