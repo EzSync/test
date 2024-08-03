@@ -1,0 +1,35 @@
+name: Combine IPv6 Lists
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *' # Example: Runs daily at midnight UTC
+
+jobs:
+  combine:
+    runs-on: ubuntu-latest # Run the job on an Ubuntu virtual machine
+
+    steps:
+      - uses: actions/checkout@v3 # Checkout the repository code
+
+      - name: Download IPv6 Lists
+        run: |
+          curl -sSL "https://addressesapi.090227.xyz/cmcc-ipv6" >> ipv6collect2.txt
+          curl -sSL "https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt" >> ipv6collect2.txt
+          curl -sSL "https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt" >> ipv6collect2.txt
+          curl -sSL "https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt" >> ipv6collect2.txt
+
+      - name: Add newline character (optional)
+        run: echo >> ipv6collect2.txt  # This adds a newline character at the end of the combined file (optional)
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "GitHub Actions"
+          git add ipv6collect2.txt
+          git commit -m "Combine IPv6 lists from URLs"
+
+      - name: Push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Use a secret for your personal access token
+        run: git push origin main
