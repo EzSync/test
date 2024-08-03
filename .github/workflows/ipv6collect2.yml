@@ -28,18 +28,21 @@ jobs:
           with open('webpage.html', 'r') as f:
               soup = BeautifulSoup(f.read(), 'html.parser')
 
-          ipv6_addresses = []
           table = soup.find('table')  # Adjust selector if needed
-          rows = table.find_all('tr')
-          for row in rows:
-              cells = row.find_all('td')
-              if len(cells) >= 2:  # Assuming IPv6 address is in the second column
-                  ipv6_address = cells[1].text.strip()
-                  ipv6_addresses.append(ipv6_address)
+          if table:
+              ipv6_addresses = []
+              rows = table.find_all('tr')
+              for row in rows:
+                  cells = row.find_all('td')
+                  if len(cells) >= 2:  # Assuming IPv6 address is in the second column
+                      ipv6_address = cells[1].text.strip()
+                      ipv6_addresses.append(ipv6_address)
 
-          with open('ipv6_addresses.txt', 'w') as f:
-              for address in ipv6_addresses:
-                  f.write(f'[{address}]\n')
+              with open('ipv6_addresses.txt', 'w') as f:
+                  for address in ipv6_addresses:
+                      f.write(f'[{address}]\n')
+          else:
+              print('Table not found')
           "
 
       - name: Update ipv6collect2.txt
