@@ -11,19 +11,26 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Download IPv6 addresses
+      - name: Create empty file
+        run: touch ipv6merge.txt
+
+      - name: Download and append IPv6 addresses
         run: |
           curl -sL https://addressesapi.090227.xyz/cmcc-ipv6 >> ipv6merge.txt
+          echo "Appended cmcc-ipv6"
           curl -sL https://raw.githubusercontent.com/EzSync/test/main/ipv6-zamzhang.txt >> ipv6merge.txt
+          echo "Appended ipv6-zamzhang.txt"
           curl -sL https://raw.githubusercontent.com/EzSync/test/main/ipv6collect1.txt >> ipv6merge.txt
+          echo "Appended ipv6collect1.txt"
           curl -sL https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt >> ipv6merge.txt
+          echo "Appended optipv6.txt"
 
-      - name: Check if file exists
+      - name: Check file size
         run: |
-          if [ -f ipv6merge.txt ]; then
-            echo "ipv6merge.txt exists"
+          if [ -s ipv6merge.txt ]; then
+            echo "ipv6merge.txt has content"
           else
-            echo "ipv6merge.txt does not exist"
+            echo "ipv6merge.txt is empty"
           fi
 
       - name: Print file contents (for debugging)
