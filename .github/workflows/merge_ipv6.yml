@@ -24,4 +24,4 @@ jobs:
 
       - name: Merge files
         run: |
-          cat ipv6_list1.txt ipv6_list2.txt ipv6_list3.txt ipv6_list4.txt > test/ipv6collect2.txt
+          cat ipv6_list1.txt ipv6_list2.txt ipv6_list3.txt ipv6_list4.txt > ipv6collect2.txt
