@@ -1,0 +1,72 @@
+name: IPv6_hostmonit
+
+on:
+  schedule:
+    - cron: '15 */2 * * *'  # Runs every 2 hours
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  update_ipv6:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          python -m pip install beautifulsoup4
+
+      - name: Fetch webpage content
+        id: fetch_page
+        run: |
+          curl -s https://stock.hostmonit.com/CloudFlareYesV6 > webpage.html
+
+      - name: Extract IPv6 addresses
+        id: extract_ipv6
+        run: |
+          python -c "
+import bs4
+from bs4 import BeautifulSoup
+
+with open('webpage.html', 'r') as f:
+    soup = BeautifulSoup(f.read(), 'html.parser')
+
+table = soup.find('table')  # Adjust selector if needed
+if table:
+    ipv6_addresses = []
+    rows = table.find_all('tr')
+    for row in rows:
+        cells = row.find_all('td')
+        if len(cells) >= 2:  # Assuming IPv6 address is in the second column
+            ipv6_address = cells[1].text.strip()
+            ipv6_addresses.append(ipv6_address)
+            print(ipv6_address)  # Add this line to print extracted addresses
+
+    if ipv6_addresses:
+        with open('ipv6_addresses.txt', 'w') as f:
+            for address in ipv6_addresses:
+                f.write(f'[{address}]\n')
+    else:
+        print("No IPv6 addresses found")
+else:
+    print("Table not found")
+
+
+      - name: Create ipv6collect2.txt
+        run: |
+          touch ipv6collect2.txt
+          cp -n ipv6_addresses.txt ipv6collect2.txt
+
+      - name: Remove duplicates
+        run: |
+          awk '!seen[$0]++' ipv6collect2.txt > ipv6collect2.tmp && mv ipv6collect2.tmp ipv6collect2.txt
+
+      - name: Commit changes (if any)
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+          git add ipv6collect2.txt
+          git commit -m "Update IPv6 addresses from 'https://stock.hostmonit.com/CloudFlareYesV6'" || true
+
+      - name: Push changes (if any)
+        run: |
+          git push origin main
