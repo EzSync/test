@@ -11,7 +11,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install beautifulsoup4 requests
+          python -m pip install beautifulsoup4
 
       - name: Fetch webpage content
         id: fetch_page
@@ -22,11 +22,10 @@ jobs:
         id: extract_ipv6
         run: |
           python -c "
-          import requests
-          from bs4 import BeautifulSoup
+          import bs4
 
-          response = requests.get('webpage.html')
-          soup = BeautifulSoup(response.text, 'html.parser')
+          with open('webpage.html', 'r') as f:
+              soup = BeautifulSoup(f.read(), 'html.parser')
 
           ipv6_addresses = []
           table = soup.find('table')  # Adjust selector if needed
