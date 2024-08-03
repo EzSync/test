@@ -35,22 +35,31 @@ jobs:
           # Append new addresses to ipv6collect1.txt
           cat new_ipv6collect1.txt >> ipv6collect1.txt
 
-      - name: Sort and remove duplicates from ipv6collect1.txt
+      - name: Remove duplicates and keep the latest 20 addresses
         run: |
-          # Sort the file and remove duplicates
-          sort -u ipv6collect1.txt -o ipv6collect1.txt
+          # Create a temporary file to hold unique addresses
+          > temp_ipv6collect1.txt
+          # Read the existing addresses and keep track of seen addresses
+          seen_addresses=()
+          while IFS= read -r line; do
+            # Check if the address is already seen
+            if [[ ! " ${seen_addresses[@]} " =~ " ${line} " ]]; then
+              seen_addresses+=("$line")
+            fi
+          done < ipv6collect1.txt
 
-      - name: Limit to 20 latest IPv6 addresses
-        run: |
-          # Limit the file to the latest 20 addresses
-          if [ $(wc -l < ipv6collect1.txt) -gt 20 ]; then
-            head -n 20 ipv6collect1.txt > temp_ipv6collect1.txt && mv temp_ipv6collect1.txt ipv6collect1.txt
-          fi
+          # Keep only the last 20 addresses
+          for ((i=${#seen_addresses[@]}-20; i<${#seen_addresses[@]}; i++)); do
+            echo "${seen_addresses[i]}" >> temp_ipv6collect1.txt
+          done
+
+          # Replace the original file with the new one
+          mv temp_ipv6collect1.txt ipv6collect1.txt
 
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add ipv6collect1.txt
-          git commit -m "Append new IPv6 addresses to ipv6collect1.txt, remove duplicates, and limit to 20 addresses" || echo "No changes to commit"
+          git commit -m "Append new IPv6 addresses to ipv6collect1.txt, remove duplicates, and keep the latest 20 addresses" || echo "No changes to commit"
           git push
