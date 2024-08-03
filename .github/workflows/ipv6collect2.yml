@@ -23,6 +23,7 @@ jobs:
         run: |
           python -c "
           import bs4
+          from bs4 import BeautifulSoup
 
           with open('webpage.html', 'r') as f:
               soup = BeautifulSoup(f.read(), 'html.parser')
