@@ -12,7 +12,6 @@ cname2.164182.xyz
 fbi.gov
 fd-cname1.164182.xyz
 fd-cname2.164182.xyz
-fdip.cnpass.pp.ua
 gur.gov.ua
 heiliaosp.com
 hub.jeblove.com
@@ -25,7 +24,6 @@ jeblove.com
 kr.wokaotianshi.eu.org
 log.bpminecraft.com
 m.tvfff.com
-my-telegram-is-herocore.onecf.eu.org
 py44444.com
 q49.cc
 russia.com
