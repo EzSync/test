@@ -6,11 +6,7 @@ aa4bx.com
 abc.cloudflare.182682.xyz
 bbacgn.com
 cdn.0578.eu.org
-cdn.didi8.com
-cdn.gundao.dynv6.net
 cdn.smnet.asia
-cdnus.huabuxiang.vip
-cf.090227.xyz
 cf.0sm.com
 cname2.164182.xyz
 fbi.gov
@@ -21,7 +17,6 @@ gur.gov.ua
 heiliaosp.com
 hub.jeblove.com
 ip.sb
-ip5.laodeng.eu.org
 iplocation.io
 japan.com
 jav524.com
@@ -35,10 +30,7 @@ py44444.com
 q49.cc
 russia.com
 sg.onecf.eu.org
-sp.guangge111.top
 sp.xybojeky.xyz
-tg.wxgqlfx.top
-us.cmliu.cloudns.org.cdn.cloudflare.net
 us.fxxkwall.free.hr
 us.moyue.eu.org
 us.wlhacker.lol
@@ -50,7 +42,6 @@ www.azheds.com
 www.b7yy.cc
 www.baipiao.eu.org
 www.boba88slot.com
-www.d-555.com
 www.digitalocean.com
 www.dmla6.com
 www.gco.gov.qa
@@ -62,12 +53,10 @@ www.ipaddress.my
 www.ipget.net
 www.iplocation.net
 www.pcmag.com
-www.sean-now.com
 www.smnet.asia
 www.whatismyip.com
 www.wto.org
 www.x2b2e.com
-y.lingzhi.cloudns.org
 yx.kavin.fun
 yx443.wwxblue.link
 yxip.wmrt.eu.org
