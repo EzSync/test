@@ -1,8 +1,3 @@
-优选域名：
-https://raw.githubusercontent.com/EzSync/test/main/optdoms-yg.txt
-https://raw.githubusercontent.com/EzSync/test/main/optdoms.txt
-
-
 IP优选、测速网站：
 https://monitor.gacjie.cn/page/cloudflare/ipv4.html
 https://ip.164746.xyz
@@ -15,7 +10,6 @@ https://ipdb.api.030101.xyz/?type=bestcf&country=true
 
 IPV6:
 https://addressesapi.090227.xyz/cmcc-ipv6
-https://raw.githubusercontent.com/EzSync/test/main/optipv6.txt
 
 
 优选IP网站：https://github.com/ansoncloud8/am-tunnel
