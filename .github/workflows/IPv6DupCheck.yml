@@ -1,4 +1,4 @@
-name: Del IPv6Dups onChange
+name: RM IPv6Dups onChange
 
 on:
   push:
