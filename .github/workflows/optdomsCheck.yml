@@ -1,4 +1,4 @@
-name: Del DomDups onChange
+name: RM DomDups onChange
 
 on:
   push:
