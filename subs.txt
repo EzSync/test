@@ -1,8 +1,11 @@
-1.Mysubs:
-  WPsub:
-  https://tg.ezbiz365.cloudns.org/dac89ddd-1a89-4732-88dd-105cfaaf5ab8
-  EPsub:
-  https://esubcm.ezbiz.dynv6.net/3dd86e92-1aa7-4227-b5c8-af7470be5f36
+1.Gitsubs
+https://raw.githubusercontent.com/ripaojiedian/freenode/main/sub
+https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt
+https://raw.githubusercontent.com/learnhard-cn/free_proxy_ss/main/free
+https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub
+
+https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2
+https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray
 
 2.CMLiu:快速体验订阅地址：
 https://VLESS.fxxk.dedyn.io/auto
