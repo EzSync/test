@@ -2,7 +2,7 @@ name: IPv6_gacjie 2hrs
 
 on:
   schedule:
-    - cron: '15 */2 * * *'  # Runs every 2 hours
+    - cron: '15 22-14/1 * * *'  # Runs every 2 hours
   workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
