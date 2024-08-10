@@ -2,7 +2,7 @@ name: IPv6_zamzhang
 
 on:
   schedule:
-    - cron: '15 17 * * *'  # Runs every day at 17:15 UTC
+    - cron: '15 17 * * *'  # Runs every day at 01:00 BJT/17:15 UTC
   workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
