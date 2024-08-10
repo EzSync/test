@@ -2,7 +2,7 @@ name: IPv6_gacjie 2hrs
 
 on:
   schedule:
-    - cron: '15 22-14/1 * * *'  # Runs every 2 hours
+    - cron: '15 22-14/1 * * *'  # Runs every 1 hours
   workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
@@ -35,7 +35,7 @@ jobs:
           # Append new addresses to ipv6collect1.txt
           cat new_ipv6collect1.txt >> ipv6collect1.txt
 
-      - name: Remove duplicates and keep the latest 20 unique addresses
+      - name: Remove duplicates and keep the latest 30 unique addresses
         run: |
           # Create a temporary file to hold unique addresses
           > temp_ipv6collect1.txt
@@ -51,8 +51,8 @@ jobs:
             fi
           done < ipv6collect1.txt
 
-          # Keep only the last 20 unique addresses
-          for ((i=${#unique_addresses[@]}-20; i<${#unique_addresses[@]}; i++)); do
+          # Keep only the last 30 unique addresses
+          for ((i=${#unique_addresses[@]}-30; i<${#unique_addresses[@]}; i++)); do
             if [ $i -ge 0 ]; then
               echo "${unique_addresses[i]}" >> temp_ipv6collect1.txt
             fi
@@ -66,5 +66,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add ipv6collect1.txt
-          git commit -m "Append new IPv6 addresses to ipv6collect1.txt, remove duplicates, and keep the latest 20 unique addresses" || echo "No changes to commit"
+          git commit -m "Append new IPv6 addresses to ipv6collect1.txt, remove duplicates, and keep the latest 30 unique addresses" || echo "No changes to commit"
           git push
