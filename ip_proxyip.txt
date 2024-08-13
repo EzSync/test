@@ -1,7 +1,7 @@
 IP优选、测速网站：
 https://monitor.gacjie.cn/page/cloudflare/ipv4.html
 https://ip.164746.xyz
-https://cf.090227.xyz
+https://345673.xyz
 
 IPV4:
 https://addressesapi.090227.xyz/ct
