@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2 # Check out the repository
+        uses: actions/checkout@v3 # Updated to v3
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4 # Updated to v4
         with:
           python-version: '3.8' # Specify the Python version
 
@@ -27,8 +27,11 @@ jobs:
         run: |
           python extract_ipv6.py # Run the extraction script
 
+      - name: List files in the directory
+        run: ls -la # List files to check if ipv6-hostmonit.txt was created
+
       - name: Upload extracted IPv6 addresses
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3 # Updated to v3
         with:
           name: ipv6-hostmonit
           path: ipv6-hostmonit.txt # Upload the output file as an artifact
