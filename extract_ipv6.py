@@ -6,10 +6,13 @@ url = 'https://stock.hostmonit.com/CloudFlareYesV6'
 response = requests.get(url)
 
 # Check if the request was successful
+print(f"Response Status Code: {response.status_code}")  # Debugging line
 if response.status_code == 200:
     # Use regex to find all IPv6 addresses
     ipv6_pattern = r'([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}'
     ipv6_addresses = re.findall(ipv6_pattern, response.text)
+
+    print(f"Extracted IPv6 Addresses: {ipv6_addresses}")  # Debugging line
 
     # Use a set to keep unique addresses while maintaining order
     unique_ipv6_addresses = []
