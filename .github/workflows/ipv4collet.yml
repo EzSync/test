@@ -37,7 +37,7 @@ jobs:
           IP_ADDRESSES3=$(echo "$CONTENT3" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b')
 
           # Combine the IP addresses and remove duplicates
-          ALL_IP_ADDRESSES=$(echo -e "$IP_ADDRESSES1\n$IP_ADDRESSES2"\n$IP_ADDRESSES3" | sort -u)
+          ALL_IP_ADDRESSES=$(echo -e "$IP_ADDRESSES1\n$IP_ADDRESSES2\n$IP_ADDRESSES3" | sort -u)
 
           # Replace the contents of ipv4collect.txt with the new IPs
           echo "$ALL_IP_ADDRESSES" > ipv4collect.txt
