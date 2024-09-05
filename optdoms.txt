@@ -16,6 +16,7 @@ jaziel.ns.cloudflare.com
 kusa2.net
 log.bpminecraft.com
 m.ljkfgj.top
+perla.ns.cloudflare.com
 py44444.com
 q49.cc
 tb55888.com
