@@ -3,7 +3,6 @@
 a.zhangge123.cloudns.org
 aa4bx.com
 abskoop.com
-achk.cloudflarest.link
 bb895.com
 bbacgn.com
 cdn.0578.eu.org
@@ -14,11 +13,9 @@ cloudflare.182682.xyz
 cname2.164182.xyz
 cnamefuckxxs.yuchen.icu
 download.yunzhongzhuan.com
-f3058171cad.002404.xyz
 fd-cname2.164182.xyz
 forum.allnokia.ru
 freeyx.cloudflare88.eu.org
-iplocation.iowww.d-555.com
 jav524.com
 jav8.me
 jaziel.ns.cloudflare.com
@@ -42,6 +39,5 @@ www.ljkfgj.top
 www.santoriniports.gr
 www.x2b2e.com
 xn--b6gac.eu.org
-yx.887141.xyz
 yx443.wwxblue.link
 zmq.7svlcs.xyz
