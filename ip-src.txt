@@ -2,6 +2,8 @@ IP优选、测速网站：
 https://monitor.gacjie.cn/page/cloudflare/ipv4.html
 https://ip.164746.xyz
 https://345673.xyz
+https://vps789.com/hostmonitor/?hostProvider=CF%E4%BC%98%E9%80%89IP
+https://stock.hostmonit.com/CloudFlareYes
 
 IPV4:
 https://addressesapi.090227.xyz/ct
