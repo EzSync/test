@@ -9,7 +9,6 @@ ben.ns.cloudflare.com
 cdn.0578.eu.org
 cf.0sm.com
 cloudflare.182682.xyz
-cname2.164182.xyz
 cnamefuckxxs.yuchen.icu
 download.yunzhongzhuan.com
 forum.allnokia.ru
