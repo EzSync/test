@@ -22,7 +22,7 @@ jobs:
         id: fetch_ips
         run: |
           # Define the URLs to monitor
-          URL1="https://monitor.gacjie.cn/page/cloudflare/ipv4.html"
+          URL1="https://www.wetest.vip/page/cloudflare/address_v4.html"
           URL2="https://ip.164746.xyz/"
                               
           # Fetch the current content of the pages
