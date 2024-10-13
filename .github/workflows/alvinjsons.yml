@@ -2,7 +2,7 @@ name: Combine JSON Files
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Runs at 2:00 AM UTC every day
+    - cron: '0 3,15 * * *'  # Runs at 2:00 AM UTC every day
   workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
