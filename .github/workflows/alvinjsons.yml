@@ -1,10 +1,10 @@
-
 name: Combine JSON Files
 
 on:
   schedule:
     - cron: '0 2 * * *'  # Runs at 2:00 AM UTC every day
-  workflow_dispatch: # Allows manual triggering of the workflow
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
 jobs:
   combine-json:
     runs-on: ubuntu-latest
@@ -20,8 +20,9 @@ jobs:
           curl -o config3.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/13/config.json
           curl -o config4.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/2/config.json
 
-      - name: Combine JSON files
+      - name: Analyze and Combine JSON files
         run: |
+          # Use jq to combine the JSON files into one
           jq -s 'add' config1.json config2.json config3.json config4.json > alvinjson.json
 
       - name: Commit and push combined JSON
