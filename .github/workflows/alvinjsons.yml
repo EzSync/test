@@ -1,0 +1,33 @@
+
+name: Combine JSON Files
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Runs at 2:00 AM UTC every day
+  workflow_dispatch: # Allows manual triggering of the workflow
+jobs:
+  combine-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download JSON files
+        run: |
+          curl -o config1.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/config.json
+          curl -o config2.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/1/config.json
+          curl -o config3.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/13/config.json
+          curl -o config4.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/2/config.json
+
+      - name: Combine JSON files
+        run: |
+          jq -s 'add' config1.json config2.json config3.json config4.json > alvinjson.json
+
+      - name: Commit and push combined JSON
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add alvinjson.json
+          git commit -m "Update alvinjson.json with combined JSON files" || echo "No changes to commit"
+          git push
