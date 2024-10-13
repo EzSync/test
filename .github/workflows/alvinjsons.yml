@@ -1,12 +1,12 @@
-name: Combine JSON Files
+name: Analyze and Combine JSON Files
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Runs at 2:00 AM UTC every day
-  workflow_dispatch:  # Allows manual triggering of the workflow
+    - cron: '0 2 * * *'  # Runs at 2:00 AM UTC
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
-  combine-json:
+  combine_json:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,20 +15,20 @@ jobs:
 
       - name: Download JSON files
         run: |
-          curl -o config1.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/config.json
-          curl -o config2.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/1/config.json
-          curl -o config3.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/13/config.json
-          curl -o config4.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/2/config.json
+          curl -o config.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/config.json
+          curl -o config1.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/1/config.json
+          curl -o config13.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/13/config.json
+          curl -o config2.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/2/config.json
 
       - name: Analyze and Combine JSON files
         run: |
-          # Use jq to combine the JSON files into one
-          jq -s 'add' config1.json config2.json config3.json config4.json > alvinjson.json
+          # Using jq to analyze and combine the JSON files
+          jq -s 'map({server, protocol, http, socks5, obfs, auth_str, alpn, server_name, insecure}) | add' config.json config1.json config13.json config2.json > alvinjson.json
 
       - name: Commit and push combined JSON
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add alvinjson.json
-          git commit -m "Update alvinjson.json with combined JSON files" || echo "No changes to commit"
+          git commit -m "Combine analyzed JSON files into alvinjson.json"
           git push
