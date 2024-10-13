@@ -1,12 +1,12 @@
-name: Analyze and Combine JSON Files
+name: Combine JSON Files
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Runs at 2:00 AM UTC
-  workflow_dispatch:  # Allows manual triggering
+    - cron: '0 2 * * *'  # Runs at 2:00 AM UTC every day
+  workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
-  combine_json:
+  combine-json:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,20 +15,30 @@ jobs:
 
       - name: Download JSON files
         run: |
-          curl -o config.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/config.json
-          curl -o config1.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/1/config.json
-          curl -o config13.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/13/config.json
-          curl -o config2.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/2/config.json
+          curl -o config1.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/config.json
+          curl -o config2.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/1/config.json
+          curl -o config3.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/13/config.json
+          curl -o config4.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/2/config.json
+          curl -o config5.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria2/config.json
+          curl -o config6.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria2/1/config.json
+          curl -o config7.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria2/13/config.json
+          curl -o config8.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria2/2/config.json
+          curl -o config9.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/singbox/config.json
+          curl -o config10.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/singbox/1/config.json
+          curl -o config11.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/xray/config.json
+          curl -o config12.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/xray/1/config.json
+          curl -o config13.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/xray/2/config.json
+          curl -o config14.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/xray/3/config.json
 
       - name: Analyze and Combine JSON files
         run: |
-          # Using jq to analyze and combine the JSON files
-          jq -s 'map({server, protocol, http, socks5, obfs, auth_str, alpn, server_name, insecure}) | add' config.json config1.json config13.json config2.json > alvinjson.json
+          # Use jq to combine the JSON files into one
+          jq -s 'add' config1.json config2.json config3.json config4.json config5.json config6.json config7.json config8.json config9.json config10.json config11.json config12.json config13.json config14.json > alvinjson.json
 
       - name: Commit and push combined JSON
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add alvinjson.json
-          git commit -m "Combine analyzed JSON files into alvinjson.json"
+          git commit -m "Update alvinjson.json with combined JSON files" || echo "No changes to commit"
           git push
