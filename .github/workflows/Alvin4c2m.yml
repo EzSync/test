@@ -3,7 +3,7 @@ name: Alvin4C2M Workflow
 on:
   schedule:
     # Runs at 3:00 AM UTC every day
-    - cron: '0 3 * * *'
+    - cron: '0 22 * * *'
   workflow_dispatch:
     # Allows the workflow to be run manually
 
