@@ -1,44 +1,44 @@
-name: Alvin4c2m Workflow
+name: "Alvin4c2m Workflow"
 
+# Controls when the action will run: at 3:00 AM UTC and on manual dispatch
 on:
   schedule:
-    - cron: '0 3 * * *'  # Runs at 03:00 AM UTC
-  workflow_dispatch:  # Allows manual trigger of the workflow
+    - cron: '0 3 * * *'
+  workflow_dispatch:
 
 jobs:
-  analyze-and-combine:
+  merge_yaml:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Fetch and Combine YAML Files
-        run: |
-          # Create a folder to hold the YAML files
-          mkdir -p clash_meta_files
-          
-          # Fetch the YAML files from the provided URLs
-          curl -o clash_meta_files/config.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/config.yaml
-          curl -o clash_meta_files/config1.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/1/config.yaml
-          curl -o clash_meta_files/config13.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/13/config.yaml
-          curl -o clash_meta_files/config15.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/15/config.yaml
-          curl -o clash_meta_files/config2.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/2/config.yaml
-          curl -o clash_meta_files/config3.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/3/config.yaml
+    - name: Install dependencies
+      run: sudo apt-get install -y curl
 
-          # Initialize the combined file
-          echo "# Combined YAML from multiple sources" > alvin4c2m.yaml
+    - name: Download and Merge YAML Files
+      run: |
+        # Download YAML files
+        curl -o config.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/config.yaml
+        curl -o config1.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/1/config.yaml
+        curl -o config13.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/13/config.yaml
+        curl -o config15.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/15/config.yaml
+        curl -o config2.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/2/config.yaml
+        curl -o config3.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/3/config.yaml
 
-          # Combine the YAML files into one file
-          for file in clash_meta_files/*.yaml; do
-            echo "\n# Contents from $file\n" >> alvin4c2m.yaml
-            cat $file >> alvin4c2m.yaml
-          done
+        # Merge YAML files into a single file
+        echo "---" > alvin4c2m.yaml
+        for file in config*.yaml; do
+          echo "Merging $file into alvin4c2m.yaml"
+          echo "---" >> alvin4c2m.yaml
+          cat "$file" >> alvin4c2m.yaml
+        done
 
-      - name: Commit and Push Changes
-        run: |
-          git config --local user.email "github-actions@example.com"
-          git config --local user.name "GitHub Actions"
-          git add alvin4c2m.yaml
-          git commit -m "Combine and parse clash.meta2 YAML files into alvin4c2m.yaml"
-          git push
+    - name: Commit and push merged YAML file
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add alvin4c2m.yaml
+        git commit -m "Merged YAML files into alvin4c2m.yaml"
+        git push
