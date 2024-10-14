@@ -1,67 +1,47 @@
-name: Alvin4C2M Workflow
+name: alvin4c2m
 
 on:
   schedule:
-    # Runs at 3:00 AM UTC every day
-    - cron: '0 22 * * *'
-  workflow_dispatch:
-    # Allows the workflow to be run manually
+    - cron: '0 3 * * *'  # Runs at 3:00 AM UTC
+  workflow_dispatch:  # Enables manual triggering
 
 jobs:
-  merge_yaml:
+  merge_yaml_files:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
+    - name: Install curl
+      run: sudo apt-get install -y curl
 
-    - name: Install PyYAML
+    - name: Fetch and merge YAML files
       run: |
-        python -m pip install pyyaml
+        # Define the URLs of the YAML files
+        urls=(
+          "https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/config.yaml"
+          "https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/1/config.yaml"
+          "https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/13/config.yaml"
+          "https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/15/config.yaml"
+          "https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/2/config.yaml"
+          "https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/3/config.yaml"
+        )
 
-    - name: Download YAML files
+        # Initialize the final YAML file
+        echo "# Combined alvin4c2m.yaml" > alvin4c2m.yaml
+
+        # Loop through each URL, download the content, and append it to the final YAML file
+        for url in "${urls[@]}"; do
+          echo "Fetching $url ..."
+          curl -sL "$url" >> alvin4c2m.yaml
+          echo -e "\n" >> alvin4c2m.yaml  # Add spacing between the files
+        done
+
+    - name: Commit and push the combined YAML file
       run: |
-        mkdir -p yaml_files
-        wget -O yaml_files/config.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/config.yaml
-        wget -O yaml_files/config1.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/1/config.yaml
-        wget -O yaml_files/config13.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/13/config.yaml
-        wget -O yaml_files/config15.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/15/config.yaml
-        wget -O yaml_files/config2.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/2/config.yaml
-        wget -O yaml_files/config3.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/3/config.yaml
-
-    - name: Merge YAML files
-      run: |
-        python - <<EOF
-        import yaml
-        import os
-
-        # Directory containing downloaded YAML files
-        yaml_dir = 'yaml_files'
-        yaml_files = ['config.yaml', 'config1.yaml', 'config13.yaml', 'config15.yaml', 'config2.yaml', 'config3.yaml']
-
-        merged_data = {}
-        for file in yaml_files:
-            with open(os.path.join(yaml_dir, file), 'r') as f:
-                data = yaml.safe_load(f)
-                if data:
-                    merged_data.update(data)  # Merge the contents of each YAML file
-
-        # Write the merged data into a new YAML file
-        with open('alvin4c2m.yaml', 'w') as f:
-            yaml.dump(merged_data, f)
-
-        print('Merged YAML files into alvin4c2m.yaml')
-        EOF
-
-    - name: Commit and Push the merged YAML file
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
         git add alvin4c2m.yaml
-        git commit -m "Merged YAML files into alvin4c2m.yaml"
+        git commit -m "Add combined alvin4c2m.yaml"
         git push
