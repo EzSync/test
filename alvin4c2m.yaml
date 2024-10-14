@@ -1,0 +1,2294 @@
+allow-lan: false
+dns:
+  enabled: true
+  fallback-filter:
+    geoip: false
+    ipcidr:
+    - 240.0.0.0/4
+    - 0.0.0.0/32
+  nameserver:
+  - 119.29.29.29
+  - 223.5.5.5
+log-level: info
+mixed-port: 7890
+proxies:
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_0
+  network: ws
+  port: 2082
+  server: 104.19.38.9
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_1
+  network: ws
+  port: 2082
+  server: 104.26.0.56
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_2
+  network: ws
+  port: 2082
+  server: 23.227.38.3
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_3
+  network: ws
+  port: 2082
+  server: 104.19.38.12
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_4
+  network: ws
+  port: 2082
+  server: 172.64.175.88
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_5
+  network: ws
+  port: 2082
+  server: 172.64.99.22
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_6
+  network: ws
+  port: 2082
+  server: 104.19.21.71
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_7
+  network: ws
+  port: 2082
+  server: 172.64.175.213
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_8
+  network: ws
+  port: 2082
+  server: 172.64.198.249
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_9
+  network: ws
+  port: 2082
+  server: 172.64.194.76
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_10
+  network: ws
+  port: 2082
+  server: 104.19.21.63
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_11
+  network: ws
+  port: 2082
+  server: 104.19.123.11
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_12
+  network: ws
+  port: 2082
+  server: 104.18.57.111
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_13
+  network: ws
+  port: 2082
+  server: 104.19.21.230
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_14
+  network: ws
+  port: 2082
+  server: 104.19.21.230
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_15
+  network: ws
+  port: 2082
+  server: 104.19.46.103
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_16
+  network: ws
+  port: 2082
+  server: 104.19.32.216
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_17
+  network: ws
+  port: 2082
+  server: 104.19.47.65
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_18
+  network: ws
+  port: 2082
+  server: 104.19.58.175
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_19
+  network: ws
+  port: 2082
+  server: 104.19.55.49
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_20
+  network: ws
+  port: 2082
+  server: 104.19.42.49
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_21
+  network: ws
+  port: 2082
+  server: 104.17.106.151
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_22
+  network: ws
+  port: 2082
+  server: 104.19.57.4
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_23
+  network: ws
+  port: 2082
+  server: 104.19.59.89
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_24
+  network: ws
+  port: 2082
+  server: 104.20.17.186
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_25
+  network: ws
+  port: 2082
+  server: 104.20.25.146
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_26
+  network: ws
+  port: 2082
+  server: 104.20.25.146
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_27
+  network: ws
+  port: 2082
+  server: 104.26.7.132
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_28
+  network: ws
+  port: 2082
+  server: 104.20.25.146
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_29
+  network: ws
+  port: 2082
+  server: 104.20.17.186
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_30
+  network: ws
+  port: 2082
+  server: 104.19.45.11
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_31
+  network: ws
+  port: 2082
+  server: 104.19.45.13
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_32
+  network: ws
+  port: 2082
+  server: 104.19.45.15
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_33
+  network: ws
+  port: 2082
+  server: 104.19.45.17
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_34
+  network: ws
+  port: 2082
+  server: 104.19.45.19
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_35
+  network: ws
+  port: 2082
+  server: 104.19.45.31
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_36
+  network: ws
+  port: 2082
+  server: 104.19.45.35
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_37
+  network: ws
+  port: 2082
+  server: 104.19.45.42
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_38
+  network: ws
+  port: 2082
+  server: 104.19.45.47
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_39
+  network: ws
+  port: 2082
+  server: 104.19.45.50
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_40
+  network: ws
+  port: 2082
+  server: 104.19.45.90
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_41
+  network: ws
+  port: 2082
+  server: 104.26.5.56
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_42
+  network: ws
+  port: 2082
+  server: 104.26.5.66
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_43
+  network: ws
+  port: 2082
+  server: 104.26.5.67
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_44
+  network: ws
+  port: 2082
+  server: 104.26.5.88
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_45
+  network: ws
+  port: 2082
+  server: 104.26.5.90
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_46
+  network: ws
+  port: 2082
+  server: 104.26.5.103
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_47
+  network: ws
+  port: 2082
+  server: 104.26.5.112
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_48
+  network: ws
+  port: 2082
+  server: 104.26.5.113
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_49
+  network: ws
+  port: 2082
+  server: 104.26.5.123
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_50
+  network: ws
+  port: 2082
+  server: 104.26.5.145
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_51
+  network: ws
+  port: 2082
+  server: 162.159.140.19
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_52
+  network: ws
+  port: 2082
+  server: 162.159.140.33
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_53
+  network: ws
+  port: 2082
+  server: 162.159.140.39
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_54
+  network: ws
+  port: 2082
+  server: 162.159.140.45
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_55
+  network: ws
+  port: 2082
+  server: 162.159.140.56
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_56
+  network: ws
+  port: 2082
+  server: 162.159.140.66
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_57
+  network: ws
+  port: 2082
+  server: 162.159.140.77
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_58
+  network: ws
+  port: 2082
+  server: 162.159.140.89
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_59
+  network: ws
+  port: 2082
+  server: 162.159.140.91
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_60
+  network: ws
+  port: 2082
+  server: 162.159.140.93
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_61
+  network: ws
+  port: 2082
+  server: 172.64.167.5
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_62
+  network: ws
+  port: 2082
+  server: 172.64.167.8
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_63
+  network: ws
+  port: 2082
+  server: 172.64.167.10
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_64
+  network: ws
+  port: 2082
+  server: 172.64.167.15
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_65
+  network: ws
+  port: 2082
+  server: 172.64.167.19
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_66
+  network: ws
+  port: 2082
+  server: 172.64.167.22
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_67
+  network: ws
+  port: 2082
+  server: 172.64.167.25
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_68
+  network: ws
+  port: 2082
+  server: 172.64.167.29
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_69
+  network: ws
+  port: 2082
+  server: 172.64.167.35
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_70
+  network: ws
+  port: 2082
+  server: 172.64.167.44
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_71
+  network: ws
+  port: 2082
+  server: 172.64.233.7
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_72
+  network: ws
+  port: 2082
+  server: 172.64.233.9
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_73
+  network: ws
+  port: 2082
+  server: 172.64.233.15
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_74
+  network: ws
+  port: 2082
+  server: 172.64.233.17
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_75
+  network: ws
+  port: 2082
+  server: 172.64.233.24
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_76
+  network: ws
+  port: 2082
+  server: 172.64.233.27
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_77
+  network: ws
+  port: 2082
+  server: 172.64.233.32
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_78
+  network: ws
+  port: 2082
+  server: 172.64.233.35
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_79
+  network: ws
+  port: 2082
+  server: 172.64.233.37
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_80
+  network: ws
+  port: 2082
+  server: 172.64.233.43
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_81
+  network: ws
+  port: 2082
+  server: 172.64.166.2
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_82
+  network: ws
+  port: 2082
+  server: 172.64.166.8
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_83
+  network: ws
+  port: 2082
+  server: 172.64.166.9
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_84
+  network: ws
+  port: 2082
+  server: 172.64.166.12
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_85
+  network: ws
+  port: 2082
+  server: 172.64.166.16
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_86
+  network: ws
+  port: 2082
+  server: 172.64.166.20
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_87
+  network: ws
+  port: 2082
+  server: 172.64.166.22
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_88
+  network: ws
+  port: 2082
+  server: 172.64.166.28
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_89
+  network: ws
+  port: 2082
+  server: 172.64.166.32
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_90
+  network: ws
+  port: 2082
+  server: 172.64.166.33
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_91
+  network: ws
+  port: 2082
+  server: fbi.gov
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_92
+  network: ws
+  port: 2082
+  server: shopify.com
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_93
+  network: ws
+  port: 2082
+  server: icook.tw
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_94
+  network: ws
+  port: 2082
+  server: ip.sb
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_95
+  network: ws
+  port: 2082
+  server: japan.com
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_96
+  network: ws
+  port: 2082
+  server: malaysia.com
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_97
+  network: ws
+  port: 2082
+  server: russia.com
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_98
+  network: ws
+  port: 2082
+  server: singapore.com
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_99
+  network: ws
+  port: 2082
+  server: skk.moe
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+- alterId: 0
+  cipher: auto
+  name: dongtaiwang.com_100
+  network: ws
+  port: 2082
+  server: www.visa.com
+  servername: ip13.6929198.xyz
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5f3f09ad-89cb-4e94-a7ad-aa8239913555
+  ws-opts:
+    headers:
+      Host: ip13.6929198.xyz
+    path: github.com/Alvin9999
+proxy-groups:
+- name: "\U0001F680 \u8282\u70B9\u9009\u62E9"
+  proxies:
+  - "\u267B\uFE0F \u81EA\u52A8\u9009\u62E9"
+  - DIRECT
+  - dongtaiwang.com_0
+  - dongtaiwang.com_1
+  - dongtaiwang.com_2
+  - dongtaiwang.com_3
+  - dongtaiwang.com_4
+  - dongtaiwang.com_5
+  - dongtaiwang.com_6
+  - dongtaiwang.com_7
+  - dongtaiwang.com_8
+  - dongtaiwang.com_9
+  - dongtaiwang.com_10
+  - dongtaiwang.com_11
+  - dongtaiwang.com_12
+  - dongtaiwang.com_13
+  - dongtaiwang.com_14
+  - dongtaiwang.com_15
+  - dongtaiwang.com_16
+  - dongtaiwang.com_17
+  - dongtaiwang.com_18
+  - dongtaiwang.com_19
+  - dongtaiwang.com_20
+  - dongtaiwang.com_21
+  - dongtaiwang.com_22
+  - dongtaiwang.com_23
+  - dongtaiwang.com_24
+  - dongtaiwang.com_25
+  - dongtaiwang.com_26
+  - dongtaiwang.com_27
+  - dongtaiwang.com_28
+  - dongtaiwang.com_29
+  - dongtaiwang.com_30
+  - dongtaiwang.com_31
+  - dongtaiwang.com_32
+  - dongtaiwang.com_33
+  - dongtaiwang.com_34
+  - dongtaiwang.com_35
+  - dongtaiwang.com_36
+  - dongtaiwang.com_37
+  - dongtaiwang.com_38
+  - dongtaiwang.com_39
+  - dongtaiwang.com_40
+  - dongtaiwang.com_41
+  - dongtaiwang.com_42
+  - dongtaiwang.com_43
+  - dongtaiwang.com_44
+  - dongtaiwang.com_45
+  - dongtaiwang.com_46
+  - dongtaiwang.com_47
+  - dongtaiwang.com_48
+  - dongtaiwang.com_49
+  - dongtaiwang.com_50
+  - dongtaiwang.com_51
+  - dongtaiwang.com_52
+  - dongtaiwang.com_53
+  - dongtaiwang.com_54
+  - dongtaiwang.com_55
+  - dongtaiwang.com_56
+  - dongtaiwang.com_57
+  - dongtaiwang.com_58
+  - dongtaiwang.com_59
+  - dongtaiwang.com_60
+  - dongtaiwang.com_61
+  - dongtaiwang.com_62
+  - dongtaiwang.com_63
+  - dongtaiwang.com_64
+  - dongtaiwang.com_65
+  - dongtaiwang.com_66
+  - dongtaiwang.com_67
+  - dongtaiwang.com_68
+  - dongtaiwang.com_69
+  - dongtaiwang.com_70
+  - dongtaiwang.com_71
+  - dongtaiwang.com_72
+  - dongtaiwang.com_73
+  - dongtaiwang.com_74
+  - dongtaiwang.com_75
+  - dongtaiwang.com_76
+  - dongtaiwang.com_77
+  - dongtaiwang.com_78
+  - dongtaiwang.com_79
+  - dongtaiwang.com_80
+  - dongtaiwang.com_81
+  - dongtaiwang.com_82
+  - dongtaiwang.com_83
+  - dongtaiwang.com_84
+  - dongtaiwang.com_85
+  - dongtaiwang.com_86
+  - dongtaiwang.com_87
+  - dongtaiwang.com_88
+  - dongtaiwang.com_89
+  - dongtaiwang.com_90
+  - dongtaiwang.com_91
+  - dongtaiwang.com_92
+  - dongtaiwang.com_93
+  - dongtaiwang.com_94
+  - dongtaiwang.com_95
+  - dongtaiwang.com_96
+  - dongtaiwang.com_97
+  - dongtaiwang.com_98
+  - dongtaiwang.com_99
+  - dongtaiwang.com_100
+  type: select
+- interval: 300
+  name: "\u267B\uFE0F \u81EA\u52A8\u9009\u62E9"
+  proxies:
+  - dongtaiwang.com_0
+  - dongtaiwang.com_1
+  - dongtaiwang.com_2
+  - dongtaiwang.com_3
+  - dongtaiwang.com_4
+  - dongtaiwang.com_5
+  - dongtaiwang.com_6
+  - dongtaiwang.com_7
+  - dongtaiwang.com_8
+  - dongtaiwang.com_9
+  - dongtaiwang.com_10
+  - dongtaiwang.com_11
+  - dongtaiwang.com_12
+  - dongtaiwang.com_13
+  - dongtaiwang.com_14
+  - dongtaiwang.com_15
+  - dongtaiwang.com_16
+  - dongtaiwang.com_17
+  - dongtaiwang.com_18
+  - dongtaiwang.com_19
+  - dongtaiwang.com_20
+  - dongtaiwang.com_21
+  - dongtaiwang.com_22
+  - dongtaiwang.com_23
+  - dongtaiwang.com_24
+  - dongtaiwang.com_25
+  - dongtaiwang.com_26
+  - dongtaiwang.com_27
+  - dongtaiwang.com_28
+  - dongtaiwang.com_29
+  - dongtaiwang.com_30
+  - dongtaiwang.com_31
+  - dongtaiwang.com_32
+  - dongtaiwang.com_33
+  - dongtaiwang.com_34
+  - dongtaiwang.com_35
+  - dongtaiwang.com_36
+  - dongtaiwang.com_37
+  - dongtaiwang.com_38
+  - dongtaiwang.com_39
+  - dongtaiwang.com_40
+  - dongtaiwang.com_41
+  - dongtaiwang.com_42
+  - dongtaiwang.com_43
+  - dongtaiwang.com_44
+  - dongtaiwang.com_45
+  - dongtaiwang.com_46
+  - dongtaiwang.com_47
+  - dongtaiwang.com_48
+  - dongtaiwang.com_49
+  - dongtaiwang.com_50
+  - dongtaiwang.com_51
+  - dongtaiwang.com_52
+  - dongtaiwang.com_53
+  - dongtaiwang.com_54
+  - dongtaiwang.com_55
+  - dongtaiwang.com_56
+  - dongtaiwang.com_57
+  - dongtaiwang.com_58
+  - dongtaiwang.com_59
+  - dongtaiwang.com_60
+  - dongtaiwang.com_61
+  - dongtaiwang.com_62
+  - dongtaiwang.com_63
+  - dongtaiwang.com_64
+  - dongtaiwang.com_65
+  - dongtaiwang.com_66
+  - dongtaiwang.com_67
+  - dongtaiwang.com_68
+  - dongtaiwang.com_69
+  - dongtaiwang.com_70
+  - dongtaiwang.com_71
+  - dongtaiwang.com_72
+  - dongtaiwang.com_73
+  - dongtaiwang.com_74
+  - dongtaiwang.com_75
+  - dongtaiwang.com_76
+  - dongtaiwang.com_77
+  - dongtaiwang.com_78
+  - dongtaiwang.com_79
+  - dongtaiwang.com_80
+  - dongtaiwang.com_81
+  - dongtaiwang.com_82
+  - dongtaiwang.com_83
+  - dongtaiwang.com_84
+  - dongtaiwang.com_85
+  - dongtaiwang.com_86
+  - dongtaiwang.com_87
+  - dongtaiwang.com_88
+  - dongtaiwang.com_89
+  - dongtaiwang.com_90
+  - dongtaiwang.com_91
+  - dongtaiwang.com_92
+  - dongtaiwang.com_93
+  - dongtaiwang.com_94
+  - dongtaiwang.com_95
+  - dongtaiwang.com_96
+  - dongtaiwang.com_97
+  - dongtaiwang.com_98
+  - dongtaiwang.com_99
+  - dongtaiwang.com_100
+  tolerance: 50
+  type: url-test
+  url: https://www.gstatic.com/generate_204
+- name: "\U0001F30D \u56FD\u5916\u5A92\u4F53"
+  proxies:
+  - "\U0001F680 \u8282\u70B9\u9009\u62E9"
+  - "\u267B\uFE0F \u81EA\u52A8\u9009\u62E9"
+  - "\U0001F3AF \u5168\u7403\u76F4\u8FDE"
+  - dongtaiwang.com_0
+  - dongtaiwang.com_1
+  - dongtaiwang.com_2
+  - dongtaiwang.com_3
+  - dongtaiwang.com_4
+  - dongtaiwang.com_5
+  - dongtaiwang.com_6
+  - dongtaiwang.com_7
+  - dongtaiwang.com_8
+  - dongtaiwang.com_9
+  - dongtaiwang.com_10
+  - dongtaiwang.com_11
+  - dongtaiwang.com_12
+  - dongtaiwang.com_13
+  - dongtaiwang.com_14
+  - dongtaiwang.com_15
+  - dongtaiwang.com_16
+  - dongtaiwang.com_17
+  - dongtaiwang.com_18
+  - dongtaiwang.com_19
+  - dongtaiwang.com_20
+  - dongtaiwang.com_21
+  - dongtaiwang.com_22
+  - dongtaiwang.com_23
+  - dongtaiwang.com_24
+  - dongtaiwang.com_25
+  - dongtaiwang.com_26
+  - dongtaiwang.com_27
+  - dongtaiwang.com_28
+  - dongtaiwang.com_29
+  - dongtaiwang.com_30
+  - dongtaiwang.com_31
+  - dongtaiwang.com_32
+  - dongtaiwang.com_33
+  - dongtaiwang.com_34
+  - dongtaiwang.com_35
+  - dongtaiwang.com_36
+  - dongtaiwang.com_37
+  - dongtaiwang.com_38
+  - dongtaiwang.com_39
+  - dongtaiwang.com_40
+  - dongtaiwang.com_41
+  - dongtaiwang.com_42
+  - dongtaiwang.com_43
+  - dongtaiwang.com_44
+  - dongtaiwang.com_45
+  - dongtaiwang.com_46
+  - dongtaiwang.com_47
+  - dongtaiwang.com_48
+  - dongtaiwang.com_49
+  - dongtaiwang.com_50
+  - dongtaiwang.com_51
+  - dongtaiwang.com_52
+  - dongtaiwang.com_53
+  - dongtaiwang.com_54
+  - dongtaiwang.com_55
+  - dongtaiwang.com_56
+  - dongtaiwang.com_57
+  - dongtaiwang.com_58
+  - dongtaiwang.com_59
+  - dongtaiwang.com_60
+  - dongtaiwang.com_61
+  - dongtaiwang.com_62
+  - dongtaiwang.com_63
+  - dongtaiwang.com_64
+  - dongtaiwang.com_65
+  - dongtaiwang.com_66
+  - dongtaiwang.com_67
+  - dongtaiwang.com_68
+  - dongtaiwang.com_69
+  - dongtaiwang.com_70
+  - dongtaiwang.com_71
+  - dongtaiwang.com_72
+  - dongtaiwang.com_73
+  - dongtaiwang.com_74
+  - dongtaiwang.com_75
+  - dongtaiwang.com_76
+  - dongtaiwang.com_77
+  - dongtaiwang.com_78
+  - dongtaiwang.com_79
+  - dongtaiwang.com_80
+  - dongtaiwang.com_81
+  - dongtaiwang.com_82
+  - dongtaiwang.com_83
+  - dongtaiwang.com_84
+  - dongtaiwang.com_85
+  - dongtaiwang.com_86
+  - dongtaiwang.com_87
+  - dongtaiwang.com_88
+  - dongtaiwang.com_89
+  - dongtaiwang.com_90
+  - dongtaiwang.com_91
+  - dongtaiwang.com_92
+  - dongtaiwang.com_93
+  - dongtaiwang.com_94
+  - dongtaiwang.com_95
+  - dongtaiwang.com_96
+  - dongtaiwang.com_97
+  - dongtaiwang.com_98
+  - dongtaiwang.com_99
+  - dongtaiwang.com_100
+  type: select
+- name: "\U0001F4F2 \u7535\u62A5\u4FE1\u606F"
+  proxies:
+  - "\U0001F680 \u8282\u70B9\u9009\u62E9"
+  - "\U0001F3AF \u5168\u7403\u76F4\u8FDE"
+  - dongtaiwang.com_0
+  - dongtaiwang.com_1
+  - dongtaiwang.com_2
+  - dongtaiwang.com_3
+  - dongtaiwang.com_4
+  - dongtaiwang.com_5
+  - dongtaiwang.com_6
+  - dongtaiwang.com_7
+  - dongtaiwang.com_8
+  - dongtaiwang.com_9
+  - dongtaiwang.com_10
+  - dongtaiwang.com_11
+  - dongtaiwang.com_12
+  - dongtaiwang.com_13
+  - dongtaiwang.com_14
+  - dongtaiwang.com_15
+  - dongtaiwang.com_16
+  - dongtaiwang.com_17
+  - dongtaiwang.com_18
+  - dongtaiwang.com_19
+  - dongtaiwang.com_20
+  - dongtaiwang.com_21
+  - dongtaiwang.com_22
+  - dongtaiwang.com_23
+  - dongtaiwang.com_24
+  - dongtaiwang.com_25
+  - dongtaiwang.com_26
+  - dongtaiwang.com_27
+  - dongtaiwang.com_28
+  - dongtaiwang.com_29
+  - dongtaiwang.com_30
+  - dongtaiwang.com_31
+  - dongtaiwang.com_32
+  - dongtaiwang.com_33
+  - dongtaiwang.com_34
+  - dongtaiwang.com_35
+  - dongtaiwang.com_36
+  - dongtaiwang.com_37
+  - dongtaiwang.com_38
+  - dongtaiwang.com_39
+  - dongtaiwang.com_40
+  - dongtaiwang.com_41
+  - dongtaiwang.com_42
+  - dongtaiwang.com_43
+  - dongtaiwang.com_44
+  - dongtaiwang.com_45
+  - dongtaiwang.com_46
+  - dongtaiwang.com_47
+  - dongtaiwang.com_48
+  - dongtaiwang.com_49
+  - dongtaiwang.com_50
+  - dongtaiwang.com_51
+  - dongtaiwang.com_52
+  - dongtaiwang.com_53
+  - dongtaiwang.com_54
+  - dongtaiwang.com_55
+  - dongtaiwang.com_56
+  - dongtaiwang.com_57
+  - dongtaiwang.com_58
+  - dongtaiwang.com_59
+  - dongtaiwang.com_60
+  - dongtaiwang.com_61
+  - dongtaiwang.com_62
+  - dongtaiwang.com_63
+  - dongtaiwang.com_64
+  - dongtaiwang.com_65
+  - dongtaiwang.com_66
+  - dongtaiwang.com_67
+  - dongtaiwang.com_68
+  - dongtaiwang.com_69
+  - dongtaiwang.com_70
+  - dongtaiwang.com_71
+  - dongtaiwang.com_72
+  - dongtaiwang.com_73
+  - dongtaiwang.com_74
+  - dongtaiwang.com_75
+  - dongtaiwang.com_76
+  - dongtaiwang.com_77
+  - dongtaiwang.com_78
+  - dongtaiwang.com_79
+  - dongtaiwang.com_80
+  - dongtaiwang.com_81
+  - dongtaiwang.com_82
+  - dongtaiwang.com_83
+  - dongtaiwang.com_84
+  - dongtaiwang.com_85
+  - dongtaiwang.com_86
+  - dongtaiwang.com_87
+  - dongtaiwang.com_88
+  - dongtaiwang.com_89
+  - dongtaiwang.com_90
+  - dongtaiwang.com_91
+  - dongtaiwang.com_92
+  - dongtaiwang.com_93
+  - dongtaiwang.com_94
+  - dongtaiwang.com_95
+  - dongtaiwang.com_96
+  - dongtaiwang.com_97
+  - dongtaiwang.com_98
+  - dongtaiwang.com_99
+  - dongtaiwang.com_100
+  type: select
+- name: "\u24C2\uFE0F \u5FAE\u8F6F\u670D\u52A1"
+  proxies:
+  - "\U0001F3AF \u5168\u7403\u76F4\u8FDE"
+  - "\U0001F680 \u8282\u70B9\u9009\u62E9"
+  - dongtaiwang.com_0
+  - dongtaiwang.com_1
+  - dongtaiwang.com_2
+  - dongtaiwang.com_3
+  - dongtaiwang.com_4
+  - dongtaiwang.com_5
+  - dongtaiwang.com_6
+  - dongtaiwang.com_7
+  - dongtaiwang.com_8
+  - dongtaiwang.com_9
+  - dongtaiwang.com_10
+  - dongtaiwang.com_11
+  - dongtaiwang.com_12
+  - dongtaiwang.com_13
+  - dongtaiwang.com_14
+  - dongtaiwang.com_15
+  - dongtaiwang.com_16
+  - dongtaiwang.com_17
+  - dongtaiwang.com_18
+  - dongtaiwang.com_19
+  - dongtaiwang.com_20
+  - dongtaiwang.com_21
+  - dongtaiwang.com_22
+  - dongtaiwang.com_23
+  - dongtaiwang.com_24
+  - dongtaiwang.com_25
+  - dongtaiwang.com_26
+  - dongtaiwang.com_27
+  - dongtaiwang.com_28
+  - dongtaiwang.com_29
+  - dongtaiwang.com_30
+  - dongtaiwang.com_31
+  - dongtaiwang.com_32
+  - dongtaiwang.com_33
+  - dongtaiwang.com_34
+  - dongtaiwang.com_35
+  - dongtaiwang.com_36
+  - dongtaiwang.com_37
+  - dongtaiwang.com_38
+  - dongtaiwang.com_39
+  - dongtaiwang.com_40
+  - dongtaiwang.com_41
+  - dongtaiwang.com_42
+  - dongtaiwang.com_43
+  - dongtaiwang.com_44
+  - dongtaiwang.com_45
+  - dongtaiwang.com_46
+  - dongtaiwang.com_47
+  - dongtaiwang.com_48
+  - dongtaiwang.com_49
+  - dongtaiwang.com_50
+  - dongtaiwang.com_51
+  - dongtaiwang.com_52
+  - dongtaiwang.com_53
+  - dongtaiwang.com_54
+  - dongtaiwang.com_55
+  - dongtaiwang.com_56
+  - dongtaiwang.com_57
+  - dongtaiwang.com_58
+  - dongtaiwang.com_59
+  - dongtaiwang.com_60
+  - dongtaiwang.com_61
+  - dongtaiwang.com_62
+  - dongtaiwang.com_63
+  - dongtaiwang.com_64
+  - dongtaiwang.com_65
+  - dongtaiwang.com_66
+  - dongtaiwang.com_67
+  - dongtaiwang.com_68
+  - dongtaiwang.com_69
+  - dongtaiwang.com_70
+  - dongtaiwang.com_71
+  - dongtaiwang.com_72
+  - dongtaiwang.com_73
+  - dongtaiwang.com_74
+  - dongtaiwang.com_75
+  - dongtaiwang.com_76
+  - dongtaiwang.com_77
+  - dongtaiwang.com_78
+  - dongtaiwang.com_79
+  - dongtaiwang.com_80
+  - dongtaiwang.com_81
+  - dongtaiwang.com_82
+  - dongtaiwang.com_83
+  - dongtaiwang.com_84
+  - dongtaiwang.com_85
+  - dongtaiwang.com_86
+  - dongtaiwang.com_87
+  - dongtaiwang.com_88
+  - dongtaiwang.com_89
+  - dongtaiwang.com_90
+  - dongtaiwang.com_91
+  - dongtaiwang.com_92
+  - dongtaiwang.com_93
+  - dongtaiwang.com_94
+  - dongtaiwang.com_95
+  - dongtaiwang.com_96
+  - dongtaiwang.com_97
+  - dongtaiwang.com_98
+  - dongtaiwang.com_99
+  - dongtaiwang.com_100
+  type: select
+- name: "\U0001F34E \u82F9\u679C\u670D\u52A1"
+  proxies:
+  - "\U0001F680 \u8282\u70B9\u9009\u62E9"
+  - "\U0001F3AF \u5168\u7403\u76F4\u8FDE"
+  - dongtaiwang.com_0
+  - dongtaiwang.com_1
+  - dongtaiwang.com_2
+  - dongtaiwang.com_3
+  - dongtaiwang.com_4
+  - dongtaiwang.com_5
+  - dongtaiwang.com_6
+  - dongtaiwang.com_7
+  - dongtaiwang.com_8
+  - dongtaiwang.com_9
+  - dongtaiwang.com_10
+  - dongtaiwang.com_11
+  - dongtaiwang.com_12
+  - dongtaiwang.com_13
+  - dongtaiwang.com_14
+  - dongtaiwang.com_15
+  - dongtaiwang.com_16
+  - dongtaiwang.com_17
+  - dongtaiwang.com_18
+  - dongtaiwang.com_19
+  - dongtaiwang.com_20
+  - dongtaiwang.com_21
+  - dongtaiwang.com_22
+  - dongtaiwang.com_23
+  - dongtaiwang.com_24
+  - dongtaiwang.com_25
+  - dongtaiwang.com_26
+  - dongtaiwang.com_27
+  - dongtaiwang.com_28
+  - dongtaiwang.com_29
+  - dongtaiwang.com_30
+  - dongtaiwang.com_31
+  - dongtaiwang.com_32
+  - dongtaiwang.com_33
+  - dongtaiwang.com_34
+  - dongtaiwang.com_35
+  - dongtaiwang.com_36
+  - dongtaiwang.com_37
+  - dongtaiwang.com_38
+  - dongtaiwang.com_39
+  - dongtaiwang.com_40
+  - dongtaiwang.com_41
+  - dongtaiwang.com_42
+  - dongtaiwang.com_43
+  - dongtaiwang.com_44
+  - dongtaiwang.com_45
+  - dongtaiwang.com_46
+  - dongtaiwang.com_47
+  - dongtaiwang.com_48
+  - dongtaiwang.com_49
+  - dongtaiwang.com_50
+  - dongtaiwang.com_51
+  - dongtaiwang.com_52
+  - dongtaiwang.com_53
+  - dongtaiwang.com_54
+  - dongtaiwang.com_55
+  - dongtaiwang.com_56
+  - dongtaiwang.com_57
+  - dongtaiwang.com_58
+  - dongtaiwang.com_59
+  - dongtaiwang.com_60
+  - dongtaiwang.com_61
+  - dongtaiwang.com_62
+  - dongtaiwang.com_63
+  - dongtaiwang.com_64
+  - dongtaiwang.com_65
+  - dongtaiwang.com_66
+  - dongtaiwang.com_67
+  - dongtaiwang.com_68
+  - dongtaiwang.com_69
+  - dongtaiwang.com_70
+  - dongtaiwang.com_71
+  - dongtaiwang.com_72
+  - dongtaiwang.com_73
+  - dongtaiwang.com_74
+  - dongtaiwang.com_75
+  - dongtaiwang.com_76
+  - dongtaiwang.com_77
+  - dongtaiwang.com_78
+  - dongtaiwang.com_79
+  - dongtaiwang.com_80
+  - dongtaiwang.com_81
+  - dongtaiwang.com_82
+  - dongtaiwang.com_83
+  - dongtaiwang.com_84
+  - dongtaiwang.com_85
+  - dongtaiwang.com_86
+  - dongtaiwang.com_87
+  - dongtaiwang.com_88
+  - dongtaiwang.com_89
+  - dongtaiwang.com_90
+  - dongtaiwang.com_91
+  - dongtaiwang.com_92
+  - dongtaiwang.com_93
+  - dongtaiwang.com_94
+  - dongtaiwang.com_95
+  - dongtaiwang.com_96
+  - dongtaiwang.com_97
+  - dongtaiwang.com_98
+  - dongtaiwang.com_99
+  - dongtaiwang.com_100
+  type: select
+- name: "\U0001F3AF \u5168\u7403\u76F4\u8FDE"
+  proxies:
+  - DIRECT
+  - "\U0001F680 \u8282\u70B9\u9009\u62E9"
+  - "\u267B\uFE0F \u81EA\u52A8\u9009\u62E9"
+  type: select
+- name: "\U0001F6D1 \u5168\u7403\u62E6\u622A"
+  proxies:
+  - REJECT
+  - DIRECT
+  type: select
+- name: "\U0001F343 \u5E94\u7528\u51C0\u5316"
+  proxies:
+  - REJECT
+  - DIRECT
+  type: select
+- name: "\U0001F41F \u6F0F\u7F51\u4E4B\u9C7C"
+  proxies:
+  - "\U0001F680 \u8282\u70B9\u9009\u62E9"
+  - "\U0001F3AF \u5168\u7403\u76F4\u8FDE"
+  - "\u267B\uFE0F \u81EA\u52A8\u9009\u62E9"
+  - dongtaiwang.com_0
+  - dongtaiwang.com_1
+  - dongtaiwang.com_2
+  - dongtaiwang.com_3
+  - dongtaiwang.com_4
+  - dongtaiwang.com_5
+  - dongtaiwang.com_6
+  - dongtaiwang.com_7
+  - dongtaiwang.com_8
+  - dongtaiwang.com_9
+  - dongtaiwang.com_10
+  - dongtaiwang.com_11
+  - dongtaiwang.com_12
+  - dongtaiwang.com_13
+  - dongtaiwang.com_14
+  - dongtaiwang.com_15
+  - dongtaiwang.com_16
+  - dongtaiwang.com_17
+  - dongtaiwang.com_18
+  - dongtaiwang.com_19
+  - dongtaiwang.com_20
+  - dongtaiwang.com_21
+  - dongtaiwang.com_22
+  - dongtaiwang.com_23
+  - dongtaiwang.com_24
+  - dongtaiwang.com_25
+  - dongtaiwang.com_26
+  - dongtaiwang.com_27
+  - dongtaiwang.com_28
+  - dongtaiwang.com_29
+  - dongtaiwang.com_30
+  - dongtaiwang.com_31
+  - dongtaiwang.com_32
+  - dongtaiwang.com_33
+  - dongtaiwang.com_34
+  - dongtaiwang.com_35
+  - dongtaiwang.com_36
+  - dongtaiwang.com_37
+  - dongtaiwang.com_38
+  - dongtaiwang.com_39
+  - dongtaiwang.com_40
+  - dongtaiwang.com_41
+  - dongtaiwang.com_42
+  - dongtaiwang.com_43
+  - dongtaiwang.com_44
+  - dongtaiwang.com_45
+  - dongtaiwang.com_46
+  - dongtaiwang.com_47
+  - dongtaiwang.com_48
+  - dongtaiwang.com_49
+  - dongtaiwang.com_50
+  - dongtaiwang.com_51
+  - dongtaiwang.com_52
+  - dongtaiwang.com_53
+  - dongtaiwang.com_54
+  - dongtaiwang.com_55
+  - dongtaiwang.com_56
+  - dongtaiwang.com_57
+  - dongtaiwang.com_58
+  - dongtaiwang.com_59
+  - dongtaiwang.com_60
+  - dongtaiwang.com_61
+  - dongtaiwang.com_62
+  - dongtaiwang.com_63
+  - dongtaiwang.com_64
+  - dongtaiwang.com_65
+  - dongtaiwang.com_66
+  - dongtaiwang.com_67
+  - dongtaiwang.com_68
+  - dongtaiwang.com_69
+  - dongtaiwang.com_70
+  - dongtaiwang.com_71
+  - dongtaiwang.com_72
+  - dongtaiwang.com_73
+  - dongtaiwang.com_74
+  - dongtaiwang.com_75
+  - dongtaiwang.com_76
+  - dongtaiwang.com_77
+  - dongtaiwang.com_78
+  - dongtaiwang.com_79
+  - dongtaiwang.com_80
+  - dongtaiwang.com_81
+  - dongtaiwang.com_82
+  - dongtaiwang.com_83
+  - dongtaiwang.com_84
+  - dongtaiwang.com_85
+  - dongtaiwang.com_86
+  - dongtaiwang.com_87
+  - dongtaiwang.com_88
+  - dongtaiwang.com_89
+  - dongtaiwang.com_90
+  - dongtaiwang.com_91
+  - dongtaiwang.com_92
+  - dongtaiwang.com_93
+  - dongtaiwang.com_94
+  - dongtaiwang.com_95
+  - dongtaiwang.com_96
+  - dongtaiwang.com_97
+  - dongtaiwang.com_98
+  - dongtaiwang.com_99
+  - dongtaiwang.com_100
+  type: select
+rules:
+- "MATCH,\U0001F680 \u8282\u70B9\u9009\u62E9"
+secret: github.com/Alvin9999
