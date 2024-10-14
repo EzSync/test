@@ -26,8 +26,10 @@ jobs:
           curl -o clash_meta_files/config2.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/2/config.yaml
           curl -o clash_meta_files/config3.yaml https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/3/config.yaml
 
-          # Combine the YAML files into one file
+          # Initialize the combined file
           echo "# Combined YAML from multiple sources" > alvin4c2m.yaml
+
+          # Combine the YAML files into one file
           for file in clash_meta_files/*.yaml; do
             echo "\n# Contents from $file\n" >> alvin4c2m.yaml
             cat $file >> alvin4c2m.yaml
