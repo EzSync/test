@@ -94,7 +94,7 @@
       "settings": {
         "vnext": [
           {
-            "address": "104.21.238.37",
+            "address": "104.21.238.36",
             "port": 2086,
             "users": [
               {
@@ -112,7 +112,7 @@
         "wsSettings": {
           "path": "github.com/Alvin9999",
           "headers": {
-            "Host": "ip10.9447609.xyz"
+            "Host": "ip12.9447609.xyz"
           }
         }
       },
