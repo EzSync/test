@@ -14,6 +14,8 @@ https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/quick/1/confi
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/quick/3/config.yaml
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/quick/4/config.yaml
 
+https://subapi.fxxk.dedyn.io/sub?&url=https%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fquick%2Fconfig.yaml%7Chttps%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fquick%2F1%2Fconfig.yaml%7Chttps%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fquick%2F3%2Fconfig.yaml%7Chttps%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fquick%2F4%2Fconfig.yaml&target=clash&emoji=true&append_type=true&append_info=true&scv=false&udp=false&list=false&sort=false&fdn=false&insert=false
+
 
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/config.json
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/1/config.json
@@ -32,3 +34,5 @@ https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/xray/config.j
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/xray/1/config.json
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/xray/2/config.json
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/xray/3/config.json
+
+https://subapi.fxxk.dedyn.io/sub?&url=https%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fxray%2Fconfig.json%7Chttps%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fxray%2F1%2Fconfig.json%7Chttps%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fxray%2F2%2Fconfig.json%7Chttps%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fxray%2F3%2Fconfig.json&target=clash&emoji=true&append_type=true&append_info=true&scv=false&udp=false&list=false&sort=false&fdn=false&insert=false
