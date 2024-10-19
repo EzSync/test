@@ -7,6 +7,8 @@ https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/1
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/2/config.yaml
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/3/config.yaml
 
+https://subapi.fxxk.dedyn.io/sub?&url=https%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fclash.meta2%2Fconfig.yaml%7Chttps%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fclash.meta2%2F1%2Fconfig.yaml%7Chttps%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fclash.meta2%2F13%2Fconfig.yaml%7Chttps%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fclash.meta2%2F15%2Fconfig.yaml%7Chttps%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fclash.meta2%2F2%2Fconfig.yaml%7Chttps%3A%2F%2Fraw.githubusercontent.com%2FAlvin9999%2Fpac2%2Frefs%2Fheads%2Fmaster%2Fclash.meta2%2F3%2Fconfig.yaml&target=clash&emoji=true&append_type=true&append_info=true&scv=false&udp=false&list=false&sort=false&fdn=false&insert=false
+
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/quick/config.yaml
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/quick/1/config.yaml
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/quick/3/config.yaml
