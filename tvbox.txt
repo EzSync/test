@@ -1,0 +1,17 @@
+VBOX: 
+https://wws.lanzouv.com/b03j4ulyh#999 
+
+可视TV MAX: 
+https://wwc.lanzoub.com/b0es81t8j#54jb 
+
+配置文件： 
+https://github.moeyy.xyz/https://raw.githubusercontent.com/PizazzGY/TVBox/main/api.json 
+https://mirror.ghproxy.com/https://raw.githubusercontent.com/qist/tvbox/refs/heads/master/0821.json 
+https://mirror.ghproxy.com/https://raw.githubusercontent.com/qist/tvbox/refs/heads/master/jsm.json 
+https://ghp.ci/https://raw.githubusercontent.com/qirenzhidao/tvbox18/main/app.json 
+https://mirror.ghproxy.com/https://raw.githubusercontent.com/qirenzhidao/tvbox18/refs/heads/main/app.json 
+https://raw.liucn.cc/box/m.json 
+
+直播源： 
+https://mirror.ghproxy.com/https://raw.githubusercontent.com/xiongjian83/TvBox/refs/heads/main/live.txt 
+https://ghp.ci/https://raw.githubusercontent.com/xiongjian83/TvBox/refs/heads/main/live.txt 
