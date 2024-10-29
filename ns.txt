@@ -1,6 +1,10 @@
 arvind.ns.cloudflare.com
+brit.ns.cloudflare.com
 damien.ns.cloudflare.com
+dave.ns.cloudflare.com
+dion.ns.cloudflare.com
 duke.ns.cloudflare.com
+elly.ns.cloudflare.com
 fred.ns.cloudflare.com
 hugh.ns.cloudflare.com
 ignacio.ns.cloudflare.com
@@ -9,7 +13,9 @@ kinsley.ns.cloudflare.com
 kip.ns.cloudflare.com
 kyle.ns.cloudflare.com
 lynn.ns.cloudflare.com
+matt.ns.cloudflare.com
 melina.ns.cloudflare.com
+novalee.ns.cloudflare.com
 poppy.ns.cloudflare.com
 pranab.ns.cloudflare.com
 romina.ns.cloudflare.com
