@@ -26,7 +26,6 @@ dell.ns.cloudflare.com
 demi.ns.cloudflare.com
 denver.ns.cloudflare.com
 digitalocean.com
-download.yunzhongzhuan.com
 f3058171cad.002404.xyz
 ip.sb
 iplocation.io
@@ -54,7 +53,6 @@ pearl.ns.cloudflare.com
 pedro.ns.cloudflare.com
 penny.ns.cloudflare.com
 perla.ns.cloudflare.com
-ping.pe
 py44444.com
 q49.cc
 tb55888.com
@@ -69,8 +67,5 @@ www.ipget.net
 www.lai307.com
 www.ljkfgj.top
 www.santoriniports.gr
-www.visa.com
 www.x2b2e.com
-xn--b6gac.eu.org
-yx443.wwxblue.link
 zmq.7svlcs.xyz
