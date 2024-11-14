@@ -3,13 +3,19 @@ https://ts.hpc.tw/
 
 https://ipdb.api.030101.xyz/?type=bestproxy
   
-proxyip.us.fxxk.dedyn.io
-proxyip.sg.fxxk.dedyn.io
-proxyip.jp.fxxk.dedyn.io
-proxyip.hk.fxxk.dedyn.io
-proxyip.aliyun.fxxk.dedyn.io
-proxyip.oracle.fxxk.dedyn.io
-proxyip.digitalocean.fxxk.dedyn.io
+
+ProxyIP.US.fxxk.dedyn.io
+ProxyIP.SG.fxxk.dedyn.io
+ProxyIP.JP.fxxk.dedyn.io
+ProxyIP.HK.fxxk.dedyn.io
+ProxyIP.KR.fxxk.dedyn.io
+ProxyIP.DE.tp2024.fxxk.dedyn.io
+ProxyIP.Aliyun.fxxk.dedyn.io
+ProxyIP.Oracle.fxxk.dedyn.io
+ProxyIP.DigitalOcean.fxxk.dedyn.io
+ProxyIP.Vultr.fxxk.dedyn.io
+ProxyIP.Multacom.fxxk.dedyn.io
+
   
 hk.ipdb.rr.nu
 jp.ipdb.rr.nu
