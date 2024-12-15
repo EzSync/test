@@ -1,11 +1,3 @@
-ace.ns.cloudflare.com
-dee.ns.cloudflare.com
-katelyn.ns.cloudflare.com
-peaches.ns.cloudflare.com
-achiel.ns.cloudflare.com
-delilah.ns.cloudflare.com
-katja.ns.cloudflare.com
-pearl.ns.cloudflare.com
 ada.ns.cloudflare.com
 dell.ns.cloudflare.com
 kay.ns.cloudflare.com
@@ -17,4 +9,11 @@ penny.ns.cloudflare.com
 adam.ns.cloudflare.com
 denver.ns.cloudflare.com
 kayleigh.ns.cloudflare.com
-perla.ns.cloudflare.com
+addilyn.ns.cloudflare.com
+derek.ns.cloudflare.com
+keanu.ns.cloudflare.com
+pete.ns.cloudflare.com
+addyson.ns.cloudflare.com
+desi.ns.cloudflare.com
+keaton.ns.cloudflare.com
+peter.ns.cloudflare.com
