@@ -18,3 +18,11 @@ abdullah.ns.cloudflare.com
 decker.ns.cloudflare.com
 kate.ns.cloudflare.com
 paul.ns.cloudflare.com
+ace.ns.cloudflare.com
+dee.ns.cloudflare.com
+katelyn.ns.cloudflare.com
+peaches.ns.cloudflare.com
+achiel.ns.cloudflare.com
+delilah.ns.cloudflare.com
+katja.ns.cloudflare.com
+pearl.ns.cloudflare.com
