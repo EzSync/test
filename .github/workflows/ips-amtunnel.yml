@@ -23,8 +23,17 @@ jobs:
 
       - name: Process and save content
         run: |
-          # Append #ns.cloudflare to lines containing .ns.cloudflare.com
-          awk '{if ($0 ~ /\.ns\.cloudflare\.com/) print $0 "#ns.cloudflare"; else print $0}' temp_ips.txt > ips-amtunnel.txt
+          # Process the lines according to the specified rules
+          awk '{
+            if ($0 ~ /\.ns\.cloudflare\.com/) {
+              print $0 "#ns.cloudflare"
+            } else if ($0 ~ /#/) {
+              sub(/#.*/, "#AMCvl")
+              print
+            } else {
+              print $0 "#AMCvl"
+            }
+          }' temp_ips.txt > ips-amtunnel.txt
 
       - name: Commit changes
         run: |
