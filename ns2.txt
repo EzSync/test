@@ -1,4 +1,4 @@
-ada.ns.cloudflare.com
+ada.ns.cloudflare.com#ns.cloudflare
 dell.ns.cloudflare.com
 kay.ns.cloudflare.com
 pedro.ns.cloudflare.com
