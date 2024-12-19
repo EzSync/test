@@ -1,45 +1,44 @@
-name: Update IP List
+name: Update IPs4AMtunnel
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Update daily at midnight (change as needed)
-  workflow_dispatch:
+    - cron: '0 16 * * *'  # Runs at 16:00 UTC every day
+  workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
-  update-ips:
+  update_ips:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Download IP list
+      - name: Fetch content from URL
         run: |
-          curl -sL https://github.com/amclubs/am-cf-tunnel/blob/main/ipv4.txt > ips-amtunnel.txt
+          curl -s https://github.com/amclubs/am-cf-tunnel/raw/main/ipv4.txt -o temp_ips.txt
 
-      - name: Check for changes
-        id: check_changes
+      - name: Check if content has changed
+        id: check_diff
         run: |
-          git config --global user.email "you@example.com"  # Replace with your email
-          git config --global user.name "GitHub Actions"
-          OLD_CONTENT=$(git show HEAD:ips-amtunnel.txt | tr '\n' ' ')
-          NEW_CONTENT=$(cat ips-amtunnel.txt | tr '\n' ' ')
-          if [[ "$OLD_CONTENT" != "$NEW_CONTENT" ]]; then
-            echo "Content changed!"
-            exit 1
+          if ! cmp -s temp_ips.txt ips-amtunnel.txt; then
+            echo "Content has changed"
+            echo "changed=true" >> $GITHUB_ENV
           else
-            echo "Content hasn't changed."
-            exit 0
+            echo "Content has not changed"
+            echo "changed=false" >> $GITHUB_ENV
           fi
 
-      - name: Add comment to Cloudflare entries (if content changed)
+      - name: Update ips-amtunnel.txt
+        if: env.changed == 'true'
         run: |
-          if [[ $? -eq 1 ]]; then  # Only run if content changed (check_changes exit code)
-            sed -i 's/\.ns\.cloudflare\.com/\.ns\.cloudflare\.com #ns\.cloudflare/g' ips-amtunnel.txt
-          fi
+          # Append #ns.cloudflare to lines containing .ns.cloudflare.com
+          awk '{if ($0 ~ /\.ns\.cloudflare\.com/) print $0 "#ns.cloudflare"; else print $0}' temp_ips.txt > ips-amtunnel.txt
 
-      - name: Commit changes (if content changed)
+      - name: Commit changes
+        if: env.changed == 'true'
         run: |
-          if [[ $? -eq 1 ]]; then  # Only run if content changed (check_changes exit code)
-            git add ips-amtunnel.txt
-            git commit -m "Update IP list from URL"
-            git push origin HEAD
-          fi
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ips-amtunnel.txt
+          git commit -m "Update ips-amtunnel.txt with new content"
+          git push
