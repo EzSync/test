@@ -13,29 +13,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Delete existing content
+        run: |
+          echo "" > ips-amtunnel.txt  # Clear the content of the file
+
       - name: Fetch content from URL
         run: |
-          curl -s https://github.com/amclubs/am-cf-tunnel/raw/main/ipv4.txt -o temp_ips.txt
+          curl -s https://raw.githubusercontent.com/amclubs/am-cf-tunnel/main/ipv4.txt -o temp_ips.txt
 
-      - name: Check if content has changed
-        id: check_diff
-        run: |
-          if ! cmp -s temp_ips.txt ips-amtunnel.txt; then
-            echo "Content has changed"
-            echo "changed=true" >> $GITHUB_ENV
-          else
-            echo "Content has not changed"
-            echo "changed=false" >> $GITHUB_ENV
-          fi
-
-      - name: Update ips-amtunnel.txt
-        if: env.changed == 'true'
+      - name: Process and save content
         run: |
           # Append #ns.cloudflare to lines containing .ns.cloudflare.com
           awk '{if ($0 ~ /\.ns\.cloudflare\.com/) print $0 "#ns.cloudflare"; else print $0}' temp_ips.txt > ips-amtunnel.txt
 
       - name: Commit changes
-        if: env.changed == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
