@@ -26,7 +26,7 @@ jobs:
           # Process the lines according to the specified rules
           awk '{
             if ($0 ~ /\.ns\.cloudflare\.com/) {
-              print $0 "#ns.cloudflare"
+              print $0 "#NS.CL"
             } else if ($0 ~ /#/) {
               sub(/#.*/, "#AMCvl")
               print
