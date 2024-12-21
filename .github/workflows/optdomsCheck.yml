@@ -1,5 +1,4 @@
-workflow:
-****name: RM DomDups onChange
+name: RM DomDups onChange
 
 on:
   push:
@@ -38,4 +37,3 @@ jobs:
           else
             echo "No duplicates found."
           fi
-****
