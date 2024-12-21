@@ -1,4 +1,5 @@
-name: RM DomDups onChange
+workflow:
+****name: RM DomDups onChange
 
 on:
   push:
@@ -13,6 +14,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Append #OptDom to lines without #
+        run: |
+          # Append #OptDom to lines that do not contain #
+          awk '!/#/' optdoms.txt | sed 's/$/ #OptDom/' >> temp.txt
+          awk '/#/' optdoms.txt >> temp.txt
+          mv temp.txt optdoms.txt
+
       - name: Check for duplicate lines
         id: check_duplicates
         run: |
@@ -25,8 +33,9 @@ jobs:
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
             git add optdoms.txt
-            git commit -m "Remove duplicate lines from optdoms.txt"
+            git commit -m "Remove duplicate lines from optdoms.txt and append #OptDom"
             git push
           else
             echo "No duplicates found."
           fi
+****
