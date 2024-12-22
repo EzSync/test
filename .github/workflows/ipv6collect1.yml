@@ -58,6 +58,9 @@ jobs:
             fi
           done
 
+          # Add #IPV6Collect to each line in temp_ipv6collect1.txt
+          sed -i '/#/! s/$/ #IPV6Collect/' temp_ipv6collect1.txt
+
           # Replace the original file with the new one
           mv temp_ipv6collect1.txt ipv6collect1.txt
 
