@@ -34,11 +34,16 @@ jobs:
           IP_ADDRESSES2=$(echo "$CONTENT2" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b')
           
           # Combine the IP addresses and remove duplicates
-          # ALL_IP_ADDRESSES=$(echo -e "$IP_ADDRESSES1\n$IP_ADDRESSES2" | sort -u)
           ALL_IP_ADDRESSES=$(echo -e "$IP_ADDRESSES1\n$IP_ADDRESSES2" | awk '!seen[$0]++')
 
           # Replace the contents of ipv4collect.txt with the new IPs
           echo "$ALL_IP_ADDRESSES" > ipv4collect.txt
+
+      - name: Append IPV4Collect to lines without #
+        run: |
+          # Append IPV4Collect to lines that do not contain #
+          awk '!/#/ { print $0 " IPV4Collect" } /#/ { print }' ipv4collect.txt > temp.txt
+          mv temp.txt ipv4collect.txt
 
       - name: Commit and push changes
         run: |
