@@ -39,10 +39,10 @@ jobs:
           # Replace the contents of ipv4collect.txt with the new IPs
           echo "$ALL_IP_ADDRESSES" > ipv4collect.txt
 
-      - name: Append IPV4Collect to lines without #
+      - name: Append #IPV4Collect to lines without #
         run: |
           # Append IPV4Collect to lines that do not contain #
-          awk '!/#/ { print $0 " IPV4Collect" } /#/ { print }' ipv4collect.txt > temp.txt
+          awk '!/#/ { print $0 "#IPV4Collect" } /#/ { print }' ipv4collect.txt > temp.txt
           mv temp.txt ipv4collect.txt
 
       - name: Commit and push changes
