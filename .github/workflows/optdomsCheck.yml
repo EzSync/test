@@ -1,4 +1,4 @@
-name: RM DomDups onChange
+name: RM OptDomsDups onChange
 
 on:
   push:
