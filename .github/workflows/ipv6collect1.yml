@@ -61,7 +61,10 @@ jobs:
           # Replace the original file with the new one
           mv temp_ipv6collect1.txt ipv6collect1.txt
 
-      - name: Append #IPV6Collect to lines without #
+      - name: Commit changes
         run: |
-          # Append #IPV6Collect to lines that do not contain #
-         
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ipv6collect1.txt
+          git commit -m "Append new IPv6 addresses to ipv6collect1.txt, remove duplicates, and keep the latest 30 unique addresses" || echo "No changes to commit"
+          git push
