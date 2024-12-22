@@ -13,10 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Append #OptDomYG to lines without #
+      - name: Append #DomYG to lines without #
         run: |
-          # Process the file to append #OptDomYG to lines that do not contain #
-          awk '!/#/ { sub(/[[:space:]]+$/, ""); print $0 "#OptDomYG"; next } 1' optdoms-yg.txt > temp.txt
+          # Process the file to append #DomYG to lines that do not contain #
+          awk '!/#/ { sub(/[[:space:]]+$/, ""); print $0 "#DomYG"; next } 1' optdoms-yg.txt > temp.txt
           awk '/#/' optdoms-yg.txt >> temp.txt
           mv temp.txt optdoms-yg.txt
 
@@ -32,7 +32,7 @@ jobs:
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
             git add optdoms-yg.txt
-            git commit -m "Remove duplicate lines from optdoms-yg.txt and append #OptDomYG"
+            git commit -m "Remove duplicate lines from optdoms-yg.txt and append #DomYG"
             git push
           else
             echo "No duplicates found."
