@@ -13,26 +13,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Check for duplicate lines and add '#OptDom'
+      - name: Append #OptDom to lines without #
+        run: |
+          # Process the file to append #OptDom to lines that do not contain #
+          awk '!/#/ { sub(/[[:space:]]+$/, ""); print $0 "#OptDom"; next } 1' optdoms.txt > temp.txt
+          awk '/#/' optdoms.txt >> temp.txt
+          mv temp.txt optdoms.txt
+
+      - name: Check for duplicate lines
         id: check_duplicates
         run: |
-          # Add '#OptDom' to lines not containing '#'
-          awk '/^#/{print} !/#/{print; print "#OptDom"}' optdoms.txt > tmp_optdoms.txt
-
-          # Sort and remove duplicates
-          sort -u tmp_optdoms.txt > optdoms.txt
-
+          # Read the file and remove duplicates
+          sort -u optdoms.txt -o optdoms.txt
+          
           # Check if the file has changed
           if ! git diff --quiet; then
-            echo "Duplicates found and removed. Updating the file with '#OptDom'."
+            echo "Duplicates found and removed. Updating the file."
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
             git add optdoms.txt
-            git commit -m "Remove duplicate lines and add '#OptDom' to optdoms.txt"
+            git commit -m "Remove duplicate lines from optdoms.txt and append #OptDom"
             git push
           else
             echo "No duplicates found."
           fi
-
-          # Clean up temporary file
-          rm tmp_optdoms.txt
