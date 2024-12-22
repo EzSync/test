@@ -16,7 +16,7 @@ jobs:
       - name: Append #OptDom to lines without #
         run: |
           # Append #OptDom to lines that do not contain #
-          awk '!/#/' optdoms.txt | sed 's/$/ #OptDom/' >> temp.txt
+          awk '!/#/' optdoms.txt | sed 's/$/#OptDom/' >> temp.txt
           awk '/#/' optdoms.txt >> temp.txt
           mv temp.txt optdoms.txt
 
