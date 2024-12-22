@@ -28,10 +28,10 @@ jobs:
             if ($0 ~ /\.ns\.cloudflare\.com/) {
               print $0 "#NS.CL"
             } else if ($0 ~ /#/) {
-              sub(/#.*/, "#AMCvl")
+              sub(/#.*/, "#AMTUN")
               print
             } else {
-              print $0 "#AMCvl"
+              print $0 "#AMTUN"
             }
           }' temp_ips.txt > ips-amtunnel.txt
 
