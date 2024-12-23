@@ -1,37 +1,30 @@
-name: Get Valid IPs
+name: Fetch and Validate IPs
 
 on:
-  workflow_dispatch: # Allows manual triggering of the workflow
   schedule:
-    - cron: '0 20 * * *' # Runs at 20:00 PM every day
+    - cron: '0 20 * * *' # Runs daily at 20:00 (8:00 PM) UTC
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
-  get_valid_ips:
+  fetch-validate-ips:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Clear contents of validips-amtun.txt
-        run: |
-          echo "" > validips-amtun.txt
+      - name: Clear valid IPs file
+        run: echo "" > validips-amtun.txt
 
-      - name: Fetch IPs from URL
-        run: |
-          curl -s https://raw.githubusercontent.com/amclubs/am-cf-tunnel/main/ipv4.txt -o ips.txt
+      - name: Fetch IPs and Domains
+        run: curl -o ips.txt https://raw.githubusercontent.com/amclubs/am-cf-tunnel/main/ipv4.txt
 
-      - name: Test Latency of IPs
+      - name: Validate IPs and Domains
         run: |
-          while IFS= read -r ip; do
-            # Measure latency by sending a request to the Google endpoint
+          while IFS= read -r ip
+          do
             latency=$(curl -o /dev/null -s -w "%{time_total}\n" --connect-timeout 5 --resolve "$ip:80:www.google.com" https://www.google.com/generate_204)
-            if [ -n "$latency" ] && (( $(echo "$latency > 0" | bc -l) )) && (( $(echo "$latency < 0.5" | bc -l) )); then
+            if [ -n "$latency" ] && [ "$(echo "$latency < 0.5" | bc -l)" -eq 1 ]; then
               echo "$ip - Latency: $latency seconds" >> validips-amtun.txt
             fi
           done < ips.txt
-
-      - name: Display valid IPs and Latencies
-        run: |
-          echo "Valid IPs with Latency greater than 0 ms and less than 500 ms:"
-          cat validips-amtun.txt
