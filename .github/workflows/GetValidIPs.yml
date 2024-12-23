@@ -17,19 +17,21 @@ jobs:
         run: |
           echo "" > validips-amtun.txt
 
-      - name: Fetch IPs and Domains from URL
+      - name: Fetch IPs from URL
         run: |
-          curl -s https://raw.githubusercontent.com/amclubs/am-cf-tunnel/main/ipv4.txt -o ips_and_domains.txt
+          curl -s https://raw.githubusercontent.com/amclubs/am-cf-tunnel/main/ipv4.txt -o ips.txt
 
-      - name: Test Accessibility of IPs and Domains
+      - name: Test Latency of IPs
         run: |
-          while IFS= read -r entry; do
-            if curl -s --head --request GET "$entry" | grep "200 OK" > /dev/null; then
-              echo "$entry" >> validips-amtun.txt
+          while IFS= read -r ip; do
+            # Measure latency by sending a request to the Google endpoint
+            latency=$(curl -o /dev/null -s -w "%{time_total}\n" --connect-timeout 5 --resolve "$ip:80:www.google.com" https://www.google.com/generate_204)
+            if [ -n "$latency" ] && (( $(echo "$latency > 0" | bc -l) )) && (( $(echo "$latency < 0.5" | bc -l) )); then
+              echo "$ip - Latency: $latency seconds" >> validips-amtun.txt
             fi
-          done < ips_and_domains.txt
+          done < ips.txt
 
-      - name: Display valid IPs and Domains
+      - name: Display valid IPs and Latencies
         run: |
-          echo "Valid IPs and Domains:"
+          echo "Valid IPs with Latency greater than 0 ms and less than 500 ms:"
           cat validips-amtun.txt
