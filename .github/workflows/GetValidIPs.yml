@@ -1,0 +1,30 @@
+name: Get Valid IPs
+
+on:
+  schedule:
+    - cron: '0 20 * * *' # Runs every day at 16:00 PM (UTC)
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  fetch-and-ping:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Clear validips-amtun.txt
+      run: echo "" > validips-amtun.txt
+
+    - name: Fetch IPs/Domains
+      run: curl -o ips.txt https://raw.githubusercontent.com/amclubs/am-cf-tunnel/main/ipv4.txt
+
+    - name: Ping IPs/Domains
+      run: |
+        while IFS= read -r ip
+        do
+          if ping -c 1 $ip &> /dev/null
+          then
+            echo $ip >> validips-amtun.txt
+          fi
+        done < ips.txt
