@@ -17,19 +17,19 @@ jobs:
         run: |
           echo "" > validips-amtun.txt
 
-      - name: Fetch IPs from URL
+      - name: Fetch IPs and Domains from URL
         run: |
-          curl -s https://raw.githubusercontent.com/amclubs/am-cf-tunnel/main/ipv4.txt -o ips.txt
+          curl -s https://raw.githubusercontent.com/amclubs/am-cf-tunnel/main/ipv4.txt -o ips_and_domains.txt
 
-      - name: Ping IPs and save valid ones
+      - name: Test Accessibility of IPs and Domains
         run: |
-          while IFS= read -r ip; do
-            if ping -c 1 "$ip" &> /dev/null; then
-              echo "$ip" >> validips-amtun.txt
+          while IFS= read -r entry; do
+            if curl -s --head --request GET "$entry" | grep "200 OK" > /dev/null; then
+              echo "$entry" >> validips-amtun.txt
             fi
-          done < ips.txt
+          done < ips_and_domains.txt
 
-      - name: Display valid IPs
+      - name: Display valid IPs and Domains
         run: |
-          echo "Valid IPs:"
+          echo "Valid IPs and Domains:"
           cat validips-amtun.txt
