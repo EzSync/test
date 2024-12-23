@@ -1,11 +1,9 @@
 name: Fetch Valid IPs with Latency
 
 on:
-  # Allow manual triggering
   workflow_dispatch: {}
-  # Schedule daily run at 8:00 PM PST
   schedule:
-    - cron: '0 20 * * *'  # Every day at 20:00 (PST)
+    - cron: '0 20 * * *'
 
 jobs:
   fetch-valid-ips:
@@ -25,8 +23,13 @@ jobs:
       - name: Measure Latency and Filter Valid Entries
         run: |
           cat tmp/ips.txt | grep -Ev '^$' | while read -r ip; do
-            latency=$(curl -sSL -w "%{time_connect}\n" -o /dev/null https://www.google.com/generate_204 -H "Host: $ip" 2>/dev/null)
-            if [[ $(echo "$latency > 0 && $latency < 0.5" | bc -l) -eq 1 ]]; then
-              echo "$ip" >> validips-amtun.txt
+            latency_seconds=$(curl -sSL -w "%{time_connect}\n" -o /dev/null https://www.google.com/generate_204 -H "Host: $ip" 2>/dev/null)
+            if [[ -n "$latency_seconds" ]]; then # Check if latency measurement was successful
+                latency_ms=$(echo "scale=3; $latency_seconds * 1000" | bc)
+                if (( $(echo "$latency_ms > 0 && $latency_ms < 500" | bc -l) )); then
+                  echo "$ip" >> validips-amtun.txt
+                fi
             fi
           done
+      - name: Display content of validips-amtun.txt
+        run: cat validips-amtun.txt
