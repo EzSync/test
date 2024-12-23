@@ -23,8 +23,11 @@ jobs:
         run: |
           while IFS= read -r ip
           do
+            # Measure latency by sending a request to the Google endpoint
             latency=$(curl -o /dev/null -s -w "%{time_total}\n" --connect-timeout 5 --resolve "$ip:80:www.google.com" https://www.google.com/generate_204)
-            if [ -n "$latency" ] && [ "$(echo "$latency < 0.5" | bc -l)" -eq 1 ]; then
+            # Check if latency is greater than 0 and less than 500 ms (0.5 seconds)
+            if [[ $(echo "$latency > 0 && $latency < 0.5" | bc -l) -eq 1 ]]
+            then
               echo "$ip - Latency: $latency seconds" >> validips-amtun.txt
             fi
           done < ips.txt
