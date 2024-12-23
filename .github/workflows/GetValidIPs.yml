@@ -1,37 +1,32 @@
-name: Get Valid IPs
+name: Fetch Valid IPs with Latency
 
 on:
-  workflow_dispatch: # Allows manual triggering of the workflow
+  # Allow manual triggering
+  workflow_dispatch: {}
+  # Schedule daily run at 8:00 PM PST
   schedule:
-    - cron: '0 20 * * *' # Runs at 20:00 PM every day
+    - cron: '0 20 * * *'  # Every day at 20:00 (PST)
 
 jobs:
-  get_valid_ips:
+  fetch-valid-ips:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Clear contents of validips-amtun.txt
-        run: |
-          echo "" > validips-amtun.txt
+      - name: Clear Existing Valid IPs
+        run: rm -f validips-amtun.txt
 
-      - name: Fetch IPs and Domains from URL
-        run: |
-          curl -s https://raw.githubusercontent.com/amclubs/am-cf-tunnel/main/ipv4.txt -o ips_and_domains.txt
+      - name: Download IP/Domain List
+        uses: actions/download-artifact@v3  # Use official action for downloads
+        with:
+          name: ip-list  # Optional: Use a consistent name for the artifact
+          path: tmp/ips.txt
 
-      - name: Test Latency of IPs and Domains
+      - name: Measure Latency and Filter Valid Entries
         run: |
-          while IFS= read -r entry; do
-            # Measure latency by sending a request to the Google endpoint
-            latency=$(curl -o /dev/null -s -w "%{time_total}\n" --connect-timeout 5 --resolve "$entry:80:www.google.com" https://www.google.com/generate_204)
-            if [ -n "$latency" ] && (( $(echo "$latency > 0" | bc -l) )) && (( $(echo "$latency < 0.5" | bc -l) )); then
-              echo "$entry - Latency: $latency seconds" >> validips-amtun.txt
+          cat tmp/ips.txt | grep -Ev '^$' | while read -r ip; do
+            latency=$(curl -sSL -w "%{http_code}\n" -o /dev/null https://www.google.com/generate_204 -H "Host: $ip" | grep -Eo '[0-9]+')
+            if [[ $latency -gt 0 && $latency -lt 500 ]]; then
+              echo "$ip" >> validips-amtun.txt
             fi
-          done < ips_and_domains.txt
-
-      - name: Display valid IPs and Latencies
-        run: |
-          echo "Valid IPs and Domains with Latency greater than 0 ms and less than 500 ms:"
-          cat validips-amtun.txt
+          done
