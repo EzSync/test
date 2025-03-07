@@ -1,3 +1,4 @@
+127.0.0.1:1234#AMTUN
 198.62.62.156:443#AMTUN
 162.159.129.11:2053#AMTUN
 162.159.129.67:8443#AMTUN
@@ -92,4 +93,5 @@ pixiv.net#AMTUN
 comicabc.com#AMTUN
 c.xf.free.hr#AMTUN
 yecaoyun.com#AMTUN
+#AMTUN
 #AMTUN
