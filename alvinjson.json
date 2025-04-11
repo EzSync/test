@@ -1,5 +1,5 @@
 {
-  "server": "46.29.163.171:35751",
+  "server": "46.29.163.171:32555",
   "protocol": "udp",
   "up_mbps": 11,
   "down_mbps": 55,
@@ -33,7 +33,7 @@
     "down": "55 mbps"
   },
   "tls": {
-    "sni": "www.bing.com",
+    "sni": "apple.com",
     "insecure": true
   },
   "quic": {
