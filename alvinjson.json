@@ -3,6 +3,11 @@
   "protocol": "udp",
   "up_mbps": 11,
   "down_mbps": 55,
+  "http": {
+    "listen": "127.0.0.1:1081",
+    "timeout": 300,
+    "disable_udp": false
+  },
   "socks5": {
     "listen": "127.0.0.1:1080"
   },
@@ -22,11 +27,6 @@
   "idle_timeout": 30,
   "fast_open": true,
   "hop_interval": 120,
-  "http": {
-    "listen": "127.0.0.1:1081",
-    "timeout": 300,
-    "disable_udp": false
-  },
   "auth": "dongtaiwang.com",
   "bandwidth": {
     "up": "11 mbps",
