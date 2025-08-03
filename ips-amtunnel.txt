@@ -50,7 +50,6 @@ julio.ns.cloudflare.com#NS.CL
 kyree.ns.cloudflare.com#NS.CL
 lewis.ns.cloudflare.com#NS.CL
 moura.ns.cloudflare.com#NS.CL
-nikon.ns.cloudflare.com#NS.CL
 otto.ns.cloudflare.com#NS.CL
 pranab.ns.cloudflare.com#NS.CL
 rustam.ns.cloudflare.com#NS.CL
@@ -61,7 +60,6 @@ wilson.ns.cloudflare.com#NS.CL
 162.159.133.85#AMTUN
 172.67.106.26#AMTUN
 172.67.110.232#AMTUN
-172.67.95.24#AMTUN
 172.64.201.25#AMTUN
 www.4chan.org#AMTUN
 www.okcupid.com#AMTUN
