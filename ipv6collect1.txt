@@ -1,10 +1,10 @@
-[2606:4700:1200::7537:230d]#IPV6Collect
-[2606:4700:304f::157b:133]#IPV6Collect
-[2606:4700:4406::17fa:276a]#IPV6Collect
-[2606:4700:440d::77f7:3fcc]#IPV6Collect
-[2606:4700:5a::354a:5eb9]#IPV6Collect
 [2606:4700:839e::7c31:7e2a]#IPV6Collect
 [2606:4700:8caf::11ec:39fc]#IPV6Collect
 [2606:4700:8d7a::7c7:1cc9]#IPV6Collect
 [2606:4700:8d93::bce:4d7e]#IPV6Collect
 [2606:4700:9c6f::3c4c:6b75]#IPV6Collect
+[2606:4700:839f::176d:245c]#IPV6Collect
+[2606:4700:8d92::313c:6342]#IPV6Collect
+[2606:4700:976f::db2:3c6d]#IPV6Collect
+[2606:4700:9aed::6e2f:18ae]#IPV6Collect
+[2606:4700:9c6f::25ee:a65]#IPV6Collect
