@@ -21,6 +21,11 @@ jobs:
         run: |
           curl -s https://raw.githubusercontent.com/amclubs/am-cf-tunnel/main/ipv4.txt -o temp_ips.txt
 
+      - name: Remove empty lines
+        run: |
+          # Delete any empty or whitespace-only lines
+          sed -i '/^\s*$/d' temp_ips.txt
+
       - name: Process and save content
         run: |
           # Process the lines according to the specified rules
