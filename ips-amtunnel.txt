@@ -91,5 +91,3 @@ pixiv.net#AMTUN
 comicabc.com#AMTUN
 c.xf.free.hr#AMTUN
 yecaoyun.com#AMTUN
-#AMTUN
-#AMTUN
