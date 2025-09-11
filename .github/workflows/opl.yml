@@ -16,8 +16,9 @@ jobs:
       - name: Fetch and format proxy list
         run: |
           curl -s https://raw.githubusercontent.com/roosterkid/openproxylist/main/HTTPS.txt \
+          | grep -v '^Format:' \                # Ignore the header line
           | awk '{split($2, ipport, ":"); print ipport[1] ":" ipport[2] "#" $4}' \
-          | sort -u > opl.txt
+          | sort -u > opl.txt                   # Deduplicate and overwrite file
 
       - name: Commit and push changes
         run: |
