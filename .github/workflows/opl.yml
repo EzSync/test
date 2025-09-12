@@ -1,4 +1,4 @@
-name: OPL IP List Fetcher
+name: Proxy List Fetcher
 
 on:
   schedule:
@@ -25,16 +25,16 @@ jobs:
                 print ipport[1] ":" ipport[2] "#" $4;
               }
             }
-          }' | sort -u > oplips.txt
+          }' | sort -u > opl.txt
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add oplips.txt
+          git add opl.txt
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "Update oplips.txt with latest proxy list"
+            git commit -m "Update opl.txt with latest proxy list"
             git push
           fi
