@@ -98,8 +98,3 @@
 94.23.171.143:50001#CZ
 94.68.245.147:8080#GR
 95.111.194.14:2659#SG
-:#
-CountryFlag:#ResponseTime
-DSmsHYZUz5NZcfCgso1ZSAvz4ayv6kUPKQ:#
-Proxy:#updated
-us:#
