@@ -2,7 +2,7 @@ name: IPv6Collect_gacjie
 
 on:
   schedule:
-    - cron: '25 23,5,11 * * *'  # Runs every 1 hours
+    - cron: '25 5,11,23 * * *'  # Runs every 1 hours
   workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
