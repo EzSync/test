@@ -1,0 +1,1 @@
+tuic://5d22b22b-2112-408e-8fd9-de0ac93aff7f:07c233047de8a3fa813ede52d8512a9b@23.27.249.60:3235/?congestion_control=bbr&udp_relay_mode=native&sni=www.wikipedia.org&alpn=h3&allow_insecure=1#TUIC-HIGH-PERF-23.27.249.60
