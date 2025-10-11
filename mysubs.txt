@@ -3,7 +3,6 @@ https://subsinone.ezbiz.dynv6.net/sxmzdsh
 https://cmgitsubs.ezbiz.dynv6.net/sxmzdsh
 https://cmalvinsubs.ezbiz.dynv6.net/sxmzdsh
 
-
 https://cmtun.ezbiz.dynv6.net/7e7c629b-1109-4bcd-904f-8da1451b2d04?sub
 https://cmtunkpg.ezbiz.dynv6.net/6877fc6e-bdc7-40b3-b5f4-dd50f7a20ffd?sub
 
@@ -22,8 +21,6 @@ CM:
 https://cfxr.eu.org/getSub
 https://sos.cmliussss.net/auto
 
-
-
 https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt
 https://raw.githubusercontent.com/learnhard-cn/free_proxy_ss/main/free
 https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_BASE64.txt
@@ -31,9 +28,22 @@ https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub
 https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.yml
 https://raw.githubusercontent.com/ripaojiedian/freenode/main/sub
 
+https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/config.yaml
+https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/1/config.yaml
+https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/13/config.yaml
+https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/13/config.yaml
+https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/2/config.yaml
+https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/clash.meta2/3/config.yaml
+
+https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria2/config.json
+https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria2/1/config.json
+https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria2/13/config.json
+https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria2/2/config.json
+
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/quick/config.yaml
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/quick/1/config.yaml
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/quick/3/config.yaml
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/quick/4/config.yaml
+
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/singbox/config.json
 https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/singbox/1/config.json
