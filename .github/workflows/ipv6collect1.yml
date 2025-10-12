@@ -42,30 +42,22 @@ jobs:
       - name: Merge, deduplicate, and keep latest 20 IPv6 addresses
         shell: bash
         run: |
-          # Merge with existing file (if exists)
-          cat new_ipv6collect1.txt >> ipv6collect1.txt 2>/dev/null || true
-
-          # Deduplicate and keep the latest 20 unique addresses
+          # Combine new and existing addresses
+          cat new_ipv6collect1.txt >> ipv6collect1.txt || true
+          
+          # Remove duplicates and keep latest 20 unique entries
           tac ipv6collect1.txt | awk '!seen[$0]++' | head -n 20 | tac > temp_ipv6collect1.txt
-
-          # Add #IPV6Collect tag if missing
+          
+          # Append #IPV6Collect if missing
           sed -i '/#/! s/$/ #IPV6Collect/' temp_ipv6collect1.txt
           sed -i 's/] *#/]#/' temp_ipv6collect1.txt
-
-          # Compare old and new files to detect changes
-          if ! cmp -s temp_ipv6collect1.txt ipv6collect1.txt; then
-            mv temp_ipv6collect1.txt ipv6collect1.txt
-            echo "changes_detected=true" >> $GITHUB_ENV
-          else
-            echo "No new IPv6 addresses found — skipping commit."
-            echo "changes_detected=false" >> $GITHUB_ENV
-          fi
+          
+          mv temp_ipv6collect1.txt ipv6collect1.txt
 
       - name: Commit and push changes
-        if: env.changes_detected == 'true'
         uses: stefanzweifel/git-auto-commit-action@v5  # ✅ Latest auto-commit action
         with:
-          commit_message: "Update IPv6 list (Cloudflare + CloudFront): deduplicated and kept latest 20 unique addresses"
+          commit_message: "Update IPv6 list (Cloudflare & CloudFront): deduplicated and kept latest 20 unique addresses"
           file_pattern: ipv6collect1.txt
           commit_user_name: GitHub Action
           commit_user_email: action@github.com
