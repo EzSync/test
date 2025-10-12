@@ -17,7 +17,7 @@ jobs:
         id: fetch_content
         run: |
           # Fetch the content from the URL and output it for debugging
-          curl -s https://raw.githubusercontent.com/zamzhang/ip/refs/heads/main/ip.txt > ip_content.txt
+          curl -s https://www.wetest.vip/page/cloudfront/address_v6.html > ip_content.txt
           cat ip_content.txt  # Output the content for debugging
 
       - name: Extract and process IPv6 addresses
