@@ -2,7 +2,7 @@ name: Fetch IPv4 onChange
 
 on:
   schedule:
-    - cron: '5 5,11,23 * * *'  # Runs every 2 hours
+    - cron: '5 5,11,23 * * *'  # Runs every 6 hours (05:05, 11:05, 23:05 UTC)
   workflow_dispatch:
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
@@ -24,24 +24,27 @@ jobs:
           # Define the URLs to monitor
           URL1="https://www.wetest.vip/page/cloudflare/address_v4.html"
           URL2="https://ip.164746.xyz/"
+          URL3="https://raw.githubusercontent.com/EzSync/test/main/opl.txt"
                               
           # Fetch the current content of the pages
-          CONTENT1=$(curl -s $URL1)
-          CONTENT2=$(curl -s $URL2)
-          
+          CONTENT1=$(curl -s "$URL1")
+          CONTENT2=$(curl -s "$URL2")
+          CONTENT3=$(curl -s "$URL3")
+
           # Extract IPv4 addresses using grep and regex
           IP_ADDRESSES1=$(echo "$CONTENT1" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b')
           IP_ADDRESSES2=$(echo "$CONTENT2" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b')
-          
-          # Combine the IP addresses and remove duplicates
-          ALL_IP_ADDRESSES=$(echo -e "$IP_ADDRESSES1\n$IP_ADDRESSES2" | awk '!seen[$0]++')
+          IP_ADDRESSES3=$(echo "$CONTENT3" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b')
+
+          # Combine all IPs and remove duplicates
+          ALL_IP_ADDRESSES=$(echo -e "$IP_ADDRESSES1\n$IP_ADDRESSES2\n$IP_ADDRESSES3" | awk '!seen[$0]++')
 
           # Replace the contents of ipv4collect.txt with the new IPs
           echo "$ALL_IP_ADDRESSES" > ipv4collect.txt
 
       - name: Append #IPV4Collect to lines without #
         run: |
-          # Append IPV4Collect to lines that do not contain #
+          # Append #IPV4Collect to lines that do not contain #
           awk '!/#/ { print $0 "#IPV4Collect" } /#/ { print }' ipv4collect.txt > temp.txt
           mv temp.txt ipv4collect.txt
 
