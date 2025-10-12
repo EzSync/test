@@ -2,74 +2,56 @@ name: IPv6Collect_gacjie
 
 on:
   schedule:
-    - cron: '25 5,11,23 * * *'  # Runs every 1 hours
-  workflow_dispatch: # Allows manual triggering of the workflow
+    - cron: '25 5,11,23 * * *'  # Runs 3 times a day (05:25, 11:25, 23:25 UTC)
+  workflow_dispatch: # Allows manual trigger
 
 jobs:
   update_ipv6_addresses:
+    name: Update IPv6 Addresses
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4  # ✅ Updated from v2 → v4
 
-      - name: Fetch IPv6 addresses
+      - name: Set up environment
         run: |
-          # Install required tools
-          sudo apt-get update
+          sudo apt-get update -qq
           sudo apt-get install -y curl jq
 
-          # Fetch the webpage and extract IPv6 addresses
+      - name: Fetch IPv6 addresses
+        shell: bash
+        run: |
+          # Fetch and extract unique IPv6 addresses from source page
           curl -s https://www.wetest.vip/page/cloudflare/address_v6.html | \
           grep -oE '([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]|[1-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]|[1-9]){0,1}[0-9])' | \
           sort -u > new_ipv6collect1.txt
 
       - name: Enclose IPv6 addresses in brackets
+        shell: bash
         run: |
-          # Enclose each IPv6 address in square brackets
           sed -i 's/^/[/' new_ipv6collect1.txt
           sed -i 's/$/]/' new_ipv6collect1.txt
 
-      - name: Append new addresses to ipv6collect1.txt
+      - name: Merge and deduplicate IPv6 addresses
+        shell: bash
         run: |
-          # Append new addresses to ipv6collect1.txt
-          cat new_ipv6collect1.txt >> ipv6collect1.txt
-
-      - name: Remove duplicates and keep the latest 10 unique addresses
-        run: |
-          # Create a temporary file to hold unique addresses
-          > temp_ipv6collect1.txt
-          # Read the existing addresses and keep track of seen addresses
-          seen_addresses=()
-          unique_addresses=()
+          # Combine new and existing addresses
+          cat new_ipv6collect1.txt >> ipv6collect1.txt || true
           
-          while IFS= read -r line; do
-            # Check if the address is already seen
-            if [[ ! " ${seen_addresses[@]} " =~ " ${line} " ]]; then
-              seen_addresses+=("$line")
-              unique_addresses+=("$line")
-            fi
-          done < ipv6collect1.txt
-
-          # Keep only the last 10 unique addresses
-          for ((i=${#unique_addresses[@]}-10; i<${#unique_addresses[@]}; i++)); do
-            if [ $i -ge 0 ]; then
-              echo "${unique_addresses[i]}" >> temp_ipv6collect1.txt
-            fi
-          done
-
-          # Add #IPV6Collect to each line in temp_ipv6collect1.txt without space
+          # Remove duplicates, keep the latest 10 entries
+          tac ipv6collect1.txt | awk '!seen[$0]++' | head -n 10 | tac > temp_ipv6collect1.txt
+          
+          # Append #IPV6Collect if not already present
           sed -i '/#/! s/$/ #IPV6Collect/' temp_ipv6collect1.txt
           sed -i 's/] *#/]#/' temp_ipv6collect1.txt
-                  
-
-          # Replace the original file with the new one
+          
           mv temp_ipv6collect1.txt ipv6collect1.txt
 
-      - name: Commit changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add ipv6collect1.txt
-          git commit -m "Append new IPv6 addresses to ipv6collect1.txt, remove duplicates, and keep the latest 10 unique addresses" || echo "No changes to commit"
-          git push
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5  # ✅ Modern commit action
+        with:
+          commit_message: "Update IPv6 list: deduplicated and kept latest 10 unique addresses"
+          file_pattern: ipv6collect1.txt
+          commit_user_name: GitHub Action
+          commit_user_email: action@github.com
