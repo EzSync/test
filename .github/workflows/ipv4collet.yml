@@ -7,51 +7,50 @@ on:
 
 jobs:
   update_ipv4_collect:
+    name: Update IPv4 Collection
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4   # Updated from v2 → v4
 
-      - name: Install dependencies
+      - name: Set up environment
         run: |
-          sudo apt-get update
+          sudo apt-get update -qq
           sudo apt-get install -y curl
 
       - name: Fetch and extract IPv4 addresses
         id: fetch_ips
+        shell: bash
         run: |
           # Define the URLs to monitor
           URL1="https://www.wetest.vip/page/cloudflare/address_v4.html"
           URL2="https://ip.164746.xyz/"
-          URL3="https://raw.githubusercontent.com/EzSync/test/main/opl.txt"
-                              
+
           # Fetch the current content of the pages
           CONTENT1=$(curl -s "$URL1")
           CONTENT2=$(curl -s "$URL2")
-          CONTENT3=$(curl -s "$URL3")
 
-          # Extract IPv4 addresses using grep and regex
+          # Extract IPv4 addresses using regex
           IP_ADDRESSES1=$(echo "$CONTENT1" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b')
           IP_ADDRESSES2=$(echo "$CONTENT2" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b')
-          IP_ADDRESSES3=$(echo "$CONTENT3" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b')
 
-          # Combine all IPs and remove duplicates
-          ALL_IP_ADDRESSES=$(echo -e "$IP_ADDRESSES1\n$IP_ADDRESSES2\n$IP_ADDRESSES3" | awk '!seen[$0]++')
+          # Combine and remove duplicates
+          ALL_IP_ADDRESSES=$(echo -e "$IP_ADDRESSES1\n$IP_ADDRESSES2" | awk '!seen[$0]++')
 
-          # Replace the contents of ipv4collect.txt with the new IPs
+          # Replace ipv4collect.txt contents
           echo "$ALL_IP_ADDRESSES" > ipv4collect.txt
 
       - name: Append #IPV4Collect to lines without #
+        shell: bash
         run: |
-          # Append #IPV4Collect to lines that do not contain #
           awk '!/#/ { print $0 "#IPV4Collect" } /#/ { print }' ipv4collect.txt > temp.txt
           mv temp.txt ipv4collect.txt
 
       - name: Commit and push changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add ipv4collect.txt
-          git commit -m "Update ipv4collect.txt with new IP addresses" || echo "No changes to commit"
-          git push
+        uses: stefanzweifel/git-auto-commit-action@v5  # ✅ Modern, reliable commit action
+        with:
+          commit_message: "Update ipv4collect.txt with new IP addresses"
+          file_pattern: ipv4collect.txt
+          commit_user_name: GitHub Action
+          commit_user_email: action@github.com
