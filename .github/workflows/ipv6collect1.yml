@@ -12,26 +12,20 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4  # ✅ Latest version
+        uses: actions/checkout@v4  # ✅ Updated from v2 → v4
 
       - name: Set up environment
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y curl jq
 
-      - name: Fetch IPv6 addresses from multiple sources
+      - name: Fetch IPv6 addresses
         shell: bash
         run: |
-          # Define URLs
-          URL1="https://www.wetest.vip/page/cloudflare/address_v6.html"
-          URL2="https://www.wetest.vip/page/cloudfront/address_v6.html"
-
-          # Fetch and extract IPv6 addresses from both pages
-          {
-            curl -s "$URL1"
-            curl -s "$URL2"
-          } | grep -oE '([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]|[1-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]|[1-9]){0,1}[0-9])' \
-          | sort -u > new_ipv6collect1.txt
+          # Fetch and extract unique IPv6 addresses from source page
+          curl -s https://www.wetest.vip/page/cloudflare/address_v6.html | \
+          grep -oE '([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]|[1-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]|[1-9]){0,1}[0-9])' | \
+          sort -u > new_ipv6collect1.txt
 
       - name: Enclose IPv6 addresses in brackets
         shell: bash
@@ -39,25 +33,25 @@ jobs:
           sed -i 's/^/[/' new_ipv6collect1.txt
           sed -i 's/$/]/' new_ipv6collect1.txt
 
-      - name: Merge, deduplicate, and keep latest 20 IPv6 addresses
+      - name: Merge and deduplicate IPv6 addresses
         shell: bash
         run: |
           # Combine new and existing addresses
           cat new_ipv6collect1.txt >> ipv6collect1.txt || true
           
-          # Remove duplicates and keep latest 20 unique entries
-          tac ipv6collect1.txt | awk '!seen[$0]++' | head -n 20 | tac > temp_ipv6collect1.txt
+          # Remove duplicates, keep the latest 10 entries
+          tac ipv6collect1.txt | awk '!seen[$0]++' | head -n 10 | tac > temp_ipv6collect1.txt
           
-          # Append #IPV6Collect if missing
+          # Append #IPV6Collect if not already present
           sed -i '/#/! s/$/ #IPV6Collect/' temp_ipv6collect1.txt
           sed -i 's/] *#/]#/' temp_ipv6collect1.txt
           
           mv temp_ipv6collect1.txt ipv6collect1.txt
 
       - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v5  # ✅ Latest auto-commit action
+        uses: stefanzweifel/git-auto-commit-action@v5  # ✅ Modern commit action
         with:
-          commit_message: "Update IPv6 list (Cloudflare & CloudFront): deduplicated and kept latest 20 unique addresses"
+          commit_message: "Update IPv6 list: deduplicated and kept latest 10 unique addresses"
           file_pattern: ipv6collect1.txt
           commit_user_name: GitHub Action
           commit_user_email: action@github.com
