@@ -16,10 +16,10 @@ dns:
       - 0.0.0.0/32
 proxies:
   - name: dongtaiwang.com_0                     
-    type: hysteria2
-    server: 2001:bc8:32d7:302::11
-    port: 20088
-    password: dongtaiwang.com
+    type: hysteria
+    server: 2001:bc8:32d7:17b::2
+    port: 11000
+    auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
     alpn:
@@ -35,10 +35,9 @@ proxy-groups:
       - DIRECT
       - dongtaiwang.com_0
   - name: ♻️ 自动选择
-    type: url-test
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-    tolerance: 50
+    type: fallback              
+    url: "https://www.gstatic.com/generate_204"
+    interval: 5
     proxies:
       - dongtaiwang.com_0
   - name: 🌍 国外媒体
@@ -108,10 +107,10 @@ dns:
       - 0.0.0.0/32
 proxies:
   - name: dongtaiwang.com_0                     
-    type: hysteria2
-    server: 2001:bc8:32d7:302::11
-    port: 20088
-    password: dongtaiwang.com
+    type: hysteria
+    server: 2001:bc8:32d7:17b::2
+    port: 11000
+    auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
     alpn:
@@ -127,10 +126,9 @@ proxy-groups:
       - DIRECT
       - dongtaiwang.com_0
   - name: ♻️ 自动选择
-    type: url-test
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-    tolerance: 50
+    type: fallback              
+    url: "https://www.gstatic.com/generate_204"
+    interval: 5
     proxies:
       - dongtaiwang.com_0
   - name: 🌍 国外媒体
@@ -292,10 +290,10 @@ dns:
       - 0.0.0.0/32
 proxies:
   - name: dongtaiwang.com_0                     
-    type: hysteria2
-    server: 2001:bc8:32d7:302::17
-    port: 20088
-    password: dongtaiwang.com
+    type: hysteria
+    server: 2001:bc8:32d7:17b::2
+    port: 11000
+    auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
     alpn:
@@ -311,10 +309,9 @@ proxy-groups:
       - DIRECT
       - dongtaiwang.com_0
   - name: ♻️ 自动选择
-    type: url-test
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-    tolerance: 50
+    type: fallback              
+    url: "https://www.gstatic.com/generate_204"
+    interval: 5
     proxies:
       - dongtaiwang.com_0
   - name: 🌍 国外媒体
@@ -476,10 +473,10 @@ dns:
       - 0.0.0.0/32
 proxies:
   - name: dongtaiwang.com_0                     
-    type: hysteria2
-    server: 2001:bc8:32d7:302::17
-    port: 20088
-    password: dongtaiwang.com
+    type: hysteria
+    server: 2001:bc8:32d7:17b::2
+    port: 11000
+    auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
     alpn:
@@ -495,10 +492,9 @@ proxy-groups:
       - DIRECT
       - dongtaiwang.com_0
   - name: ♻️ 自动选择
-    type: url-test
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-    tolerance: 50
+    type: fallback              
+    url: "https://www.gstatic.com/generate_204"
+    interval: 5
     proxies:
       - dongtaiwang.com_0
   - name: 🌍 国外媒体
