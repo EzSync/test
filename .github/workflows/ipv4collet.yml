@@ -2,7 +2,7 @@ name: Fetch IPv4 onChange
 
 on:
   schedule:
-    - cron: '5 5,11,23 * * *'  # Runs every 6 hours (05:05, 11:05, 23:05 UTC)
+    - cron: '5 23 * * *'  # Runs every 6 hours (05:05, 11:05, 23:05 UTC)
   workflow_dispatch:
 
 jobs:
