@@ -2,7 +2,7 @@ name: IPv6Collect_wetest
 
 on:
   schedule:
-    - cron: '25 5,11,23 * * *'  # Runs 3 times a day (05:25, 11:25, 23:25 UTC)
+    - cron: '25 23 * * *'  # Runs 3 times a day (05:25, 11:25, 23:25 UTC)
   workflow_dispatch: # Allows manual trigger
 
 jobs:
