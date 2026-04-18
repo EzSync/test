@@ -1,4 +1,3 @@
-ainsley.ns.cloudflare.com#NS.CL
 aisha.ns.cloudflare.com#NS.CL
 aitana.ns.cloudflare.com#NS.CL
 ajay.ns.cloudflare.com#NS.CL
@@ -10,7 +9,6 @@ damien.ns.cloudflare.com#NS.CL
 damiete.ns.cloudflare.com#NS.CL
 damon.ns.cloudflare.com#NS.CL
 dan.ns.cloudflare.com#NS.CL
-dana.ns.cloudflare.com#NS.CL
 dane.ns.cloudflare.com#NS.CL
 danica.ns.cloudflare.com#NS.CL
 daniella.ns.cloudflare.com#NS.CL
@@ -25,7 +23,6 @@ johnny.ns.cloudflare.com#NS.CL
 jonah.ns.cloudflare.com#NS.CL
 jose.ns.cloudflare.com#NS.CL
 joselyn.ns.cloudflare.com#NS.CL
-josephine.ns.cloudflare.com#NS.CL
 josh.ns.cloudflare.com#NS.CL
 journey.ns.cloudflare.com#NS.CL
 joyce.ns.cloudflare.com#NS.CL
@@ -35,13 +32,11 @@ julio.ns.cloudflare.com#NS.CL
 kevin.ns.cloudflare.com#NS.CL
 keyla.ns.cloudflare.com#NS.CL
 khalid.ns.cloudflare.com#NS.CL
-khloe.ns.cloudflare.com#NS.CL
 kia.ns.cloudflare.com#NS.CL
 norman.ns.cloudflare.com#NS.CL
 nova.ns.cloudflare.com#NS.CL
 novalee.ns.cloudflare.com#NS.CL
 nucum.ns.cloudflare.com#NS.CL
-oaklyn.ns.cloudflare.com#NS.CL
 odin.ns.cloudflare.com#NS.CL
 olga.ns.cloudflare.com#NS.CL
 olivia.ns.cloudflare.com#NS.CL
@@ -58,7 +53,6 @@ wren.ns.cloudflare.com#NS.CL
 ximena.ns.cloudflare.com#NS.CL
 yadiel.ns.cloudflare.com#NS.CL
 yahir.ns.cloudflare.com#NS.CL
-yevgen.ns.cloudflare.com#NS.CL
 yew.ns.cloudflare.com#NS.CL
 yichun.ns.cloudflare.com#NS.CL
 yisroel.ns.cloudflare.com#NS.CL
