@@ -47,7 +47,6 @@ poppy.ns.cloudflare.com#NS.CL
 porter.ns.cloudflare.com#NS.CL
 pranab.ns.cloudflare.com#NS.CL
 princess.ns.cloudflare.com#NS.CL
-priscilla.ns.cloudflare.com#NS.CL
 woz.ns.cloudflare.com#NS.CL
 wren.ns.cloudflare.com#NS.CL
 ximena.ns.cloudflare.com#NS.CL
