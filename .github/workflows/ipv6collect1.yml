@@ -1,9 +1,9 @@
-name: IPv6Collect_wetest
+name: IPv6Collect_wetest_Geo
 
 on:
   schedule:
-    - cron: '25 23 * * *'  # Runs 3 times a day (05:25, 11:25, 23:25 UTC)
-  workflow_dispatch: # Allows manual trigger
+    - cron: '25 23 * * *'  # Runs daily at 23:25 UTC
+  workflow_dispatch:
 
 jobs:
   update_ipv6_addresses:
@@ -12,52 +12,54 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4  # ✅ Latest version
+        uses: actions/checkout@v4
 
       - name: Set up environment
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y curl jq
 
-      - name: Fetch IPv6 addresses from multiple sources
+      - name: Fetch and extract IPv6 addresses
         shell: bash
         run: |
           # Define URLs
           URL1="https://www.wetest.vip/page/cloudflare/address_v6.html"
           URL2="https://www.wetest.vip/page/cloudfront/address_v6.html"
 
-          # Fetch and extract IPv6 addresses from both pages
+          # Fetch and extract raw IPv6 addresses
           {
             curl -s "$URL1"
             curl -s "$URL2"
           } | grep -oE '([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]|[1-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]|[1-9]){0,1}[0-9])' \
-          | sort -u > new_ipv6collect1.txt
+          | sort -u > raw_ipv6.txt
 
-      - name: Enclose IPv6 addresses in brackets
+      - name: Geolocate and Format IPv6 addresses
         shell: bash
         run: |
-          sed -i 's/^/[/' new_ipv6collect1.txt
-          sed -i 's/$/]/' new_ipv6collect1.txt
+          # Clear the file before writing new data
+          > ipv6collect1.txt
 
-      - name: Merge, deduplicate, and keep latest 20 IPv6 addresses
-        shell: bash
-        run: |
-          # Combine new and existing addresses
-          cat new_ipv6collect1.txt >> ipv6collect1.txt || true
-          
-          # Remove duplicates and keep latest 20 unique entries
-          tac ipv6collect1.txt | awk '!seen[$0]++' | head -n 20 | tac > temp_ipv6collect1.txt
-          
-          # Append #IPV6Collect if missing
-          sed -i '/#/! s/$/ #IPV6Collect/' temp_ipv6collect1.txt
-          sed -i 's/] *#/]#/' temp_ipv6collect1.txt
-          
-          mv temp_ipv6collect1.txt ipv6collect1.txt
+          # Process every unique IPv6 found
+          while read -r IP; do
+            # Fetch country code via ip-api.com
+            # Note: ip-api requires the raw IP (no brackets) for the URL
+            COUNTRY_CODE=$(curl -s "http://ip-api.com/json/$IP?fields=status,countryCode" | jq -r '.countryCode // "Unknown"')
+            
+            if [ "$COUNTRY_CODE" == "null" ] || [ "$COUNTRY_CODE" == "" ]; then
+              COUNTRY_CODE="Unknown"
+            fi
+
+            # Format as [IP]#CODE and append to file
+            echo "[${IP}]#${COUNTRY_CODE}" >> ipv6collect1.txt
+            
+            # Sleep to respect free API rate limits (approx 45 requests per min)
+            sleep 1.5
+          done < raw_ipv6.txt
 
       - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v5  # ✅ Latest auto-commit action
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Update IPv6 list (Cloudflare & CloudFront): deduplicated and kept latest 20 unique addresses"
+          commit_message: "Update ipv6collect1.txt with country-tagged IPv6 addresses"
           file_pattern: ipv6collect1.txt
           commit_user_name: GitHub Action
           commit_user_email: action@github.com
