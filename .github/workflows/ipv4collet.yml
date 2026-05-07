@@ -1,8 +1,8 @@
-name: Fetch IPv4 onChange
+name: Fetch IPv4 with GeoLocation
 
 on:
   schedule:
-    - cron: '5 23 * * *'  # Runs every 6 hours (05:05, 11:05, 23:05 UTC)
+    - cron: '5 23 * * *'  # Runs daily at 23:05 UTC
   workflow_dispatch:
 
 jobs:
@@ -12,14 +12,14 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4   # Updated from v2 → v4
+        uses: actions/checkout@v4
 
       - name: Set up environment
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y curl
+          sudo apt-get install -y curl jq
 
-      - name: Fetch and extract IPv4 addresses
+      - name: Fetch, Extract, and Geolocate IPs
         id: fetch_ips
         shell: bash
         run: |
@@ -27,30 +27,36 @@ jobs:
           URL1="https://www.wetest.vip/page/cloudflare/address_v4.html"
           URL2="https://ip.164746.xyz/"
 
-          # Fetch the current content of the pages
+          # Fetch content
           CONTENT1=$(curl -s "$URL1")
           CONTENT2=$(curl -s "$URL2")
 
-          # Extract IPv4 addresses using regex
-          IP_ADDRESSES1=$(echo "$CONTENT1" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b')
-          IP_ADDRESSES2=$(echo "$CONTENT2" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b')
+          # Extract unique IPv4 addresses
+          IP_LIST=$(echo -e "$CONTENT1\n$CONTENT2" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b' | sort -u)
 
-          # Combine and remove duplicates
-          ALL_IP_ADDRESSES=$(echo -e "$IP_ADDRESSES1\n$IP_ADDRESSES2" | awk '!seen[$0]++')
+          # Clear the file before writing
+          > ipv4collect.txt
 
-          # Replace ipv4collect.txt contents
-          echo "$ALL_IP_ADDRESSES" > ipv4collect.txt
-
-      - name: Append #IPV4Collect to lines without #
-        shell: bash
-        run: |
-          awk '!/#/ { print $0 "#IPV4Collect" } /#/ { print }' ipv4collect.txt > temp.txt
-          mv temp.txt ipv4collect.txt
+          # Loop through each IP and find its country code
+          for IP in $IP_LIST; do
+            # Fetch country code (e.g., US, JP, CN) using ip-api.com
+            # We use jq to parse the JSON response
+            COUNTRY_CODE=$(curl -s "http://ip-api.com/json/$IP?fields=status,countryCode" | jq -r '.countryCode // "Unknown"')
+            
+            if [ "$COUNTRY_CODE" != "null" ] && [ "$COUNTRY_CODE" != "Unknown" ]; then
+              echo "${IP}#${COUNTRY_CODE}" >> ipv4collect.txt
+            else
+              echo "${IP}#Unknown" >> ipv4collect.txt
+            fi
+            
+            # Optional: Small delay to respect rate limits of free APIs
+            sleep 0.2
+          done
 
       - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v5  # ✅ Modern, reliable commit action
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Update ipv4collect.txt with new IP addresses"
+          commit_message: "Update ipv4collect.txt with Country Tags"
           file_pattern: ipv4collect.txt
           commit_user_name: GitHub Action
           commit_user_email: action@github.com
