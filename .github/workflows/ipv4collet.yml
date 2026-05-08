@@ -1,4 +1,4 @@
-name: Fetch IPv4 with IATA GeoLocation
+name: Fetch IPv4 with GeoLocation
 
 on:
   schedule:
@@ -23,57 +23,40 @@ jobs:
         id: fetch_ips
         shell: bash
         run: |
-          # Define the URLs
+          # Define the URLs to monitor
           URL1="https://www.wetest.vip/page/cloudflare/address_v4.html"
           URL2="https://ip.164746.xyz/"
 
-          # Fetch content and extract unique IPv4 addresses
+          # Fetch content
           CONTENT1=$(curl -s "$URL1")
           CONTENT2=$(curl -s "$URL2")
+
+          # Extract unique IPv4 addresses
           IP_LIST=$(echo -e "$CONTENT1\n$CONTENT2" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b' | sort -u)
 
           # Clear the file before writing
           > ipv4collect.txt
 
-          # Loop through each IP
+          # Loop through each IP and find its country code
           for IP in $IP_LIST; do
-            # Fetch city name using ip-api.com
-            CITY=$(curl -s "http://ip-api.com/json/$IP?fields=city" | jq -r '.city // "Unknown"')
+            # Fetch country code (e.g., US, JP, CN) using ip-api.com
+            # We use jq to parse the JSON response
+            COUNTRY_CODE=$(curl -s "http://ip-api.com/json/$IP?fields=status,countryCode" | jq -r '.countryCode // "Unknown"')
             
-            # Map common cities to IATA codes
-            case "$CITY" in
-              "San Jose") IATA="SJC" ;;
-              "Los Angeles") IATA="LAX" ;;
-              "Seattle") IATA="SEA" ;;
-              "Chicago") IATA="ORD" ;;
-              "New York") IATA="JFK" ;;
-              "Newark") IATA="EWR" ;;
-              "Ashburn") IATA="IAD" ;;
-              "Tokyo") IATA="NRT" ;;
-              "Hong Kong") IATA="HKG" ;;
-              "London") IATA="LHR" ;;
-              "Frankfurt") IATA="FRA" ;;
-              "Paris") IATA="CDG" ;;
-              "Budapest") IATA="BUD" ;;
-              "Singapore") IATA="SIN" ;;
-              "Seoul") IATA="ICN" ;;
-              "Unknown") IATA="UNK" ;;
-              *) 
-                # Fallback: Take first 3 letters of City and make Uppercase
-                IATA=$(echo "$CITY" | cut -c 1-3 | tr '[:lower:]' '[:upper:]') 
-                ;;
-            esac
-
-            echo "${IP}#${IATA}" >> ipv4collect.txt
+            if [ "$COUNTRY_CODE" != "null" ] && [ "$COUNTRY_CODE" != "Unknown" ]; then
+              echo "${IP}#${COUNTRY_CODE}" >> ipv4collect.txt
+            else
+              echo "${IP}#Unknown" >> ipv4collect.txt
+            fi
             
-            # Delay to stay under 45 requests/min (free API limit)
-            sleep 1.5
+            # Optional: Small delay to respect rate limits of free APIs
+            sleep 0.2
           done
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Update ipv4collect.txt with IATA Location Tags"
+          commit_message: "Update ipv4collect.txt with Country Tags"
           file_pattern: ipv4collect.txt
           commit_user_name: GitHub Action
           commit_user_email: action@github.com
