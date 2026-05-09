@@ -61,8 +61,3 @@ jobs:
           file_pattern: ipv4collect.txt
           commit_user_name: GitHub Action
           commit_user_email: action@github.com
-        with:
-          commit_message: "Update ipv4collect.txt with Country Tags"
-          file_pattern: ipv4collect.txt
-          commit_user_name: GitHub Action
-          commit_user_email: action@github.com
