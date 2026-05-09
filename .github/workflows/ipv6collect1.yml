@@ -2,7 +2,7 @@ name: IPv6Collect_wetest_Geo
 
 on:
   schedule:
-    - cron: '25 2,6,10,22 * * *'  # Runs daily at 23:25 UTC
+    - cron: '35 2,6,10,22 * * *'  # Runs daily at 23:25 UTC
   workflow_dispatch:
 
 jobs:
