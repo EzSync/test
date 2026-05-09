@@ -1,4 +1,4 @@
-name: Fetch IPv4 with GeoLocation
+name: Fetch IPv4 with Registered Country Code
 
 on:
   schedule:
@@ -23,38 +23,44 @@ jobs:
         id: fetch_ips
         shell: bash
         run: |
-          # Define the URLs to monitor
+          # Define the URLs
           URL1="https://www.wetest.vip/page/cloudflare/address_v4.html"
           URL2="https://ip.164746.xyz/"
 
-          # Fetch content
+          # Fetch and extract unique IPs
           CONTENT1=$(curl -s "$URL1")
           CONTENT2=$(curl -s "$URL2")
-
-          # Extract unique IPv4 addresses
           IP_LIST=$(echo -e "$CONTENT1\n$CONTENT2" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b' | sort -u)
 
-          # Clear the file before writing
+          # Clear the file
           > ipv4collect.txt
 
-          # Loop through each IP and find its country code
+          # Loop through each IP
           for IP in $IP_LIST; do
-            # Fetch country code (e.g., US, JP, CN) using ip-api.com
-            # We use jq to parse the JSON response
-            COUNTRY_CODE=$(curl -s "http://ip-api.com/json/$IP?fields=status,countryCode" | jq -r '.countryCode // "Unknown"')
+            # We fetch the countryCode. 
+            # For most Cloudflare IPs, this API returns the registration country (US)
+            # unless the specific IP range is sub-delegated elsewhere.
+            RESPONSE=$(curl -s "http://ip-api.com/json/$IP?fields=status,countryCode")
+            STATUS=$(echo "$RESPONSE" | jq -r '.status')
             
-            if [ "$COUNTRY_CODE" != "null" ] && [ "$COUNTRY_CODE" != "Unknown" ]; then
-              echo "${IP}#${COUNTRY_CODE}" >> ipv4collect.txt
+            if [ "$STATUS" = "success" ]; then
+              REG_COUNTRY=$(echo "$RESPONSE" | jq -r '.countryCode')
+              echo "${IP}#${REG_COUNTRY}" >> ipv4collect.txt
             else
               echo "${IP}#Unknown" >> ipv4collect.txt
             fi
             
-            # Optional: Small delay to respect rate limits of free APIs
-            sleep 0.2
+            # 1.5s delay to strictly stay under 45 requests/minute
+            sleep 1.5
           done
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update ipv4collect.txt with Registered Country Codes"
+          file_pattern: ipv4collect.txt
+          commit_user_name: GitHub Action
+          commit_user_email: action@github.com
         with:
           commit_message: "Update ipv4collect.txt with Country Tags"
           file_pattern: ipv4collect.txt
