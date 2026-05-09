@@ -1,6 +1,5 @@
 name: "Alvin4c2m Workflow"
 
-# Controls when the action will run: at 3:00 AM UTC and on manual dispatch
 on:
   schedule:
     - cron: '0 3 * * *'
@@ -12,33 +11,38 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Install dependencies
-      run: sudo apt-get install -y curl
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl jq
+        # Download yq to handle YAML merging correctly
+        sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+        sudo chmod +x /usr/bin/yq
 
     - name: Download and Merge YAML Files
       run: |
-        # Download YAML files
-        curl -o config1.yaml https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/1/config.yaml
-        curl -o config2.yaml https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/2/config.yaml
-        curl -o config3.yaml https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/3/config.yaml
-        curl -o config4.yaml https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/4/config.yaml
-        curl -o config5.yaml https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/5/config.yaml
-        curl -o config6.yaml https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/6/config.yaml
-
-        # Merge YAML files into a single file
-        echo "---" > alvin4c2m.yaml
-        for file in config*.yaml; do
-          echo "Merging $file into alvin4c2m.yaml"
-          echo "---" >> alvin4c2m.yaml
-          cat "$file" >> alvin4c2m.yaml
+        # Download the files
+        for i in {1..6}; do
+          curl -sL -o "config$i.yaml" "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/$i/config.yaml"
         done
 
-    - name: Commit and push merged YAML file
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add alvin4c2m.yaml
-        git commit -m "Merged YAML files into alvin4c2m.yaml"
-        git push
+        # Correct Way to Merge: Create a base file and append proxies from others
+        # This assumes you want all 'proxies' from all files combined.
+        # We take the full structure of config1 and append the proxy lists from 2-6.
+        cp config1.yaml alvin4c2m.yaml
+        
+        for i in {2..6}; do
+          echo "Merging proxies from config$i.yaml..."
+          # This command appends only the 'proxies' array items to the main file
+          yq eval-all 'select(fileIndex == 0).proxies += select(fileIndex == 1).proxies | select(fileIndex == 0)' alvin4c2m.yaml config$i.yaml -i
+        done
+
+    - name: Commit and push changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "Auto-update: Merged Clash configurations"
+        file_pattern: alvin4c2m.yaml
+        commit_user_name: GitHub Action
+        commit_user_email: action@github.com
