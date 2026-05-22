@@ -7,6 +7,10 @@ on:
   workflow_dispatch:
     # 支持在 GitHub Actions 页面上手动点击按钮触发
 
+# 全局开启 Node.js 24 强制运行环境，完美消除 2026 年弃用警告
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   run-speedtest:
     runs-on: ubuntu-latest
