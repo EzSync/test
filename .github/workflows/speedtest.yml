@@ -1,0 +1,39 @@
+name: US VLESS Nodes Auto Speedtest
+
+on:
+  schedule:
+    # 每天北京时间 01:00 自动运行 (对应 UTC 17:00)
+    - cron: '0 17 * * *'
+  workflow_dispatch:
+    # 支持在 GitHub Actions 页面上手动点击按钮触发
+
+jobs:
+  run-speedtest:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出仓库代码
+      uses: actions/checkout@v4
+
+    - name: 设置 Python 环境
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: 运行 VLESS 节点筛选与测速脚本
+      run: python crawler.py
+
+    - name: 检查文件是否变更
+      id: verify_diff
+      run: |
+        git status --porcelain
+        echo "changed=$(git status --porcelain | wc -l)" >> $GITHUB_OUTPUT
+
+    - name: 将最新的 VLESS 订阅文件提交并推送至仓库
+      if: steps.verify_diff.outputs.changed != '0'
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add ustop30.txt
+        git commit -m "自动更新：生成今日最快美国 VLESS 订阅 Top30"
+        git push
