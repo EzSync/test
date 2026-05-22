@@ -10,13 +10,17 @@ on:
 jobs:
   run-speedtest:
     runs-on: ubuntu-latest
+    
+    # 终极方案：直接在 Job 级别注入环境变量，强制让所有 Action 内部底层使用 Node 24 引擎运行
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
     steps:
     - name: 检出仓库代码
-      uses: actions/checkout@v4.2.2  # 升级至支持 Node.js 24 的微版本
+      uses: actions/checkout@v4.2.2
 
     - name: 设置 Python 环境
-      uses: actions/setup-python@v5.4.0  # 升级至支持 Node.js 24 的微版本
+      uses: actions/setup-python@v5.4.0
       with:
         python-version: '3.10'
 
