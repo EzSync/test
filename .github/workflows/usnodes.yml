@@ -1,34 +1,66 @@
-- name: Fetch and Process Nodes
+name: Update Best US Nodes
+
+on:
+  # 允许手动触发
+  workflow_dispatch:
+  # 每天北京时间 22:00 运行 (UTC 14:00)
+  schedule:
+    - cron: '0 14 * * *'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Fetch and Process Nodes
         run: |
-          # 1. 尝试获取内容，增加 User-Agent 伪装成浏览器，并处理错误
-          # 将 --fail 参数去掉，防止 curl 报错直接导致整个任务中断
+          # 1. 尝试获取内容 (带上 User-Agent)
+          # --retry 3 表示失败重试3次，增加稳定性
           curl -L -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
-            --max-time 30 "https://cmgitsubs.ezbiz.dynv6.net/sxmzdsh" > raw.txt
+            --max-time 30 --retry 3 "https://cmgitsubs.ezbiz.dynv6.net/sxmzdsh" > raw.txt
           
-          # 检查文件是否为空
+          # 【调试信息】：如果内容为空，打印提示以便查看日志
           if [ ! -s raw.txt ]; then
-            echo "Error: Empty response from server."
+            echo "错误：无法从服务器获取数据，请检查链接是否有效。"
             exit 1
           fi
 
-          # 2. 检查是否为 Base64（尝试解码，如果失败则视为明文）
-          # 我们不再直接让脚本退出，而是通过变量处理
+          # 2. 尝试解码
           if base64 -d raw.txt > decoded.txt 2>/dev/null; then
-             echo "Info: Decoded successfully."
+             echo "解码成功。"
           else
-             echo "Info: Not a Base64 file, using as plain text."
+             echo "非Base64格式，直接使用原内容。"
              mv raw.txt decoded.txt
           fi
 
-          # 3. 过滤并筛选 (使用 grep -Pi)
-          # 确保同时匹配协议名和美国关键词，输出到临时文件
+          # 3. 过滤并筛选
+          # 使用 -Pi 确保匹配，按唯一行去重
+          # 过滤逻辑：匹配 vless/vmess/trojan 协议且名称包含 US/美国/United States
           grep -Pi "(vless|vmess|trojan)://.*(US|美国|United States)" decoded.txt | sort -u | head -n 99 > top99_plain.txt
 
-          # 4. 检查是否有数据，有则编码
+          # 4. 检查是否有结果
           if [ -s top99_plain.txt ]; then
             base64 -w 0 top99_plain.txt > ustop99.txt
-            echo "Success: ustop99.txt generated."
+            echo "成功生成 ustop99.txt"
           else
-            echo "Error: No matching nodes found after filtering."
+            echo "错误：筛选后未找到符合条件的节点。请检查节点名称命名格式。"
+            # 打印部分内容供排查
+            echo "以下是原始内容片段："
+            head -n 5 decoded.txt
             exit 1
           fi
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add ustop99.txt
+          # 使用 -m 参数，如果没变动则跳过提交
+          git commit -m "Update nodes at $(date +'%Y-%m-%d %H:%M:%S')" || echo "没有变更，无需提交"
+          git push
