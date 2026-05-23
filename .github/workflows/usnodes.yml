@@ -3,7 +3,7 @@ name: Update Best US Nodes
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 14 * * *' # 北京时间 22:00
+    - cron: '0 22 * * *' # 北京时间 22:00
 
 jobs:
   update:
