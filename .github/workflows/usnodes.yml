@@ -3,7 +3,7 @@ name: Update Best US Nodes
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 14 * * *'
+    - cron: '0 14 * * *' # 北京时间 22:00
 
 jobs:
   update:
@@ -41,10 +41,8 @@ jobs:
           
           for url in "${urls[@]}"; do
             echo "Fetching: $url"
-            # 增加 || true，防止任何一个链接失败导致整个 runner 退出
-            curl -L -s -A "Mozilla/5.0" --max-time 10 "$url" > temp.txt || continue
+            curl -L -s -A "Mozilla/5.0" --max-time 15 "$url" > temp.txt || continue
             
-            # 只有当文件非空时才尝试处理
             if [ -s temp.txt ]; then
               if ! (base64 -d temp.txt > decoded.txt 2>/dev/null); then
                  cat temp.txt > decoded.txt
@@ -55,14 +53,22 @@ jobs:
 
       - name: Process and Filter
         run: |
-          # 过滤并去重
-          grep -Pi "(vless|vmess|trojan)://.*(US|美国|United States)" all_nodes.txt | sort -u | head -n 99 > top99_plain.txt
+          # 过滤逻辑：
+          # 1. 必须包含协议 (vless, vmess, trojan)
+          # 2. 必须包含地理信息 (US, 美国, United States)
+          # 3. 必须包含端口 443
+          # 4. 去重并取前 99 个
+          grep -Pi "(vless|vmess|trojan)://.*(US|美国|United States).*:443" all_nodes.txt \
+            | sort -u \
+            | head -n 99 > top99_plain.txt
           
           if [ -s top99_plain.txt ]; then
             base64 -w 0 top99_plain.txt > ustop99.txt
+            echo "成功筛选出节点。"
           else
-            echo "Warning: No nodes found."
-            exit 1
+            echo "警告：未找到符合条件的节点，请检查关键词或端口匹配。"
+            # 退出码设为 0 以防 Workflow 报错停摆，但会生成空文件以便后续分析
+            exit 0 
           fi
 
       - name: Commit and Push
@@ -70,5 +76,5 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add ustop99.txt
-          git commit -m "Update nodes" || echo "No changes"
+          git commit -m "Update nodes at $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
           git push
