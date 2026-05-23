@@ -1,48 +1,34 @@
-name: Update Best US Nodes
-
-on:
-  schedule:
-    - cron: '0 14 * * *' # 北京时间 22:00
-  workflow_dispatch:
-
-jobs:
-  update:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Fetch and Process Nodes
+- name: Fetch and Process Nodes
         run: |
-          # 1. 获取并解码
-          curl -L -s --max-time 30 "https://cmgitsubs.ezbiz.dynv6.net/sxmzdsh" > raw.txt
-          if ! (base64 -d raw.txt > decoded.txt 2>/dev/null); then
+          # 1. 尝试获取内容，增加 User-Agent 伪装成浏览器，并处理错误
+          # 将 --fail 参数去掉，防止 curl 报错直接导致整个任务中断
+          curl -L -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
+            --max-time 30 "https://cmgitsubs.ezbiz.dynv6.net/sxmzdsh" > raw.txt
+          
+          # 检查文件是否为空
+          if [ ! -s raw.txt ]; then
+            echo "Error: Empty response from server."
+            exit 1
+          fi
+
+          # 2. 检查是否为 Base64（尝试解码，如果失败则视为明文）
+          # 我们不再直接让脚本退出，而是通过变量处理
+          if base64 -d raw.txt > decoded.txt 2>/dev/null; then
+             echo "Info: Decoded successfully."
+          else
+             echo "Info: Not a Base64 file, using as plain text."
              mv raw.txt decoded.txt
           fi
 
-          # 2. 三重精细化过滤逻辑：
-          # A. 协议过滤: 只保留 vless, vmess, trojan
-          # B. 地理过滤: 强制包含 US, 美国, United States (且排除像 "US-非美国地名" 的干扰)
-          # C. 去重: sort -u
-          # D. 限制数量: head -n 99
-          
-          grep -Pi "(vless|vmess|trojan)://.*(US|美国|United States)" decoded.txt \
-            | sort -u \
-            | head -n 99 > top99_plain.txt
+          # 3. 过滤并筛选 (使用 grep -Pi)
+          # 确保同时匹配协议名和美国关键词，输出到临时文件
+          grep -Pi "(vless|vmess|trojan)://.*(US|美国|United States)" decoded.txt | sort -u | head -n 99 > top99_plain.txt
 
-          # 3. 编码回 Base64
-          base64 -w 0 top99_plain.txt > ustop99.txt
-
-      - name: Commit and Push
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          if [ -s ustop99.txt ]; then
-            git add ustop99.txt
-            git commit -m "Update US nodes: VLESS/VMess/Trojan" || echo "No changes"
-            git push
+          # 4. 检查是否有数据，有则编码
+          if [ -s top99_plain.txt ]; then
+            base64 -w 0 top99_plain.txt > ustop99.txt
+            echo "Success: ustop99.txt generated."
+          else
+            echo "Error: No matching nodes found after filtering."
+            exit 1
           fi
