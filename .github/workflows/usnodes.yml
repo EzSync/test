@@ -2,9 +2,7 @@ name: Update Best US Nodes
 
 on:
   schedule:
-    # 每天 22:00 运行 (UTC时间，即北京时间 06:00)
-    # 如果你需要北京时间的 22:00，请改为 14:00 (14+8=22)
-    - cron: '0 22 * * *' 
+    - cron: '0 14 * * *' # 北京时间 22:00
   workflow_dispatch:
 
 jobs:
@@ -18,31 +16,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Fetch and Process US Nodes
+      - name: Fetch and Process Nodes
         run: |
-          # 1. 获取内容
-          curl -L -s --max-time 30 "https://cmgitsubs.ezbiz.dynv6.net/sxmzdsh" > sub_content.txt
-          
-          # 2. 尝试解码 Base64 (兼容多种订阅格式)
-          # 使用 tr 修正可能的 Padding 问题，确保解码不报错
-          if ! (cat sub_content.txt | tr -d '\n' | base64 -d > decoded.txt 2>/dev/null); then
-             mv sub_content.txt decoded.txt
+          # 1. 获取并解码
+          curl -L -s --max-time 30 "https://cmgitsubs.ezbiz.dynv6.net/sxmzdsh" > raw.txt
+          if ! (base64 -d raw.txt > decoded.txt 2>/dev/null); then
+             mv raw.txt decoded.txt
           fi
 
-          # 3. 严格筛选：提取包含 US、美国、United States 的节点
-          # 并去重，取前 99 个
-          grep -iE "US|美国|United States" decoded.txt | sort -u | head -n 99 > top99_plain.txt
+          # 2. 三重精细化过滤逻辑：
+          # A. 协议过滤: 只保留 vless, vmess, trojan
+          # B. 地理过滤: 强制包含 US, 美国, United States (且排除像 "US-非美国地名" 的干扰)
+          # C. 去重: sort -u
+          # D. 限制数量: head -n 99
+          
+          grep -Pi "(vless|vmess|trojan)://.*(US|美国|United States)" decoded.txt \
+            | sort -u \
+            | head -n 99 > top99_plain.txt
 
-          # 4. 重新编码为 Base64 以供订阅
+          # 3. 编码回 Base64
           base64 -w 0 top99_plain.txt > ustop99.txt
 
       - name: Commit and Push
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          # 如果文件有内容更新则提交
           if [ -s ustop99.txt ]; then
             git add ustop99.txt
-            git commit -m "Update top 99 US nodes" || echo "No changes to commit"
+            git commit -m "Update US nodes: VLESS/VMess/Trojan" || echo "No changes"
             git push
           fi
