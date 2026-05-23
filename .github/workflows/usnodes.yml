@@ -3,7 +3,7 @@ name: Update Best US Nodes
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 14 * * *' # 北京时间 22:00
+    - cron: '0 14 * * *'
 
 jobs:
   update:
@@ -18,59 +18,57 @@ jobs:
 
       - name: Fetch and Merge Nodes
         run: |
-          # 定义所有订阅链接
           urls=(
             "https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2"
-            "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/refs/heads/master/list.txt"
-            "https://raw.githubusercontent.com/free18/v2ray/refs/heads/main/v.txt"
+            "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt"
+            "https://raw.githubusercontent.com/free18/v2ray/main/v.txt"
             "https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt"
             "https://mar.haxtop.ggff.net/?sub"
             "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/sub/splitted/trojan.txt"
             "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity.txt"
             "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray"
             "https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_BASE64.txt"
-            "https://raw.githubusercontent.com/pachangcheng/mianfeijiedian/refs/heads/main/should.txt"
+            "https://raw.githubusercontent.com/pachangcheng/mianfeijiedian/main/should.txt"
             "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"
             "https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.yml"
             "https://raw.githubusercontent.com/ripaojiedian/freenode/main/sub"
             "https://d.zrf.me/vless-base64"
-            "https://raw.githubusercontent.com/snakem982/proxypool/refs/heads/main/source/clash-meta-2.yaml"
-            "https://raw.githubusercontent.com/xiaoji235/airport-free/refs/heads/main/v2ray.txt"
+            "https://raw.githubusercontent.com/snakem982/proxypool/main/source/clash-meta-2.yaml"
+            "https://raw.githubusercontent.com/xiaoji235/airport-free/main/v2ray.txt"
           )
 
-          # 清空上一次的残留文件
           > all_nodes.txt
           
-          # 循环抓取
           for url in "${urls[@]}"; do
             echo "Fetching: $url"
-            curl -L -s -A "Mozilla/5.0" --max-time 15 "$url" > temp.txt
+            # 增加 || true，防止任何一个链接失败导致整个 runner 退出
+            curl -L -s -A "Mozilla/5.0" --max-time 10 "$url" > temp.txt || continue
             
-            # 尝试 Base64 解码，失败则直接追加
-            if ! (base64 -d temp.txt > decoded.txt 2>/dev/null); then
-               cat temp.txt > decoded.txt
+            # 只有当文件非空时才尝试处理
+            if [ -s temp.txt ]; then
+              if ! (base64 -d temp.txt > decoded.txt 2>/dev/null); then
+                 cat temp.txt > decoded.txt
+              fi
+              cat decoded.txt >> all_nodes.txt
             fi
-            
-            cat decoded.txt >> all_nodes.txt
           done
 
       - name: Process and Filter
         run: |
-          # 1. 协议过滤: vless, vmess, trojan
-          # 2. 地理过滤: US, 美国, United States
-          # 3. 去重: sort -u
-          # 4. 提取: 前 99 个
-          grep -Pi "(vless|vmess|trojan)://.*(US|美国|United States)" all_nodes.txt \
-            | sort -u \
-            | head -n 99 > top99_plain.txt
-
-          # 5. 生成最终订阅
-          base64 -w 0 top99_plain.txt > ustop99.txt
+          # 过滤并去重
+          grep -Pi "(vless|vmess|trojan)://.*(US|美国|United States)" all_nodes.txt | sort -u | head -n 99 > top99_plain.txt
+          
+          if [ -s top99_plain.txt ]; then
+            base64 -w 0 top99_plain.txt > ustop99.txt
+          else
+            echo "Warning: No nodes found."
+            exit 1
+          fi
 
       - name: Commit and Push
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add ustop99.txt
-          git commit -m "Update nodes from multiple sources" || echo "No changes to commit"
+          git commit -m "Update nodes" || echo "No changes"
           git push
