@@ -2,36 +2,52 @@ name: Update Best Nodes
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 每天运行一次
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Fetch and Process Nodes
         run: |
-          # 1. 获取原始订阅内容并解码
-          curl -s "https://cmgitsubs.ezbiz.dynv6.net/sxmzdsh" > raw_subs.txt
+          # 1. 获取订阅链接内容
+          # 使用 --max-time 防止卡死，-L 处理重定向
+          curl -L -s --max-time 30 "https://cmgitsubs.ezbiz.dynv6.net/sxmzdsh" > sub_content.txt
           
-          # 这里假设原始链接直接返回 Base64 编码的订阅内容
-          # 使用 base64 解码获取节点列表
-          base64 -d raw_subs.txt > decoded_nodes.txt
+          # 2. 检查内容是否为空
+          if [ ! -s sub_content.txt ]; then
+            echo "Error: Failed to fetch nodes or empty response."
+            exit 1
+          fi
+
+          # 3. 过滤出包含 "US" 或 "美国" 的节点
+          # 这一步是为了满足你对美国节点的需求
+          # 注意：大部分订阅内容直接是 base64，如果是这样，我们需要先解码
+          if ! base64 -d sub_content.txt > decoded.txt 2>/dev/null; then
+             # 如果解码失败，说明内容可能是明文或者已经是 URL 列表
+             mv sub_content.txt decoded.txt
+          fi
           
-          # 2. 模拟测速与筛选 (因 GitHub Runner 环境限制，建议调用外部测速 API 或使用轻量脚本)
-          # 这里演示逻辑：取前 30 个节点。若需真实测速，需在 runner 中安装 clash 或 xray 核心
-          head -n 30 decoded_nodes.txt > top30_raw.txt
-          
-          # 3. 将结果转回 Base64 格式，以确保其为合法的订阅链接格式
-          base64 -w 0 top30_raw.txt > ustop30.txt
+          grep -iE "US|美国" decoded.txt | head -n 30 > top30_plain.txt
+
+          # 4. 重新编码为 base64，确保输出文件是标准的订阅格式
+          base64 -w 0 top30_plain.txt > ustop30.txt
 
       - name: Commit and Push
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add ustop30.txt
-          git commit -m "Update top 30 nodes"
-          git push
+          # 只在文件有变化时提交
+          if [ -n "$(git status --porcelain)" ]; then
+            git add ustop30.txt
+            git commit -m "Update top 30 US nodes"
+            git push
+          else
+            echo "No changes detected."
+          fi
