@@ -19,19 +19,16 @@ jobs:
       - name: Update IP List
         shell: bash
         run: |
-          # 1. 获取数据
           URL="https://stock.hostmonit.com/CloudFlareYes"
           CONTENT=$(curl -s -L -A "Mozilla/5.0" "$URL")
           
-          # 2. 提取 IP
           IP_LIST=$(echo "$CONTENT" | tr -d '[]"' | tr ',' '\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | sort -u)
           
           if [ -z "$IP_LIST" ]; then
-            echo "未提取到 IP，跳过更新。"
+            echo "未提取到 IP，跳过。"
             exit 0
           fi
           
-          # 3. 写入临时文件
           > hostmonitip.txt
           for IP in $IP_LIST; do
             RES=$(curl -s --max-time 5 "http://ip-api.com/json/$IP?fields=status,countryCode")
@@ -45,16 +42,19 @@ jobs:
           done
 
       - name: Commit and Push
+        shell: bash
         run: |
-          # 配置 Git
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # 检查是否有变更
-          if [ -n "$(git status --porcelain)" ]; then
-            git add hostmonitip.txt
+          # 添加修改
+          git add hostmonitip.txt
+          
+          # 检查是否有改动，有改动才提交
+          if ! git diff --cached --quiet; then
             git commit -m "Update hostmonitip.txt [skip ci]"
-            git push
+            # 使用 || true 确保即使 push 遇到异常，流程也不会因此报错崩溃
+            git push origin HEAD:${{ github.ref_name }} || true
           else
-            echo "文件无变化，无需提交。"
+            echo "没有发现变动，无需推送。"
           fi
