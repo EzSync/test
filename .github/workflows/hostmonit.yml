@@ -24,7 +24,7 @@ jobs:
           pip install playwright
           playwright install --with-deps chromium
 
-      - name: 获取 IP 并写入文件（带 IATA/Colo）
+      - name: 获取 IP 并写入文件（带正确 IATA/Colo）
         run: |
           python - << 'EOF'
           from playwright.sync_api import sync_playwright
@@ -53,13 +53,13 @@ jobs:
               
               print(f"提取到 {len(unique_ips)} 个唯一 IP")
               
-              # 尝试提取 Colo / Location 信息（当前页面大多为 Default）
-              colo_matches = re.findall(r'Colo\s*([^\n]+)', content)
+              # 精确提取 Colo（匹配 card-value）
+              colo_matches = re.findall(r'Colo</span><span[^>]*class="card-value">([^<]+)</span>', content)
               colo = colo_matches[0].strip() if colo_matches else "Default"
               
-              print(f"检测到 Colo: {colo}")
+              print(f"检测到的 Colo / IATA: {colo}")
               
-              # 写入格式: IP#IATA/Colo
+              # 生成 ip#iata 格式
               lines = [f"{ip}#{colo}" for ip in unique_ips]
               
               if unique_ips:
@@ -75,7 +75,7 @@ jobs:
           with open('hostmonit.txt', 'w', encoding='utf-8') as f:
               f.write('\n'.join(lines) + '\n')
 
-          print(f"✅ 成功写入 {len(unique_ips)} 条记录到 hostmonit.txt")
+          print(f"✅ 成功写入 {len(unique_ips)} 条记录")
           EOF
 
       - name: 提交更新
