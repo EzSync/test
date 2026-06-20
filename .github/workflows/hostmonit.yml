@@ -16,25 +16,32 @@ jobs:
 
       - name: Update IP and IATA
         run: |
-          # 1. 获取 IPv4 列表 (处理去引号和换行)
-          ips=$(curl -s "https://stock.hostmonit.com/CloudFlareYes" | tr -d '"' | tr ',' '\n')
+          # 获取 IP 列表，添加超时控制
+          ips_raw=$(curl -s --max-time 10 "https://stock.hostmonit.com/CloudFlareYes")
+          
+          # 清理数据：去掉引号，去掉逗号，每行一个
+          ips=$(echo "$ips_raw" | tr -d '"' | tr ',' '\n')
           
           # 清空原有内容
           > hostmonitip.txt
           
-          # 2 & 3. 循环获取信息并写入
           for ip in $ips; do
-            # 获取位置信息 (使用 ip-api.com)
-            # 为了获取 IATA code，我们取城市名前3位并转大写
-            resp=$(curl -s "http://ip-api.com/json/$ip?fields=status,city")
-            status=$(echo $resp | jq -r '.status')
+            # 跳过空行
+            [ -z "$ip" ] && continue
+            
+            # 使用 http 接口并限制字段，添加错误重试机制
+            # 如果请求失败，默认为 XXX，避免脚本中断
+            resp=$(curl -s --max-time 5 "http://ip-api.com/json/$ip?fields=status,city" || echo '{"status":"fail"}')
+            
+            status=$(echo "$resp" | jq -r '.status' 2>/dev/null || echo "fail")
             
             if [ "$status" == "success" ]; then
-              city=$(echo $resp | jq -r '.city' | tr '[:lower:]' '[:upper:]' | cut -c1-3)
-              # 如果 city 为空，赋予默认值 XXX
-              [ -z "$city" ] && city="XXX"
+              city=$(echo "$resp" | jq -r '.city' | tr '[:lower:]' '[:upper:]' | cut -c1-3)
+              [ -z "$city" ] || [ "$city" == "null" ] && city="XXX"
             else
               city="XXX"
+              # API 限流时稍微等待，避免连续请求失败
+              sleep 1
             fi
             
             echo "${ip}#${city}" >> hostmonitip.txt
@@ -45,5 +52,8 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add hostmonitip.txt
-          # 检查是否有变更，有变更则提交
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update hostmonitip.txt at $(date +'%Y-%m-%d %H:%M:%S')" && git push)
+          # 仅在文件有变化时提交，防止无效提交
+          if ! git diff --cached --quiet; then
+            git commit -m "Update hostmonitip.txt"
+            git push
+          fi
