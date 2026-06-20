@@ -1,0 +1,44 @@
+name: Update Hostmonit IP
+
+on:
+  schedule:
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-ip:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch and Process IPs
+        run: |
+          # 获取 IP 列表
+          ipv4=$(curl -s https://stock.hostmonit.com/CloudFlareYes)
+          ipv6=$(curl -s https://stock.hostmonit.com/CloudFlareYesV6)
+          
+          # 合并并去重
+          all_ips=$(echo -e "$ipv4\n$ipv6" | tr -d '"' | tr ',' '\n' | sort -u)
+          
+          > hostmonitip.txt
+          
+          for ip in $all_ips; do
+            # 调用 ip-api 获取城市信息，并将其转化为简单的代码或城市名模拟 IATA
+            # 注意：实际 IATA 代码需通过特定数据库映射，此处使用 city 代替
+            city=$(curl -s "http://ip-api.com/json/$ip" | jq -r '.city' | tr '[:lower:]' '[:upper:]' | cut -c1-3)
+            
+            # 如果获取不到 city，默认为 UNK
+            [ "$city" == "NULL" ] || [ -z "$city" ] && city="UNK"
+            
+            echo "${ip}#${city}" >> hostmonitip.txt
+          done
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add hostmonitip.txt
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update hostmonitip.txt" && git push)
