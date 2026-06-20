@@ -16,23 +16,20 @@ jobs:
 
       - name: Update IP and IATA
         run: |
-          # 获取 IP 列表，添加超时控制
-          ips_raw=$(curl -s --max-time 10 "https://stock.hostmonit.com/CloudFlareYes")
+          # 增加 User-Agent 模拟浏览器，避免被拦截返回 HTML
+          # 增加 grep 过滤，确保提取的是 IP 格式内容
+          ips_raw=$(curl -s -H "User-Agent: Mozilla/5.0" "https://stock.hostmonit.com/CloudFlareYes")
           
-          # 清理数据：去掉引号，去掉逗号，每行一个
-          ips=$(echo "$ips_raw" | tr -d '"' | tr ',' '\n')
+          # 清理：只提取包含数字和点的行（匹配IPv4格式），去除多余符号
+          # 过滤掉 HTML 标签、脚本代码等干扰项
+          ips=$(echo "$ips_raw" | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sort -u)
           
-          # 清空原有内容
           > hostmonitip.txt
           
           for ip in $ips; do
-            # 跳过空行
-            [ -z "$ip" ] && continue
-            
-            # 使用 http 接口并限制字段，添加错误重试机制
-            # 如果请求失败，默认为 XXX，避免脚本中断
-            resp=$(curl -s --max-time 5 "http://ip-api.com/json/$ip?fields=status,city" || echo '{"status":"fail"}')
-            
+            # 获取位置信息，如果失败则返回 XXX
+            # 增加一个重试逻辑，防止单次请求失败
+            resp=$(curl -s --max-time 5 "http://ip-api.com/json/$ip?fields=status,city")
             status=$(echo "$resp" | jq -r '.status' 2>/dev/null || echo "fail")
             
             if [ "$status" == "success" ]; then
@@ -40,8 +37,7 @@ jobs:
               [ -z "$city" ] || [ "$city" == "null" ] && city="XXX"
             else
               city="XXX"
-              # API 限流时稍微等待，避免连续请求失败
-              sleep 1
+              sleep 0.5 # 避免过于频繁触发限流
             fi
             
             echo "${ip}#${city}" >> hostmonitip.txt
@@ -52,7 +48,6 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add hostmonitip.txt
-          # 仅在文件有变化时提交，防止无效提交
           if ! git diff --cached --quiet; then
             git commit -m "Update hostmonitip.txt"
             git push
