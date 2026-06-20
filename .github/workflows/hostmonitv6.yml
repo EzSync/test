@@ -2,7 +2,7 @@ name: Update CloudFlare HostMonit IPv6
 
 on:
   schedule:
-    - cron: '0 */6 * * *'     # 每6小时更新一次
+    - cron: '0 */6 * * *'
   workflow_dispatch:
 
 jobs:
@@ -41,17 +41,17 @@ jobs:
               
               print("正在访问 IPv6 页面...")
               page.goto(url, wait_until="networkidle", timeout=60000)
-              page.wait_for_timeout(8000)  # 等待 JS 加载卡片
+              page.wait_for_timeout(8000)
               
               content = page.content()
               print(f"页面长度: {len(content)} 字符")
               
-              # IPv6 正则表达式
-              ipv6_pattern = r'(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}:){1,7}:|(?:[0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}:){1,5}(?::[0-9a-fA-F]{1,4}){1,2}|(?:[0-9a-fA-F]{1,4}:){1,4}(?::[0-9a-fA-F]{1,4}){1,3}|(?:[0-9a-fA-F]{1,4}:){1,3}(?::[0-9a-fA-F]{1,4}){1,4}|(?:[0-9a-fA-F]{1,4}:){1,2}(?::[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((?::[0-9a-fA-F]{1,4}){1,6})|:[0-9a-fA-F]{0,4}((?::[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(?::[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(?:ffff(?::0{1,4}){0,1}:){0,1}(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])|(?:[0-9a-fA-F]{1,4}:){1,4}(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])'
+              # 简化的可靠 IPv6 正则（专门适配当前页面）
+              ipv6_pattern = r'IP\s+([0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4}){1,7})'
+              matches = re.findall(ipv6_pattern, content)
               
-              ips = re.findall(ipv6_pattern, content)
-              # 清理并去重
-              unique_ips = sorted(set([ip for ip in ips if ip and ':' in ip]))
+              # 清理和去重
+              unique_ips = sorted(set(matches))
               
               print(f"✅ 成功提取到 {len(unique_ips)} 个唯一 IPv6 地址")
               if unique_ips:
@@ -60,14 +60,15 @@ jobs:
                       print(ip)
 
           if not unique_ips:
-              print("❌ 未获取到 IPv6 地址")
+              print("❌ 未获取到 IPv6 地址，页面前300字符预览：")
+              print(repr(content[:300]))
               exit(1)
 
-          # 写入文件 hostmonitv6.txt
+          # 写入文件
           with open('hostmonitv6.txt', 'w', encoding='utf-8') as f:
               f.write('\n'.join(unique_ips) + '\n')
 
-          print(f"✅ hostmonitv6.txt 写入完成，共 {len(unique_ips)} 条 IPv6")
+          print(f"✅ hostmonitv6.txt 写入完成，共 {len(unique_ips)} 条")
           EOF
 
       - name: 提交更新
