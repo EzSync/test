@@ -24,7 +24,7 @@ jobs:
           pip install playwright
           playwright install --with-deps chromium
 
-      - name: 获取 IP 并写入文件
+      - name: 获取 IP 并写入文件（带 IATA/Colo）
         run: |
           python - << 'EOF'
           from playwright.sync_api import sync_playwright
@@ -41,26 +41,31 @@ jobs:
               
               print("正在访问页面...")
               page.goto(url, wait_until="networkidle", timeout=60000)
-              page.wait_for_timeout(8000)  # 额外等待内容加载
+              page.wait_for_timeout(8000)
               
               content = page.content()
               print(f"页面长度: {len(content)} 字符")
               
-              # 超级强力 IPv4 正则（不管前后是什么）
+              # 提取所有 IPv4
               ip_pattern = r'(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
               ips = re.findall(ip_pattern, content)
               unique_ips = sorted(set(ips))
               
-              print(f"✅ 提取到 {len(unique_ips)} 个唯一 IP")
-              if unique_ips:
-                  print("前 10 个 IP:")
-                  for ip in unique_ips[:10]:
-                      print(ip)
-              else:
-                  print("❌ 未匹配到 IP，页面前 500 字符预览：")
-                  print(repr(content[:500]))
+              print(f"提取到 {len(unique_ips)} 个唯一 IP")
               
-              browser.close()
+              # 尝试提取 Colo / Location 信息（当前页面大多为 Default）
+              colo_matches = re.findall(r'Colo\s*([^\n]+)', content)
+              colo = colo_matches[0].strip() if colo_matches else "Default"
+              
+              print(f"检测到 Colo: {colo}")
+              
+              # 写入格式: IP#IATA/Colo
+              lines = [f"{ip}#{colo}" for ip in unique_ips]
+              
+              if unique_ips:
+                  print("前 5 行示例:")
+                  for line in lines[:5]:
+                      print(line)
 
           if not unique_ips:
               print("❌ 未获取到 IP")
@@ -68,9 +73,9 @@ jobs:
 
           # 写入文件
           with open('hostmonit.txt', 'w', encoding='utf-8') as f:
-              f.write('\n'.join(unique_ips) + '\n')
+              f.write('\n'.join(lines) + '\n')
 
-          print(f"✅ 成功写入 {len(unique_ips)} 个 IP 到 hostmonit.txt")
+          print(f"✅ 成功写入 {len(unique_ips)} 条记录到 hostmonit.txt")
           EOF
 
       - name: 提交更新
