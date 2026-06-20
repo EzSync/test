@@ -16,20 +16,25 @@ jobs:
 
       - name: Update IP and IATA
         run: |
-          # 1. 使用完整的请求头模拟浏览器，防止被拦截
-          # 2. 直接将 JSON 解析为数组循环
-          ips=$(curl -s -L -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
-            -H "Referer: https://hostmonit.com/" \
-            "https://stock.hostmonit.com/CloudFlareYes" | jq -r '.[]')
+          # 1. 获取原始数据，不再强制要求为 JSON
+          raw_data=$(curl -s -L -H "User-Agent: Mozilla/5.0" "https://stock.hostmonit.com/CloudFlareYes")
           
-          if [ -z "$ips" ]; then
-            echo "Error: 未能获取到IP数据，请检查接口是否变更。"
+          # 2. 将数据中的引号、逗号、括号全部清理，转为空格分隔
+          # 这样无论它是 JSON 数组 ["1.1.1.1","2.2.2.2"] 还是逗号分隔 1.1.1.1,2.2.2.2 都能兼容
+          clean_ips=$(echo "$raw_data" | tr -d '[]"' | tr ',' ' ')
+          
+          if [ -z "$clean_ips" ]; then
+            echo "Error: 未能获取到IP数据。"
             exit 1
           fi
           
           > hostmonitip.txt
           
-          for ip in $ips; do
+          # 3. 循环遍历提取的 IP
+          for ip in $clean_ips; do
+            # 简单校验：确保是符合 ip 格式的字符串 (包含至少一个点)
+            if [[ ! "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then continue; fi
+            
             # 获取位置信息
             resp=$(curl -s --max-time 5 "http://ip-api.com/json/$ip?fields=status,city")
             status=$(echo "$resp" | jq -r '.status' 2>/dev/null || echo "fail")
@@ -42,7 +47,6 @@ jobs:
             fi
             
             echo "${ip}#${city}" >> hostmonitip.txt
-            # 避免对 ip-api 的查询过于频繁
             sleep 0.5
           done
 
