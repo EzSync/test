@@ -19,15 +19,16 @@ jobs:
       - name: Update IP List
         shell: bash
         run: |
+          # 关闭 set -e，确保即使某条命令出错也不直接退出
+          set +e
+          
+          echo "Step 1: Fetching data..."
           URL="https://stock.hostmonit.com/CloudFlareYes"
           CONTENT=$(curl -s -L -A "Mozilla/5.0" "$URL")
+          if [ $? -ne 0 ]; then echo "Curl failed"; exit 0; fi
           
+          echo "Step 2: Processing..."
           IP_LIST=$(echo "$CONTENT" | tr -d '[]"' | tr ',' '\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | sort -u)
-          
-          if [ -z "$IP_LIST" ]; then
-            echo "未提取到 IP，跳过。"
-            exit 0
-          fi
           
           > hostmonitip.txt
           for IP in $IP_LIST; do
@@ -44,17 +45,23 @@ jobs:
       - name: Commit and Push
         shell: bash
         run: |
+          set +e
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # 添加修改
           git add hostmonitip.txt
           
-          # 检查是否有改动，有改动才提交
-          if ! git diff --cached --quiet; then
-            git commit -m "Update hostmonitip.txt [skip ci]"
-            # 使用 || true 确保即使 push 遇到异常，流程也不会因此报错崩溃
-            git push origin HEAD:${{ github.ref_name }} || true
-          else
-            echo "没有发现变动，无需推送。"
+          # 检查变更
+          if git diff --cached --quiet; then
+            echo "No changes detected."
+            exit 0
+          fi
+          
+          echo "Changes detected, committing..."
+          git commit -m "Update hostmonitip.txt [skip ci]"
+          
+          git push origin HEAD:main
+          if [ $? -ne 0 ]; then
+            echo "Git push failed. Check branch protection settings."
+            exit 0
           fi
