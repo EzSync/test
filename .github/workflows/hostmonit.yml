@@ -19,49 +19,45 @@ jobs:
       - name: Update IP List
         shell: bash
         run: |
-          # 关闭 set -e，确保即使某条命令出错也不直接退出
           set +e
-          
-          echo "Step 1: Fetching data..."
           URL="https://stock.hostmonit.com/CloudFlareYes"
-          CONTENT=$(curl -s -L -A "Mozilla/5.0" "$URL")
-          if [ $? -ne 0 ]; then echo "Curl failed"; exit 0; fi
           
-          echo "Step 2: Processing..."
-          IP_LIST=$(echo "$CONTENT" | tr -d '[]"' | tr ',' '\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | sort -u)
+          # 1. 获取并输出原始数据到日志（这样我们就能看到到底拿到了什么）
+          CONTENT=$(curl -s -L -A "Mozilla/5.0" "$URL")
+          echo "原始数据片段: ${CONTENT:0:100}" 
+          
+          # 2. 宽容处理：清理常见字符后，直接查找所有符合 IPv4 模式的内容
+          # 之前的问题可能是 tr 或 grep 的正则导致数据丢失，这里直接用 grep -oE
+          IP_LIST=$(echo "$CONTENT" | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sort -u)
+          
+          echo "提取到的 IP 数量: $(echo "$IP_LIST" | wc -l)"
+          
+          if [ -z "$IP_LIST" ]; then
+            echo "错误: 未能解析出 IP 地址，请检查数据源格式。"
+            exit 0
+          fi
           
           > hostmonitip.txt
           for IP in $IP_LIST; do
-            RES=$(curl -s --max-time 5 "http://ip-api.com/json/$IP?fields=status,countryCode")
-            if echo "$RES" | grep -q '"status":"success"'; then
-              COUNTRY=$(echo "$RES" | sed -n 's/.*"countryCode":"\([^"]*\).*/\1/p')
-              echo "${IP}#${COUNTRY}" >> hostmonitip.txt
-            else
-              echo "${IP}#Unknown" >> hostmonitip.txt
+            # 增加一个校验，排除掉无效的数字组合（如 999.999.999.999）
+            if [[ $IP =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+                RES=$(curl -s --max-time 5 "http://ip-api.com/json/$IP?fields=status,countryCode")
+                COUNTRY=$(echo "$RES" | sed -n 's/.*"countryCode":"\([^"]*\).*/\1/p')
+                [ -z "$COUNTRY" ] && COUNTRY="Unknown"
+                echo "${IP}#${COUNTRY}" >> hostmonitip.txt
+                sleep 1.0
             fi
-            sleep 1.5
           done
 
       - name: Commit and Push
         shell: bash
         run: |
-          set +e
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          
           git add hostmonitip.txt
-          
-          # 检查变更
-          if git diff --cached --quiet; then
-            echo "No changes detected."
-            exit 0
-          fi
-          
-          echo "Changes detected, committing..."
-          git commit -m "Update hostmonitip.txt [skip ci]"
-          
-          git push origin HEAD:main
-          if [ $? -ne 0 ]; then
-            echo "Git push failed. Check branch protection settings."
-            exit 0
+          if ! git diff --cached --quiet; then
+            git commit -m "Update hostmonitip.txt"
+            git push origin HEAD:main || git push origin HEAD:master
+          else
+            echo "无变化。"
           fi
