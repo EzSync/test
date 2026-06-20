@@ -1,8 +1,8 @@
-name: Update CloudFlare HostMonit IPs
+name: Update CloudFlare HostMonit IPs with Real IATA
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 */12 * * *'   # 建议改成每12小时，避免请求过多
   workflow_dispatch:
 
 jobs:
@@ -24,58 +24,64 @@ jobs:
           pip install playwright
           playwright install --with-deps chromium
 
-      - name: 获取 IP 并写入文件（带正确 IATA/Colo）
+      - name: 获取 IP 并检测真实 IATA
         run: |
           python - << 'EOF'
           from playwright.sync_api import sync_playwright
           import re
+          import time
 
           url = "https://stock.hostmonit.com/CloudFlareYes"
 
+          def get_real_colo(ip):
+              """通过指定 IP 访问 Cloudflare trace 获取真实 colo"""
+              try:
+                  with sync_playwright() as p:
+                      browser = p.chromium.launch(headless=True)
+                      context = browser.new_context(
+                          proxy={"server": f"http://{ip}:80"},  # 尝试通过该IP
+                          user_agent='Mozilla/5.0'
+                      )
+                      page = context.new_page()
+                      page.goto("https://cloudflare.com/cdn-cgi/trace", wait_until="networkidle", timeout=15000)
+                      content = page.content()
+                      browser.close()
+                      
+                      colo_match = re.search(r'colo=([A-Z]{3})', content)
+                      return colo_match.group(1) if colo_match else "Unknown"
+              except:
+                  return "Unknown"
+
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
-              context = browser.new_context(
-                  user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-              )
-              page = context.new_page()
-              
-              print("正在访问页面...")
+              page = browser.new_context(user_agent='Mozilla/5.0').new_page()
               page.goto(url, wait_until="networkidle", timeout=60000)
               page.wait_for_timeout(8000)
-              
               content = page.content()
-              print(f"页面长度: {len(content)} 字符")
               
-              # 提取所有 IPv4
+              # 先提取所有 IP
               ip_pattern = r'(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
-              ips = re.findall(ip_pattern, content)
-              unique_ips = sorted(set(ips))
+              ips = sorted(set(re.findall(ip_pattern, content)))
               
-              print(f"提取到 {len(unique_ips)} 个唯一 IP")
-              
-              # 精确提取 Colo（匹配 card-value）
-              colo_matches = re.findall(r'Colo</span><span[^>]*class="card-value">([^<]+)</span>', content)
-              colo = colo_matches[0].strip() if colo_matches else "Default"
-              
-              print(f"检测到的 Colo / IATA: {colo}")
-              
-              # 生成 ip#iata 格式
-              lines = [f"{ip}#{colo}" for ip in unique_ips]
-              
-              if unique_ips:
-                  print("前 5 行示例:")
-                  for line in lines[:5]:
-                      print(line)
+              print(f"找到 {len(ips)} 个 IP，开始检测真实 IATA...")
 
-          if not unique_ips:
+              lines = []
+              for i, ip in enumerate(ips[:30]):  # 限制数量，避免超时
+                  print(f"[{i+1}/{len(ips)}] 检测 {ip} ...")
+                  colo = get_real_colo(ip)
+                  lines.append(f"{ip}#{colo}")
+                  time.sleep(2)  # 避免请求太频繁
+
+          if not lines:
               print("❌ 未获取到 IP")
               exit(1)
 
-          # 写入文件
           with open('hostmonit.txt', 'w', encoding='utf-8') as f:
               f.write('\n'.join(lines) + '\n')
 
-          print(f"✅ 成功写入 {len(unique_ips)} 条记录")
+          print("✅ 完成！前 10 行示例：")
+          for line in lines[:10]:
+              print(line)
           EOF
 
       - name: 提交更新
@@ -87,7 +93,7 @@ jobs:
             echo "IP 列表无变化"
           else
             git add hostmonit.txt
-            git commit -m "更新 CloudFlare 优化 IP 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            git commit -m "更新 CloudFlare IP + 真实 IATA ($(date -u +'%Y-%m-%d %H:%M UTC'))"
             git push
             echo "✅ 已提交更新"
           fi
