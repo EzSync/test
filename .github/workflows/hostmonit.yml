@@ -2,8 +2,8 @@ name: Update CloudFlare HostMonit IPs
 
 on:
   schedule:
-    - cron: '0 */6 * * *'     # 每6小时自动更新一次
-  workflow_dispatch:          # 支持手动触发
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
   update-ips:
@@ -23,7 +23,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: 获取最新 CloudFlare IPv4 并写入文件
+      - name: 获取并写入 IP 列表（带调试信息）
         run: |
           python - << 'EOF'
           import re
@@ -32,22 +32,32 @@ jobs:
 
           url = "https://stock.hostmonit.com/CloudFlareYes"
           try:
-              response = requests.get(url, timeout=15)
+              headers = {'User-Agent': 'Mozilla/5.0'}
+              response = requests.get(url, timeout=20, headers=headers)
               response.raise_for_status()
               text = response.text
 
-              # 提取所有 IPv4 地址
-              ips = re.findall(r"IP\s+([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)", text)
+              print(f"页面长度: {len(text)} 字符")
+
+              # 更稳健的提取方式（支持多种格式）
+              ips = re.findall(r'(?:IP|IP:)\s*([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})', text)
               unique_ips = sorted(set(ips))
 
-              print(f"✅ 获取到 {len(unique_ips)} 个唯一 IPv4 地址")
+              print(f"✅ 提取到 {len(unique_ips)} 个唯一 IPv4 地址")
+              for ip in unique_ips[:10]:   # 只打印前10个用于调试
+                  print(ip)
+
+              if not unique_ips:
+                  print("❌ 未提取到IP，输出页面前200字符调试：")
+                  print(text[:200])
+                  exit(1)
 
               # 写入文件（根目录）
               with open('hostmonit.txt', 'w', encoding='utf-8') as f:
                   for ip in unique_ips:
                       f.write(ip + '\n')
               
-              print("hostmonit.txt 更新完成")
+              print("✅ hostmonit.txt 写入完成")
           except Exception as e:
               print(f"❌ 错误: {e}")
               exit(1)
@@ -58,11 +68,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          if [[ -n $(git status --porcelain hostmonit.txt) ]]; then
-            git add hostmonit.txt
-            git commit -m "更新 CloudFlare 优化 IP 列表 (自动更新)"
-            git push
-            echo "✅ 已提交并推送更新"
+          if git diff --quiet hostmonit.txt; then
+            echo "IP 列表无变化"
           else
-            echo "IP 列表无变化，无需提交"
+            git add hostmonit.txt
+            git commit -m "更新 CloudFlare 优化 IP 列表 ($(date -u +'%Y-%m-%d %H:%M:%S UTC'))"
+            git push
+            echo "✅ 已提交更新"
           fi
