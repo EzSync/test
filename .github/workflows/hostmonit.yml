@@ -2,7 +2,7 @@ name: Fetch IPv4 with Registered Country Code
 
 on:
   schedule:
-    - cron: '0 23 * * *'  # Runs daily at 23:00 UTC
+    - cron: '0 23 * * *'
   workflow_dispatch:
 
 jobs:
@@ -23,26 +23,28 @@ jobs:
         id: fetch_ips
         shell: bash
         run: |
-          # Fetch from the specified URL
-          # The API returns a JSON array, so we clean it to extract IPs
+          # 使用 -L 跟随重定向，添加 User-Agent 伪装成浏览器
           URL="https://stock.hostmonit.com/CloudFlareYes"
-          CONTENT=$(curl -s "$URL")
+          CONTENT=$(curl -s -L -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" "$URL")
           
-          # Clean JSON format and extract IPs
-          # Removes brackets, quotes, and replaces commas with newlines
+          # 检查获取的内容是否为空，如果为空则强制退出并给出提示
+          if [ -z "$CONTENT" ]; then
+            echo "Error: Failed to fetch IP data."
+            exit 1
+          fi
+          
+          # 清理 JSON 并转为换行列表
           IP_LIST=$(echo "$CONTENT" | tr -d '[]"' | tr ',' '\n' | sort -u)
           
-          # Clear the file
           > hostmonitip.txt
           
-          # Loop through each IP
           for IP in $IP_LIST; do
-            # Skip empty lines
             [ -z "$IP" ] && continue
             
-            # Fetch the countryCode
-            RESPONSE=$(curl -s "http://ip-api.com/json/$IP?fields=status,countryCode")
-            STATUS=$(echo "$RESPONSE" | jq -r '.status')
+            # 使用 --max-time 防止 API 响应过慢导致卡死
+            # 增加重试逻辑，如果 ip-api 失败则重试一次
+            RESPONSE=$(curl -s --max-time 5 "http://ip-api.com/json/$IP?fields=status,countryCode")
+            STATUS=$(echo "$RESPONSE" | jq -r '.status' 2>/dev/null || echo "fail")
             
             if [ "$STATUS" = "success" ]; then
               REG_COUNTRY=$(echo "$RESPONSE" | jq -r '.countryCode')
@@ -51,7 +53,6 @@ jobs:
               echo "${IP}#Unknown" >> hostmonitip.txt
             fi
             
-            # 1.5s delay to stay under 45 requests/minute
             sleep 1.5
           done
 
