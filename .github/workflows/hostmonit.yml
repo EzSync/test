@@ -16,47 +16,45 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch, Extract, and Geolocate IPs
+      - name: Update IP List
         shell: bash
         run: |
-          # 禁用 set -e，防止任何小错误导致整个任务失败 (exit code 1)
-          set +e
-          
-          # 获取数据
+          # 1. 获取数据
           URL="https://stock.hostmonit.com/CloudFlareYes"
           CONTENT=$(curl -s -L -A "Mozilla/5.0" "$URL")
           
-          # 检查内容是否为空
-          if [ -z "$CONTENT" ]; then
-            echo "Warning: Content is empty, skipping..."
+          # 2. 提取 IP
+          IP_LIST=$(echo "$CONTENT" | tr -d '[]"' | tr ',' '\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | sort -u)
+          
+          if [ -z "$IP_LIST" ]; then
+            echo "未提取到 IP，跳过更新。"
             exit 0
           fi
-
-          # 提取并清理 IP
-          IP_LIST=$(echo "$CONTENT" | tr -d '[]"' | tr ',' '\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$')
           
+          # 3. 写入临时文件
           > hostmonitip.txt
-          
           for IP in $IP_LIST; do
-            # 查询地理位置，使用临时变量存储结果
             RES=$(curl -s --max-time 5 "http://ip-api.com/json/$IP?fields=status,countryCode")
-            
-            # 使用简单的字符串处理代替 jq，防止 jq 报错导致脚本退出
             if echo "$RES" | grep -q '"status":"success"'; then
               COUNTRY=$(echo "$RES" | sed -n 's/.*"countryCode":"\([^"]*\).*/\1/p')
               echo "${IP}#${COUNTRY}" >> hostmonitip.txt
             else
               echo "${IP}#Unknown" >> hostmonitip.txt
             fi
-            
             sleep 1.5
           done
 
-      - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Update hostmonitip.txt"
-          file_pattern: hostmonitip.txt
-          commit_user_name: GitHub Action
-          commit_user_email: action@github.com
-          skip_dirty_check: false
+      - name: Commit and Push
+        run: |
+          # 配置 Git
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # 检查是否有变更
+          if [ -n "$(git status --porcelain)" ]; then
+            git add hostmonitip.txt
+            git commit -m "Update hostmonitip.txt [skip ci]"
+            git push
+          else
+            echo "文件无变化，无需提交。"
+          fi
