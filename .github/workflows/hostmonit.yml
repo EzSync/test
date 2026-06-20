@@ -2,7 +2,7 @@ name: hostmonitip
 
 on:
   schedule:
-    # 北京时间23:00 = UTC15:00
+    # 北京时间 23:00 = UTC 15:00
     - cron: '0 15 * * *'
   workflow_dispatch:
 
@@ -10,78 +10,91 @@ permissions:
   contents: write
 
 jobs:
-  update-hostmonit-ip:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch IPs and IATA
+      - name: Fetch IPs and generate hostmonitip.txt
         run: |
           python3 << 'EOF'
           import requests
-          import re
-          import concurrent.futures
+          import json
 
-          url = "https://stock.hostmonit.com/CloudFlareYes"
+          URL = "https://stock.hostmonit.com/CloudFlareYes"
 
           headers = {
               "User-Agent": "Mozilla/5.0"
           }
 
-          r = requests.get(url, headers=headers, timeout=30)
-          r.raise_for_status()
+          r = requests.get(URL, headers=headers, timeout=30)
 
-          ipv4_pattern = re.compile(
-              r'\b(?:\d{1,3}\.){3}\d{1,3}\b'
-          )
+          print("Status:", r.status_code)
+          print("Content-Type:", r.headers.get("Content-Type"))
 
           ips = []
-          for line in r.text.splitlines():
-              m = ipv4_pattern.search(line)
-              if m:
-                  ip = m.group(0)
-                  if ip not in ips:
-                      ips.append(ip)
 
+          # -------------------------
+          # 1. try JSON first (most likely correct format)
+          # -------------------------
+          try:
+              data = r.json()
+              if isinstance(data, dict) and "data" in data:
+                  for item in data["data"]:
+                      ip = item.get("ip")
+                      if ip:
+                          ips.append(ip)
+          except Exception as e:
+              print("JSON parse failed:", e)
+
+          # -------------------------
+          # 2. fallback: regex extract IPv4
+          # -------------------------
+          if not ips:
+              import re
+              ips = re.findall(r'\b(?:\d{1,3}\.){3}\d{1,3}\b', r.text)
+
+          ips = list(dict.fromkeys(ips))  # dedupe
+
+          print("IPs found:", len(ips))
+          print("Sample:", ips[:10])
+
+          # -------------------------
+          # get IATA (Cloudflare colo) more reliable method
+          # -------------------------
           def get_iata(ip):
               try:
                   resp = requests.get(
-                      "https://speed.cloudflare.com/meta",
-                      headers={
-                          "Host": "speed.cloudflare.com"
-                      },
-                      timeout=10,
-                      proxies={
-                          "http": f"http://{ip}:80",
-                          "https": f"http://{ip}:80"
-                      }
+                      f"http://{ip}/cdn-cgi/trace",
+                      timeout=5
                   )
-
-                  if resp.ok:
-                      data = resp.json()
-                      return f"{ip}#{data.get('iata', 'UNK')}"
+                  for line in resp.text.splitlines():
+                      if line.startswith("colo="):
+                          return line.split("=")[1].strip()
               except:
                   pass
+              return "UNK"
 
-              return f"{ip}#UNK"
+          result = []
 
-          results = []
+          for ip in ips:
+              iata = get_iata(ip)
+              result.append(f"{ip}#{iata}")
 
-          with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-              futures = [executor.submit(get_iata, ip) for ip in ips]
-
-              for future in concurrent.futures.as_completed(futures):
-                  results.append(future.result())
-
-          results.sort()
+          result.sort()
 
           with open("hostmonitip.txt", "w", encoding="utf-8") as f:
-              f.write("\n".join(results))
+              f.write("\n".join(result))
 
-          print(f"Generated {len(results)} records")
+          print("Generated:", len(result))
           EOF
+
+      - name: Show result
+        run: |
+          echo "==== hostmonitip.txt ===="
+          cat hostmonitip.txt || echo "EMPTY FILE!"
 
       - name: Commit changes
         run: |
@@ -95,5 +108,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Update hostmonitip.txt"
+          git commit -m "update hostmonitip.txt"
           git push
