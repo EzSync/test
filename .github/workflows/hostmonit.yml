@@ -1,61 +1,64 @@
-name: Update Hostmonit IP
+name: Fetch IPv4 with Registered Country Code
 
 on:
   schedule:
-    - cron: '0 23 * * *'
+    - cron: '0 23 * * *'  # Runs daily at 23:00 UTC
   workflow_dispatch:
 
 jobs:
-  update-ip:
+  update_ipv4_collect:
+    name: Update IPv4 Collection
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Update IP and IATA
+      - name: Set up environment
         run: |
-          # 1. 获取原始数据，不再强制要求为 JSON
-          raw_data=$(curl -s -L -H "User-Agent: Mozilla/5.0" "https://stock.hostmonit.com/CloudFlareYes")
+          sudo apt-get update -qq
+          sudo apt-get install -y curl jq
+
+      - name: Fetch, Extract, and Geolocate IPs
+        id: fetch_ips
+        shell: bash
+        run: |
+          # Fetch from the specified URL
+          # The API returns a JSON array, so we clean it to extract IPs
+          URL="https://stock.hostmonit.com/CloudFlareYes"
+          CONTENT=$(curl -s "$URL")
           
-          # 2. 将数据中的引号、逗号、括号全部清理，转为空格分隔
-          # 这样无论它是 JSON 数组 ["1.1.1.1","2.2.2.2"] 还是逗号分隔 1.1.1.1,2.2.2.2 都能兼容
-          clean_ips=$(echo "$raw_data" | tr -d '[]"' | tr ',' ' ')
+          # Clean JSON format and extract IPs
+          # Removes brackets, quotes, and replaces commas with newlines
+          IP_LIST=$(echo "$CONTENT" | tr -d '[]"' | tr ',' '\n' | sort -u)
           
-          if [ -z "$clean_ips" ]; then
-            echo "Error: 未能获取到IP数据。"
-            exit 1
-          fi
-          
+          # Clear the file
           > hostmonitip.txt
           
-          # 3. 循环遍历提取的 IP
-          for ip in $clean_ips; do
-            # 简单校验：确保是符合 ip 格式的字符串 (包含至少一个点)
-            if [[ ! "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then continue; fi
+          # Loop through each IP
+          for IP in $IP_LIST; do
+            # Skip empty lines
+            [ -z "$IP" ] && continue
             
-            # 获取位置信息
-            resp=$(curl -s --max-time 5 "http://ip-api.com/json/$ip?fields=status,city")
-            status=$(echo "$resp" | jq -r '.status' 2>/dev/null || echo "fail")
+            # Fetch the countryCode
+            RESPONSE=$(curl -s "http://ip-api.com/json/$IP?fields=status,countryCode")
+            STATUS=$(echo "$RESPONSE" | jq -r '.status')
             
-            if [ "$status" == "success" ]; then
-              city=$(echo "$resp" | jq -r '.city' | tr '[:lower:]' '[:upper:]' | cut -c1-3)
-              [ -z "$city" ] || [ "$city" == "null" ] && city="XXX"
+            if [ "$STATUS" = "success" ]; then
+              REG_COUNTRY=$(echo "$RESPONSE" | jq -r '.countryCode')
+              echo "${IP}#${REG_COUNTRY}" >> hostmonitip.txt
             else
-              city="XXX"
+              echo "${IP}#Unknown" >> hostmonitip.txt
             fi
             
-            echo "${ip}#${city}" >> hostmonitip.txt
-            sleep 0.5
+            # 1.5s delay to stay under 45 requests/minute
+            sleep 1.5
           done
 
-      - name: Commit and Push
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add hostmonitip.txt
-          if ! git diff --cached --quiet; then
-            git commit -m "Update hostmonitip.txt"
-            git push
-          fi
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update hostmonitip.txt with Registered Country Codes"
+          file_pattern: hostmonitip.txt
+          commit_user_name: GitHub Action
+          commit_user_email: action@github.com
