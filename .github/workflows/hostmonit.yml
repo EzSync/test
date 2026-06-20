@@ -14,31 +14,36 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch and Process IPs
+      - name: Update IP and IATA
         run: |
-          # 获取 IP 列表
-          ipv4=$(curl -s https://stock.hostmonit.com/CloudFlareYes)
-          ipv6=$(curl -s https://stock.hostmonit.com/CloudFlareYesV6)
+          # 1. 获取 IPv4 列表 (处理去引号和换行)
+          ips=$(curl -s "https://stock.hostmonit.com/CloudFlareYes" | tr -d '"' | tr ',' '\n')
           
-          # 合并并去重
-          all_ips=$(echo -e "$ipv4\n$ipv6" | tr -d '"' | tr ',' '\n' | sort -u)
-          
+          # 清空原有内容
           > hostmonitip.txt
           
-          for ip in $all_ips; do
-            # 调用 ip-api 获取城市信息，并将其转化为简单的代码或城市名模拟 IATA
-            # 注意：实际 IATA 代码需通过特定数据库映射，此处使用 city 代替
-            city=$(curl -s "http://ip-api.com/json/$ip" | jq -r '.city' | tr '[:lower:]' '[:upper:]' | cut -c1-3)
+          # 2 & 3. 循环获取信息并写入
+          for ip in $ips; do
+            # 获取位置信息 (使用 ip-api.com)
+            # 为了获取 IATA code，我们取城市名前3位并转大写
+            resp=$(curl -s "http://ip-api.com/json/$ip?fields=status,city")
+            status=$(echo $resp | jq -r '.status')
             
-            # 如果获取不到 city，默认为 UNK
-            [ "$city" == "NULL" ] || [ -z "$city" ] && city="UNK"
+            if [ "$status" == "success" ]; then
+              city=$(echo $resp | jq -r '.city' | tr '[:lower:]' '[:upper:]' | cut -c1-3)
+              # 如果 city 为空，赋予默认值 XXX
+              [ -z "$city" ] && city="XXX"
+            else
+              city="XXX"
+            fi
             
             echo "${ip}#${city}" >> hostmonitip.txt
           done
 
-      - name: Commit and Push changes
+      - name: Commit and Push
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add hostmonitip.txt
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update hostmonitip.txt" && git push)
+          # 检查是否有变更，有变更则提交
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update hostmonitip.txt at $(date +'%Y-%m-%d %H:%M:%S')" && git push)
