@@ -34,53 +34,52 @@ jobs:
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
 
           with sync_playwright() as p:
-              browser = p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox'])
+              browser = p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'])
               context = browser.new_context(
                   user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-                  viewport={'width': 1920, 'height': 1080}
+                  viewport={'width': 1920, 'height': 1200}
               )
               page = context.new_page()
               
               print("正在访问 IPv6 页面...")
-              page.goto(url, wait_until="domcontentloaded", timeout=60000)
+              page.goto(url, wait_until="domcontentloaded", timeout=90000)
               
-              # 强力等待策略
-              print("等待动态内容加载...")
-              page.wait_for_timeout(12000)
-              page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-              page.wait_for_timeout(8000)
+              # 超强等待机制
+              print("等待动态内容加载 (15秒 + 滚动)...")
+              page.wait_for_timeout(15000)
               
-              # 多次滚动尝试触发加载
-              for _ in range(3):
-                  page.evaluate("window.scrollBy(0, 1000)")
-                  page.wait_for_timeout(3000)
+              # 多次滚动触发懒加载
+              for i in range(5):
+                  page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                  page.wait_for_timeout(4000)
               
               content = page.content()
               print(f"最终页面长度: {len(content)} 字符")
               
-              # 针对页面格式的精确正则
-              ipv6_pattern = r'IP\s+([0-9a-fA-F:]+)'
+              # 精确匹配 "IP 2606:..." 格式
+              ipv6_pattern = r'IP\s+([0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4}){1,7}(?::[0-9a-fA-F]{1,4})?)'
               matches = re.findall(ipv6_pattern, content)
               
-              unique_ips = sorted(set([ip.strip() for ip in matches if ':' in ip and len(ip) > 15]))
+              unique_ips = sorted(set([ip.strip() for ip in matches if ip and ':' in ip]))
               
               print(f"✅ 成功提取到 {len(unique_ips)} 个唯一 IPv6 地址")
               if unique_ips:
-                  print("前 8 个 IPv6 示例:")
-                  for ip in unique_ips[:8]:
+                  print("前 6 个 IPv6 示例:")
+                  for ip in unique_ips[:6]:
                       print(ip)
               else:
-                  print("⚠️ 仍未匹配，页面前 600 字符：")
-                  print(repr(content[:600]))
+                  print("⚠️ 未匹配到 IPv6，页面前800字符：")
+                  print(repr(content[:800]))
 
           if not unique_ips:
-              print("❌ 最终未获取到 IPv6")
+              print("❌ 最终未能提取 IPv6 地址")
               exit(1)
 
+          # 写入文件
           with open('hostmonitv6.txt', 'w', encoding='utf-8') as f:
               f.write('\n'.join(unique_ips) + '\n')
 
-          print(f"✅ hostmonitv6.txt 写入完成，共 {len(unique_ips)} 条")
+          print(f"✅ 成功写入 {len(unique_ips)} 条 IPv6 到 hostmonitv6.txt")
           EOF
 
       - name: 提交更新
