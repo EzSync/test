@@ -29,46 +29,58 @@ jobs:
           python - << 'EOF'
           from playwright.sync_api import sync_playwright
           import re
+          import time
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
 
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
               context = browser.new_context(
-                  user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                  user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
               )
               page = context.new_page()
               
               print("正在访问 IPv6 页面...")
               page.goto(url, wait_until="networkidle", timeout=60000)
-              page.wait_for_timeout(8000)
+              
+              # 增强等待：滚动 + 额外延迟
+              print("等待页面完全加载...")
+              page.wait_for_timeout(10000)
+              page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+              page.wait_for_timeout(5000)
               
               content = page.content()
               print(f"页面长度: {len(content)} 字符")
               
-              # 简化的可靠 IPv6 正则（专门适配当前页面）
-              ipv6_pattern = r'IP\s+([0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4}){1,7})'
+              # 主正则：匹配 "IP 2606:..." 格式
+              ipv6_pattern = r'IP\s+([0-9a-fA-F:]+)'
               matches = re.findall(ipv6_pattern, content)
               
-              # 清理和去重
-              unique_ips = sorted(set(matches))
+              # 备用强力 IPv6 正则
+              if not matches:
+                  ipv6_pattern2 = r'(?:(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}:){1,7}:|(?:[0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4})'
+                  matches = re.findall(ipv6_pattern2, content)
+              
+              unique_ips = sorted(set([ip.strip() for ip in matches if ':' in ip and len(ip) > 10]))
               
               print(f"✅ 成功提取到 {len(unique_ips)} 个唯一 IPv6 地址")
               if unique_ips:
                   print("前 8 个 IPv6 示例:")
                   for ip in unique_ips[:8]:
                       print(ip)
+              else:
+                  print("⚠️ 未匹配到 IPv6，输出页面前 500 字符预览：")
+                  print(repr(content[:500]))
 
           if not unique_ips:
-              print("❌ 未获取到 IPv6 地址，页面前300字符预览：")
-              print(repr(content[:300]))
+              print("❌ 最终未获取到 IPv6 地址")
               exit(1)
 
           # 写入文件
           with open('hostmonitv6.txt', 'w', encoding='utf-8') as f:
               f.write('\n'.join(unique_ips) + '\n')
 
-          print(f"✅ hostmonitv6.txt 写入完成，共 {len(unique_ips)} 条")
+          print(f"✅ hostmonitv6.txt 写入完成，共 {len(unique_ips)} 条 IPv6")
           EOF
 
       - name: 提交更新
