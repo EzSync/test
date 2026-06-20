@@ -2,7 +2,7 @@ name: hostmonitip
 
 on:
   schedule:
-    # 北京时间 23:00 = UTC 15:00
+    # Beijing 23:00 = UTC 15:00
     - cron: '0 15 * * *'
   workflow_dispatch:
 
@@ -10,18 +10,20 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  hostmonit:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch IPs and generate hostmonitip.txt
+      - name: Fetch HostMonit IPs
         run: |
           python3 << 'EOF'
-          import requests
           import json
+          import re
+          import requests
+          from pathlib import Path
 
           URL = "https://stock.hostmonit.com/CloudFlareYes"
 
@@ -29,84 +31,119 @@ jobs:
               "User-Agent": "Mozilla/5.0"
           }
 
-          r = requests.get(URL, headers=headers, timeout=30)
+          r = requests.get(URL, headers=headers, timeout=60)
 
-          print("Status:", r.status_code)
-          print("Content-Type:", r.headers.get("Content-Type"))
+          print("STATUS:", r.status_code)
+          print("CONTENT-TYPE:", r.headers.get("Content-Type"))
+          print("LENGTH:", len(r.text))
+
+          preview = r.text[:2000]
+          print("===== RESPONSE PREVIEW =====")
+          print(preview)
+          print("===== END PREVIEW =====")
+
+          ipv4_pattern = re.compile(
+              r'\b(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)'
+              r'(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b'
+          )
 
           ips = []
 
-          # -------------------------
-          # 1. try JSON first (most likely correct format)
-          # -------------------------
+          def walk(obj):
+              if isinstance(obj, str):
+                  if ipv4_pattern.fullmatch(obj):
+                      ips.append(obj)
+                  else:
+                      ips.extend(ipv4_pattern.findall(obj))
+
+              elif isinstance(obj, list):
+                  for item in obj:
+                      walk(item)
+
+              elif isinstance(obj, dict):
+                  for value in obj.values():
+                      walk(value)
+
+          # Try JSON first
           try:
               data = r.json()
-              if isinstance(data, dict) and "data" in data:
-                  for item in data["data"]:
-                      ip = item.get("ip")
-                      if ip:
-                          ips.append(ip)
+              walk(data)
+              print("IPs found via JSON:", len(ips))
           except Exception as e:
               print("JSON parse failed:", e)
 
-          # -------------------------
-          # 2. fallback: regex extract IPv4
-          # -------------------------
+          # Fallback: scan entire response
           if not ips:
-              import re
-              ips = re.findall(r'\b(?:\d{1,3}\.){3}\d{1,3}\b', r.text)
+              ips.extend(ipv4_pattern.findall(r.text))
+              print("IPs found via regex:", len(ips))
 
-          ips = list(dict.fromkeys(ips))  # dedupe
+          # Deduplicate
+          ips = list(dict.fromkeys(ips))
 
-          print("IPs found:", len(ips))
-          print("Sample:", ips[:10])
+          print("Unique IPs:", len(ips))
 
-          # -------------------------
-          # get IATA (Cloudflare colo) more reliable method
-          # -------------------------
-          def get_iata(ip):
+          if not ips:
+              raise RuntimeError(
+                  "No IPv4 addresses extracted from HostMonit response. "
+                  "Workflow aborted to avoid overwriting hostmonitip.txt."
+              )
+
+          def get_colo(ip):
               try:
                   resp = requests.get(
                       f"http://{ip}/cdn-cgi/trace",
                       timeout=5
                   )
+
                   for line in resp.text.splitlines():
                       if line.startswith("colo="):
-                          return line.split("=")[1].strip()
-              except:
+                          return line.split("=", 1)[1].strip()
+
+              except Exception:
                   pass
+
               return "UNK"
 
-          result = []
+          results = []
 
-          for ip in ips:
-              iata = get_iata(ip)
-              result.append(f"{ip}#{iata}")
+          for index, ip in enumerate(ips, start=1):
+              colo = get_colo(ip)
+              results.append(f"{ip}#{colo}")
 
-          result.sort()
+              if index % 20 == 0:
+                  print(f"Processed {index}/{len(ips)}")
 
-          with open("hostmonitip.txt", "w", encoding="utf-8") as f:
-              f.write("\n".join(result))
+          content = "\n".join(results) + "\n"
 
-          print("Generated:", len(result))
+          Path("hostmonitip.txt").write_text(
+              content,
+              encoding="utf-8"
+          )
+
+          print("Generated hostmonitip.txt")
+          print("Total records:", len(results))
           EOF
 
-      - name: Show result
+      - name: Verify output
         run: |
-          echo "==== hostmonitip.txt ===="
-          cat hostmonitip.txt || echo "EMPTY FILE!"
+          echo "Line count:"
+          wc -l hostmonitip.txt
+
+          echo ""
+          echo "First 20 lines:"
+          head -20 hostmonitip.txt
 
       - name: Commit changes
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add hostmonitip.txt
 
           if git diff --cached --quiet; then
-            echo "No changes"
+            echo "No changes detected"
             exit 0
           fi
 
-          git commit -m "update hostmonitip.txt"
+          git commit -m "Update hostmonitip.txt"
           git push
