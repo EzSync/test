@@ -1,0 +1,16 @@
+- name: DEBUG raw response
+  run: |
+    python3 << 'EOF'
+    import requests
+
+    url = "https://stock.hostmonit.com/CloudFlareYes"
+
+    r = requests.get(url, headers={"User-Agent":"Mozilla/5.0"}, timeout=30)
+
+    print("STATUS:", r.status_code)
+    print("TYPE:", r.headers.get("Content-Type"))
+    print("LENGTH:", len(r.text))
+
+    print("\n--- FIRST 1000 CHARS ---\n")
+    print(r.text[:1000])
+    EOF
