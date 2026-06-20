@@ -1,63 +1,42 @@
-name: Fetch IPv4 with Registered Country Code
+name: Check IP IANA Codes
 
 on:
+  workflow_dispatch: # 手动触发
   schedule:
-    - cron: '5 2,6,10,22 * * *'  # Runs daily at 23:05 UTC
-  workflow_dispatch:
+    - cron: '0 0 * * *' # 每天运行一次
 
 jobs:
-  update_ipv4_collect:
-    name: Update IPv4 Collection
+  process-ips:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up environment
+      - name: Fetch and Process IPs
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y curl jq
+          # 1. 从URL获取数据并提取IPv4
+          # 使用 grep -oE 匹配 IPv4 正则表达式
+          curl -s "https://stock.hostmonit.com/CloudFlareYes" | \
+          grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | \
+          sort -u > ip_list.txt
 
-      - name: Fetch, Extract, and Geolocate IPs
-        id: fetch_ips
-        shell: bash
-        run: |
-          # Define the URLs
-          URL1="https://www.wetest.vip/page/cloudflare/address_v4.html"
-          URL2="https://ip.164746.xyz/"
+          echo "Found $(wc -l < ip_list.txt) unique IPv4 addresses."
 
-          # Fetch and extract unique IPs
-          CONTENT1=$(curl -s "$URL1")
-          CONTENT2=$(curl -s "$URL2")
-          IP_LIST=$(echo -e "$CONTENT1\n$CONTENT2" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b' | sort -u)
+          # 2. 循环处理每个IP并查询国家代码
+          echo "IP Address | IANA Code" > result.md
+          echo "--- | ---" >> result.md
+          
+          while read -r ip; do
+            # 调用ipinfo.io免费接口
+            country=$(curl -s "https://ipinfo.io/$ip/country")
+            echo "$ip | $country" >> result.md
+            # 简单限流防止请求过快
+            sleep 0.2
+          done < ip_list.txt
 
-          # Clear the file
-          > ipv4collect.txt
-
-          # Loop through each IP
-          for IP in $IP_LIST; do
-            # We fetch the countryCode. 
-            # For most Cloudflare IPs, this API returns the registration country (US)
-            # unless the specific IP range is sub-delegated elsewhere.
-            RESPONSE=$(curl -s "http://ip-api.com/json/$IP?fields=status,countryCode")
-            STATUS=$(echo "$RESPONSE" | jq -r '.status')
-            
-            if [ "$STATUS" = "success" ]; then
-              REG_COUNTRY=$(echo "$RESPONSE" | jq -r '.countryCode')
-              echo "${IP}#${REG_COUNTRY}" >> ipv4collect.txt
-            else
-              echo "${IP}#Unknown" >> ipv4collect.txt
-            fi
-            
-            # 1.5s delay to strictly stay under 45 requests/minute
-            sleep 1.5
-          done
-
-      - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
         with:
-          commit_message: "Update ipv4collect.txt with Registered Country Codes"
-          file_pattern: ipv4collect.txt
-          commit_user_name: GitHub Action
-          commit_user_email: action@github.com
+          name: ip-iana-results
+          path: result.md
+          fi
