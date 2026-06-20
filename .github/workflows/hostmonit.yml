@@ -1,149 +1,69 @@
-name: hostmonitip
+name: Update CloudFlare HostMonit IPs
 
 on:
   schedule:
-    # Beijing 23:00 = UTC 15:00
-    - cron: '0 15 * * *'
-  workflow_dispatch:
-
-permissions:
-  contents: write
+    - cron: '0 */6 * * *'     # 每6小时自动运行一次
+  workflow_dispatch:          # 支持手动触发
 
 jobs:
-  hostmonit:
+  update-ips:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: 检出仓库
         uses: actions/checkout@v4
 
-      - name: Fetch HostMonit IPs
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
         run: |
-          python3 << 'EOF'
-          import json
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: 获取最新 CloudFlare IPv4 并写入文件
+        run: |
+          python - << 'EOF'
           import re
           import requests
-          from pathlib import Path
+          import os
 
-          URL = "https://stock.hostmonit.com/CloudFlareYes"
-
-          headers = {
-              "User-Agent": "Mozilla/5.0"
-          }
-
-          r = requests.get(URL, headers=headers, timeout=60)
-
-          print("STATUS:", r.status_code)
-          print("CONTENT-TYPE:", r.headers.get("Content-Type"))
-          print("LENGTH:", len(r.text))
-
-          preview = r.text[:2000]
-          print("===== RESPONSE PREVIEW =====")
-          print(preview)
-          print("===== END PREVIEW =====")
-
-          ipv4_pattern = re.compile(
-              r'\b(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)'
-              r'(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b'
-          )
-
-          ips = []
-
-          def walk(obj):
-              if isinstance(obj, str):
-                  if ipv4_pattern.fullmatch(obj):
-                      ips.append(obj)
-                  else:
-                      ips.extend(ipv4_pattern.findall(obj))
-
-              elif isinstance(obj, list):
-                  for item in obj:
-                      walk(item)
-
-              elif isinstance(obj, dict):
-                  for value in obj.values():
-                      walk(value)
-
-          # Try JSON first
+          url = "https://stock.hostmonit.com/CloudFlareYes"
           try:
-              data = r.json()
-              walk(data)
-              print("IPs found via JSON:", len(ips))
+              response = requests.get(url, timeout=15)
+              response.raise_for_status()
+              text = response.text
+
+              # 提取所有 IPv4
+              ips = re.findall(r"IP\s+([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)", text)
+              unique_ips = sorted(set(ips))
+
+              print(f"获取到 {len(unique_ips)} 个唯一 IPv4 地址")
+
+              # 写入文件
+              os.makedirs('test', exist_ok=True)
+              with open('test/hostmonit.txt', 'w', encoding='utf-8') as f:
+                  for ip in unique_ips:
+                      f.write(ip + '\n')
+              
+              print("hostmonit.txt 更新完成")
           except Exception as e:
-              print("JSON parse failed:", e)
-
-          # Fallback: scan entire response
-          if not ips:
-              ips.extend(ipv4_pattern.findall(r.text))
-              print("IPs found via regex:", len(ips))
-
-          # Deduplicate
-          ips = list(dict.fromkeys(ips))
-
-          print("Unique IPs:", len(ips))
-
-          if not ips:
-              raise RuntimeError(
-                  "No IPv4 addresses extracted from HostMonit response. "
-                  "Workflow aborted to avoid overwriting hostmonitip.txt."
-              )
-
-          def get_colo(ip):
-              try:
-                  resp = requests.get(
-                      f"http://{ip}/cdn-cgi/trace",
-                      timeout=5
-                  )
-
-                  for line in resp.text.splitlines():
-                      if line.startswith("colo="):
-                          return line.split("=", 1)[1].strip()
-
-              except Exception:
-                  pass
-
-              return "UNK"
-
-          results = []
-
-          for index, ip in enumerate(ips, start=1):
-              colo = get_colo(ip)
-              results.append(f"{ip}#{colo}")
-
-              if index % 20 == 0:
-                  print(f"Processed {index}/{len(ips)}")
-
-          content = "\n".join(results) + "\n"
-
-          Path("hostmonitip.txt").write_text(
-              content,
-              encoding="utf-8"
-          )
-
-          print("Generated hostmonitip.txt")
-          print("Total records:", len(results))
+              print(f"错误: {e}")
+              exit(1)
           EOF
 
-      - name: Verify output
-        run: |
-          echo "Line count:"
-          wc -l hostmonitip.txt
-
-          echo ""
-          echo "First 20 lines:"
-          head -20 hostmonitip.txt
-
-      - name: Commit changes
+      - name: 提交更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add hostmonitip.txt
-
-          if git diff --cached --quiet; then
-            echo "No changes detected"
-            exit 0
+          
+          if [[ -n $(git status --porcelain test/hostmonit.txt) ]]; then
+            git add test/hostmonit.txt
+            git commit -m "更新 CloudFlare 优化 IP 列表 (自动更新)"
+            git push
+            echo "✅ 已提交更新"
+          else
+            echo "IP 列表无变化，无需提交"
           fi
-
-          git commit -m "Update hostmonitip.txt"
-          git push
