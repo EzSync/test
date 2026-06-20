@@ -9,70 +9,54 @@ jobs:
   update_ipv4_collect:
     name: Update IPv4 Collection
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up environment
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y curl jq
-
       - name: Fetch, Extract, and Geolocate IPs
-        id: fetch_ips
         shell: bash
         run: |
-          # 定义目标 URL
+          # 禁用 set -e，防止任何小错误导致整个任务失败 (exit code 1)
+          set +e
+          
+          # 获取数据
           URL="https://stock.hostmonit.com/CloudFlareYes"
+          CONTENT=$(curl -s -L -A "Mozilla/5.0" "$URL")
           
-          # 使用 curl 获取数据，忽略可能导致进程退出的错误
-          # 并添加 User-Agent 绕过简单的反爬
-          echo "Fetching IP list..."
-          CONTENT=$(curl -s -L -A "Mozilla/5.0" "$URL" || echo "")
-          
-          # 验证返回内容长度，防止处理 HTML 页面
-          if [ ${#CONTENT} -lt 10 ]; then
-            echo "Error: 无法获取有效的 IP 列表或数据过短。"
+          # 检查内容是否为空
+          if [ -z "$CONTENT" ]; then
+            echo "Warning: Content is empty, skipping..."
             exit 0
           fi
+
+          # 提取并清理 IP
+          IP_LIST=$(echo "$CONTENT" | tr -d '[]"' | tr ',' '\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$')
           
-          # 提取 IPv4 地址：清除无效字符，只保留符合格式的 IP
-          IP_LIST=$(echo "$CONTENT" | tr -d '[]"' | tr ',' '\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | sort -u)
-          
-          if [ -z "$IP_LIST" ]; then
-            echo "未提取到任何有效的 IP。"
-            exit 0
-          fi
-          
-          # 清空并准备写入文件
           > hostmonitip.txt
           
-          # 遍历 IP 并查询地理位置
           for IP in $IP_LIST; do
-            echo "Processing $IP..."
+            # 查询地理位置，使用临时变量存储结果
+            RES=$(curl -s --max-time 5 "http://ip-api.com/json/$IP?fields=status,countryCode")
             
-            # 使用 ip-api 获取国家代码，带错误抑制
-            RESPONSE=$(curl -s --max-time 5 "http://ip-api.com/json/$IP?fields=status,countryCode" || echo '{"status":"fail"}')
-            
-            # 鲁棒性读取 JSON 字段
-            STATUS=$(echo "$RESPONSE" | jq -r '.status // "fail"')
-            
-            if [ "$STATUS" = "success" ]; then
-              REG_COUNTRY=$(echo "$RESPONSE" | jq -r '.countryCode // "Unknown"')
-              echo "${IP}#${REG_COUNTRY}" >> hostmonitip.txt
+            # 使用简单的字符串处理代替 jq，防止 jq 报错导致脚本退出
+            if echo "$RES" | grep -q '"status":"success"'; then
+              COUNTRY=$(echo "$RES" | sed -n 's/.*"countryCode":"\([^"]*\).*/\1/p')
+              echo "${IP}#${COUNTRY}" >> hostmonitip.txt
             else
               echo "${IP}#Unknown" >> hostmonitip.txt
             fi
             
-            # 节流控制，遵守 API 频率限制
             sleep 1.5
           done
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Update hostmonitip.txt with Registered Country Codes"
+          commit_message: "Update hostmonitip.txt"
           file_pattern: hostmonitip.txt
           commit_user_name: GitHub Action
           commit_user_email: action@github.com
+          skip_dirty_check: false
