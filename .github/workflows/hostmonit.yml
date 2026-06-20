@@ -2,7 +2,7 @@ name: Update CloudFlare HostMonit IPs
 
 on:
   schedule:
-    - cron: '0 */6 * * *'     # 每6小时自动运行一次
+    - cron: '0 */6 * * *'     # 每6小时自动更新一次
   workflow_dispatch:          # 支持手动触发
 
 jobs:
@@ -36,21 +36,20 @@ jobs:
               response.raise_for_status()
               text = response.text
 
-              # 提取所有 IPv4
+              # 提取所有 IPv4 地址
               ips = re.findall(r"IP\s+([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)", text)
               unique_ips = sorted(set(ips))
 
-              print(f"获取到 {len(unique_ips)} 个唯一 IPv4 地址")
+              print(f"✅ 获取到 {len(unique_ips)} 个唯一 IPv4 地址")
 
-              # 写入文件
-              os.makedirs('test', exist_ok=True)
-              with open('test/hostmonit.txt', 'w', encoding='utf-8') as f:
+              # 写入文件（根目录）
+              with open('hostmonit.txt', 'w', encoding='utf-8') as f:
                   for ip in unique_ips:
                       f.write(ip + '\n')
               
               print("hostmonit.txt 更新完成")
           except Exception as e:
-              print(f"错误: {e}")
+              print(f"❌ 错误: {e}")
               exit(1)
           EOF
 
@@ -59,11 +58,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          if [[ -n $(git status --porcelain test/hostmonit.txt) ]]; then
-            git add test/hostmonit.txt
+          if [[ -n $(git status --porcelain hostmonit.txt) ]]; then
+            git add hostmonit.txt
             git commit -m "更新 CloudFlare 优化 IP 列表 (自动更新)"
             git push
-            echo "✅ 已提交更新"
+            echo "✅ 已提交并推送更新"
           else
             echo "IP 列表无变化，无需提交"
           fi
