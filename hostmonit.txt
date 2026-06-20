@@ -1,7 +1,7 @@
-104.17.24.145#Default
-104.18.112.22#Default
-104.18.139.92#Default
-104.19.73.137#Default
-104.19.78.137#Default
-198.41.208.182#Default
-198.41.209.17#Default
+104.17.24.145#Unknown
+104.18.0.96#Unknown
+104.18.139.92#Unknown
+104.19.73.137#Unknown
+104.19.78.137#Unknown
+198.41.208.182#Unknown
+198.41.209.17#Unknown
