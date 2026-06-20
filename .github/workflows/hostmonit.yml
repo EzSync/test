@@ -1,53 +1,37 @@
-name: Fetch IPv4 with Registered Country Code
-
-on:
-  schedule:
-    - cron: '0 23 * * *'
-  workflow_dispatch:
-
-jobs:
-  update_ipv4_collect:
-    name: Update IPv4 Collection
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up environment
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y curl jq
-
-      - name: Fetch, Extract, and Geolocate IPs
+- name: Fetch, Extract, and Geolocate IPs
         id: fetch_ips
         shell: bash
         run: |
-          # 使用 -L 跟随重定向，添加 User-Agent 伪装成浏览器
+          # 1. Fetch data safely. Using || true to prevent the script from exiting on curl failure
           URL="https://stock.hostmonit.com/CloudFlareYes"
-          CONTENT=$(curl -s -L -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" "$URL")
+          echo "Fetching from $URL..."
+          CONTENT=$(curl -s -L -A "Mozilla/5.0" "$URL" || echo "")
           
-          # 检查获取的内容是否为空，如果为空则强制退出并给出提示
-          if [ -z "$CONTENT" ]; then
-            echo "Error: Failed to fetch IP data."
-            exit 1
+          # 2. Basic validation
+          if [ ${#CONTENT} -lt 10 ]; then
+            echo "Error: Failed to fetch data or content is too short. Status code: $?"
+            # We exit 0 here to stop the workflow gracefully if the API is down
+            exit 0
           fi
           
-          # 清理 JSON 并转为换行列表
-          IP_LIST=$(echo "$CONTENT" | tr -d '[]"' | tr ',' '\n' | sort -u)
+          # 3. Clean JSON format and extract IPs
+          # We force a subshell to process the cleaning safely
+          IP_LIST=$(echo "$CONTENT" | tr -d '[]"' | tr ',' '\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | sort -u)
           
           > hostmonitip.txt
           
+          # 4. Loop through each IP
           for IP in $IP_LIST; do
-            [ -z "$IP" ] && continue
+            echo "Processing $IP..."
             
-            # 使用 --max-time 防止 API 响应过慢导致卡死
-            # 增加重试逻辑，如果 ip-api 失败则重试一次
+            # Fetch with a clear timeout and error suppression
             RESPONSE=$(curl -s --max-time 5 "http://ip-api.com/json/$IP?fields=status,countryCode")
-            STATUS=$(echo "$RESPONSE" | jq -r '.status' 2>/dev/null || echo "fail")
+            
+            # Use a robust way to get values from JSON
+            STATUS=$(echo "$RESPONSE" | jq -r '.status // "fail"')
             
             if [ "$STATUS" = "success" ]; then
-              REG_COUNTRY=$(echo "$RESPONSE" | jq -r '.countryCode')
+              REG_COUNTRY=$(echo "$RESPONSE" | jq -r '.countryCode // "Unknown"')
               echo "${IP}#${REG_COUNTRY}" >> hostmonitip.txt
             else
               echo "${IP}#Unknown" >> hostmonitip.txt
@@ -55,11 +39,3 @@ jobs:
             
             sleep 1.5
           done
-
-      - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Update hostmonitip.txt with Registered Country Codes"
-          file_pattern: hostmonitip.txt
-          commit_user_name: GitHub Action
-          commit_user_email: action@github.com
