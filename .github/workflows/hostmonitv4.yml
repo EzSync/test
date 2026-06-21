@@ -1,4 +1,4 @@
-name: Update CloudFlare HostMonit IPs
+name: HostMonitv4 IPs
 
 on:
   schedule:
