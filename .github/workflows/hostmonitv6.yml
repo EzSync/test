@@ -68,10 +68,10 @@ jobs:
           sorted_ips = sorted(list(all_ips))
           final_ips = sorted_ips[-15:]
 
-          # 5. 写入文件，检查括号并补全 #V6
+          # 5. 写入文件，检查括号并补全 #CF.V6
           with open(output_path, 'w', encoding='utf-8') as f:
               for ip in final_ips:
-                  f.write(f"[{ip}]#V6\n")
+                  f.write(f"[{ip}]#CF.V6\n")
           
           print(f"✅ 成功更新，当前文件共有 {len(final_ips)} 个唯一 IPv6")
           EOF
