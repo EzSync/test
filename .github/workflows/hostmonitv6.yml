@@ -26,11 +26,17 @@ jobs:
 
       - name: 获取 IPv6 并写入文件
         run: |
+          # 确保 test 目录存在
+          mkdir -p test
+          
           python - << 'EOF'
           from playwright.sync_api import sync_playwright
           import re
+          import os
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
+          # 指定输出路径
+          output_path = os.path.join('test', 'hostmonitv6.txt')
 
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
@@ -57,10 +63,10 @@ jobs:
               print("❌ 未获取到 IPv6")
               exit(1)
 
-          with open('hostmonitv6.txt', 'w', encoding='utf-8') as f:
+          with open(output_path, 'w', encoding='utf-8') as f:
               f.write('\n'.join(unique_ips) + '\n')
 
-          print(f"✅ 成功写入 {len(unique_ips)} 个 IPv6 到 hostmonitv6.txt")
+          print(f"✅ 成功写入 {len(unique_ips)} 个 IPv6 到 {output_path}")
           EOF
 
       - name: 提交更新
@@ -68,10 +74,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          if git diff --quiet hostmonitv6.txt 2>/dev/null; then
+          # 检查指定路径下的文件
+          if git diff --quiet test/hostmonitv6.txt 2>/dev/null; then
             echo "IPv6 列表无变化"
           else
-            git add hostmonitv6.txt
+            git add test/hostmonitv6.txt
             git commit -m "更新 CloudFlare 优化 IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
             git push
             echo "✅ 已提交更新"
