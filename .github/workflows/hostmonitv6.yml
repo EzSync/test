@@ -1,4 +1,4 @@
-name: HostMonit IPv6
+name: HostMonitv6 IPs
 
 on:
   schedule:
