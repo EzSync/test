@@ -18,51 +18,55 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 安装依赖
+      - name: 安装 Playwright
         run: |
-          python -m pip install --upgrade pip requests
+          python -m pip install --upgrade pip
+          pip install playwright
+          playwright install --with-deps chromium
 
       - name: 获取 IPv6 并写入 hostmonitv6.txt
         run: |
           python - << 'EOF'
+          from playwright.sync_api import sync_playwright
           import re
-          import requests
+          import time
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
-          headers = {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-              'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8',  # 优先英文
-              'Referer': 'https://stock.hostmonit.com/',
-              'Cache-Control': 'no-cache',
-          }
 
-          print("正在请求 IPv6 页面...")
-          response = requests.get(url, headers=headers, timeout=30)
-          print(f"状态码: {response.status_code}")
-          print(f"页面长度: {len(response.text)} 字符")
-
-          content = response.text
-
-          # 强力 IPv6 提取
-          ipv6_pattern = r'IP\s+([0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4}){1,7})'
-          matches = re.findall(ipv6_pattern, content)
-
-          # 备用全 IPv6 正则
-          if len(matches) < 3:
-              ipv6_pattern2 = r'([0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4}){1,7})'
-              matches = re.findall(ipv6_pattern2, content)
-
-          unique_ips = sorted(set([ip.strip() for ip in matches if ':' in ip and len(ip) > 15]))
-
-          print(f"✅ 成功提取到 {len(unique_ips)} 个唯一 IPv6 地址")
-          if unique_ips:
-              print("前 8 个 IPv6 示例:")
-              for ip in unique_ips[:8]:
-                  print(ip)
-          else:
-              print("⚠️ 未匹配，页面前 500 字符预览：")
-              print(repr(content[:500]))
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox'])
+              context = browser.new_context(
+                  user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+                  viewport={'width': 1920, 'height': 3000},
+                  locale='en-US'
+              )
+              page = context.new_page()
+              
+              print("正在访问 IPv6 页面...")
+              page.goto(url, wait_until="networkidle", timeout=90000)
+              
+              print("等待动态内容加载...")
+              time.sleep(12)
+              
+              # 多次滚动加载所有卡片
+              for _ in range(5):
+                  page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                  time.sleep(4)
+              
+              content = page.content()
+              print(f"页面长度: {len(content)} 字符")
+              
+              # 精确提取 IPv6
+              ipv6_pattern = r'IP\s+([0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4}){1,7})'
+              matches = re.findall(ipv6_pattern, content)
+              
+              unique_ips = sorted(set([ip.strip() for ip in matches if ':' in ip and len(ip) > 15]))
+              
+              print(f"✅ 成功提取到 {len(unique_ips)} 个唯一 IPv6 地址")
+              if unique_ips:
+                  print("前 8 个 IPv6:")
+                  for ip in unique_ips[:8]:
+                      print(ip)
 
           if not unique_ips:
               print("❌ 未获取到 IPv6")
