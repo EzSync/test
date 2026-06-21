@@ -1,4 +1,4 @@
-name: Proxy List Fetcher
+name: Open Proxy List
 
 on:
   schedule:
