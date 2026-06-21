@@ -50,7 +50,7 @@ jobs:
             fi
 
             # Format as [IP]#CODE and append to file
-            echo "[${IP}]#${COUNTRY_CODE}" >> ipv6collect1.txt
+            echo "[${IP}]#${COUNTRY_CODE}" >> ipv6collect.txt
             
             # Sleep to respect free API rate limits (approx 45 requests per min)
             sleep 1.5
