@@ -26,13 +26,13 @@ jobs:
 
       - name: 获取 IPv6 并写入文件
         run: |
-          mkdir -p test
           python - << 'EOF'
           from playwright.sync_api import sync_playwright
           import re
           import os
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
+          # 使用相对路径 ./test 指向仓库中已有的 test 目录
           output_path = os.path.join('test', 'hostmonitv6.txt')
 
           with sync_playwright() as p:
@@ -47,47 +47,34 @@ jobs:
               page.wait_for_timeout(8000)
               
               content = page.content()
-              # IPv6 正则表达式
+              # IPv6 正则
               ipv6_pattern = r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
               matches = re.findall(ipv6_pattern, content)
               unique_ips = sorted(set([m[0] for m in matches]))
               
-              print(f"✅ 提取到 {len(unique_ips)} 个唯一 IPv6")
               browser.close()
 
-          if not unique_ips:
+          if unique_ips:
+              with open(output_path, 'w', encoding='utf-8') as f:
+                  f.write('\n'.join(unique_ips) + '\n')
+              print(f"✅ 成功写入 {len(unique_ips)} 个 IPv6 到 {output_path}")
+          else:
               print("❌ 未获取到 IPv6")
               exit(1)
-
-          with open(output_path, 'w', encoding='utf-8') as f:
-              f.write('\n'.join(unique_ips) + '\n')
-
-          print(f"✅ 成功写入 {len(unique_ips)} 个 IPv6 到 {output_path}")
           EOF
-
-      - name: 检查文件状态
-        run: |
-          echo "查看 test 目录内容:"
-          ls -la test/
-          if [ -f "test/hostmonitv6.txt" ]; then
-            echo "文件已确认存在。"
-          else
-            echo "错误：文件未找到！"
-            exit 1
-          fi
 
       - name: 提交更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          # 使用 -f 强制添加，以防被 .gitignore 误导
-          git add -f test/hostmonitv6.txt
+          # 直接对 test/hostmonitv6.txt 进行 git 操作
+          git add test/hostmonitv6.txt
           
           if git diff --staged --quiet; then
-            echo "IPv6 列表无变化"
+            echo "IPv6 列表无变化，无需提交。"
           else
-            git commit -m "更新 CloudFlare 优化 IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            git commit -m "更新 CloudFlare IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
             git push
-            echo "✅ 已提交更新"
+            echo "✅ 变更已提交至仓库。"
           fi
