@@ -37,22 +37,29 @@ jobs:
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
               page = browser.new_page()
-              
-              print("正在访问页面...")
               page.goto(url, wait_until="networkidle", timeout=60000)
+              # 等待动态内容渲染
               page.wait_for_timeout(10000)
               
-              # 获取页面文本并移除换行符，将折行的 IP 拼接起来
-              content = page.text_content("body")
-              content_clean = content.replace('\n', '').replace('\r', '')
+              # 提取所有包含 IP 的容器文本
+              # 通常这类网站的 IP 都在特定类名或标签下，我们直接获取网页的完整 HTML 并进行清理
+              content = page.content()
               
-              # 匹配 IPv6 的正则
-              ipv6_pattern = r'([0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{1,4}'
-              matches = re.findall(ipv6_pattern, content_clean)
+              # 清理 HTML 标签并处理换行导致的断裂
+              # 将 <br> 或空格/换行替换为空，直接提取连续的 IPv6 字符
+              # 只要包含冒号的字符序列，IPv6 必定包含冒号
+              # 使用更宽泛的匹配，再进行筛选
+              raw_ips = re.findall(r'([0-9a-fA-F:]{20,})', content.replace(' ', '').replace('\n', '').replace('</div>', ' ').replace('</span>', ' '))
               
-              # 过滤掉非 IP 的干扰项，只取长度合理的匹配项
-              unique_ips = sorted(set([ip for ip in matches if len(ip) > 15]))
+              valid_ips = []
+              for item in raw_ips:
+                  # 进一步清洗：移除可能残留的标签或非法字符
+                  clean_ip = re.sub(r'[^0-9a-fA-F:]', '', item)
+                  # 校验是否符合 IPv6 基本格式 (至少包含 3 个冒号，长度 15+)
+                  if clean_ip.count(':') >= 3 and len(clean_ip) > 15:
+                      valid_ips.append(clean_ip)
               
+              unique_ips = sorted(set(valid_ips))
               browser.close()
 
           if unique_ips:
@@ -60,7 +67,9 @@ jobs:
                   f.write('\n'.join(unique_ips) + '\n')
               print(f"✅ 成功写入 {len(unique_ips)} 个 IPv6 到 {output_path}")
           else:
-              print("❌ 未获取到 IPv6")
+              # 打印部分内容用于调试
+              print("❌ 未获取到 IPv6，调试内容预览：")
+              print(content[:500])
               exit(1)
           EOF
 
@@ -68,9 +77,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
           git add hostmonitv6.txt
-          
           if git diff --staged --quiet; then
             echo "IPv6 列表无变化，无需提交。"
           else
