@@ -27,7 +27,6 @@ jobs:
           python - << 'EOF'
           import re
           import requests
-          import time
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
           headers = {
@@ -35,6 +34,7 @@ jobs:
               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
               'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
               'Referer': 'https://stock.hostmonit.com/',
+              'Cache-Control': 'no-cache',
           }
 
           print("正在请求 IPv6 页面...")
@@ -44,11 +44,11 @@ jobs:
 
           content = response.text
 
-          # 精确匹配 "IP 2606:..." 格式
-          ipv6_pattern = r'IP\s+([0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4}){1,7})'
+          # 强力匹配 "IP " 后面的 IPv6 地址
+          ipv6_pattern = r'IP\s+([0-9a-fA-F:]+)'
           matches = re.findall(ipv6_pattern, content)
 
-          unique_ips = sorted(set([ip.strip() for ip in matches if ip and ':' in ip]))
+          unique_ips = sorted(set([ip.strip() for ip in matches if ':' in ip and len(ip) > 15]))
 
           print(f"✅ 成功提取到 {len(unique_ips)} 个唯一 IPv6 地址")
           if unique_ips:
@@ -56,8 +56,8 @@ jobs:
               for ip in unique_ips[:8]:
                   print(ip)
           else:
-              print("⚠️ 未匹配，页面前 500 字符预览：")
-              print(repr(content[:500]))
+              print("⚠️ 未匹配，页面前 600 字符预览：")
+              print(repr(content[:600]))
 
           if not unique_ips:
               print("❌ 未获取到 IPv6")
