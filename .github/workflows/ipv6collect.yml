@@ -37,7 +37,7 @@ jobs:
         shell: bash
         run: |
           # Clear the file before writing new data
-          > ipv6collect1.txt
+          > ipv6collect.txt
 
           # Process every unique IPv6 found
           while read -r IP; do
@@ -59,7 +59,7 @@ jobs:
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Update ipv6collect1.txt with country-tagged IPv6 addresses"
-          file_pattern: ipv6collect1.txt
+          commit_message: "Update ipv6collect.txt with country-tagged IPv6 addresses"
+          file_pattern: ipv6collect.txt
           commit_user_name: GitHub Action
           commit_user_email: action@github.com
