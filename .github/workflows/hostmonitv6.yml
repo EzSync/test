@@ -28,7 +28,6 @@ jobs:
         run: |
           python - << 'EOF'
           from playwright.sync_api import sync_playwright
-          import json
           import re
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
@@ -37,45 +36,28 @@ jobs:
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
               page = browser.new_page()
-              
-              # 拦截 API 请求
-              all_data = []
-              def handle_response(response):
-                  if "stock.hostmonit.com/api" in response.url: # 替换为实际 API 地址特征
-                      try:
-                          all_data.append(response.json())
-                      except:
-                          pass
-
-              page.on("response", handle_response)
               page.goto(url, wait_until="networkidle", timeout=60000)
+              
+              # 等待页面 JS 渲染
               page.wait_for_timeout(10000)
               
-              # 如果上面的拦截没拿到，直接抓取页面可见的所有 IP 文本并去重
-              # 遍历页面所有符合 IPv6 格式的文本
-              content = page.content()
-              # 匹配 IPv6
-              found = re.findall(r'(([0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{1,4})', content)
+              # 获取页面所有 .card-value 元素
+              elements = page.query_selector_all(".card-value")
               
-              ips = {f[0] for f in found if len(f[0]) > 15}
+              ips = []
+              for el in elements:
+                  text = el.inner_text().strip()
+                  # 校验是否为 IPv6 格式
+                  if text.count(':') >= 3 and len(text) > 15:
+                      ips.append(text)
               
-              # 强制滚动页面，确保懒加载触发
-              page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-              page.wait_for_timeout(5000)
-              
-              # 再次提取
-              content_after = page.content()
-              found_after = re.findall(r'(([0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{1,4})', content_after)
-              for f in found_after:
-                  if len(f[0]) > 15:
-                      ips.add(f[0])
-
               browser.close()
 
           if ips:
+              # 将所有抓取到的记录写入文件（不去重，保留运营商分类下的完整列表）
               with open(output_path, 'w', encoding='utf-8') as f:
-                  f.write('\n'.join(sorted(list(ips))) + '\n')
-              print(f"✅ 成功提取 {len(ips)} 个唯一 IPv6")
+                  f.write('\n'.join(ips) + '\n')
+              print(f"✅ 成功提取并写入 {len(ips)} 条 IPv6 记录")
           else:
               print("❌ 未获取到 IPv6")
               exit(1)
@@ -85,11 +67,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
           git add hostmonitv6.txt
+          
           if git diff --staged --quiet; then
-            echo "无变化"
+            echo "IPv6 列表无变化，无需提交。"
           else
-            git commit -m "更新 IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            git commit -m "更新 CloudFlare IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
             git push
-            echo "✅ 提交完成"
+            echo "✅ 变更已提交至仓库。"
           fi
