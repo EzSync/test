@@ -1,4 +1,4 @@
-name: Update CloudFlare HostMonit IPv6
+name: HostMonit IPv6
 
 on:
   schedule:
