@@ -32,8 +32,8 @@ jobs:
           import os
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
-          # 使用相对路径 ./test 指向仓库中已有的 test 目录
-          output_path = os.path.join('test', 'hostmonitv6.txt')
+          # 确保路径是直接指向根目录下的 test 文件夹
+          output_path = "test/hostmonitv6.txt"
 
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
@@ -68,7 +68,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          # 直接对 test/hostmonitv6.txt 进行 git 操作
+          # 直接对 test/hostmonitv6.txt 进行操作
           git add test/hostmonitv6.txt
           
           if git diff --staged --quiet; then
