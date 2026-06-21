@@ -45,8 +45,8 @@ jobs:
               elements = page.query_selector_all(".card-value")
               for el in elements:
                   text = el.inner_text().strip()
-                  # 为了去重，临时移除括号
-                  clean_ip = text.strip("[]")
+                  # 为了去重，清理可能存在的括号或后缀
+                  clean_ip = text.split('#')[0].strip("[]")
                   if clean_ip.count(':') >= 3 and len(clean_ip) > 15:
                       new_ips.add(clean_ip)
               browser.close()
@@ -58,8 +58,8 @@ jobs:
                   for line in f:
                       line = line.strip()
                       if line:
-                          # 为了去重，临时移除括号
-                          old_ips.add(line.strip("[]"))
+                          # 为了去重，清理可能存在的括号或后缀
+                          old_ips.add(line.split('#')[0].strip("[]"))
 
           # 3. 合并并保持去重
           all_ips = old_ips.union(new_ips)
@@ -68,14 +68,10 @@ jobs:
           sorted_ips = sorted(list(all_ips))
           final_ips = sorted_ips[-15:]
 
-          # 5. 写入文件，检查并补全括号
+          # 5. 写入文件，检查括号并补全 #V6
           with open(output_path, 'w', encoding='utf-8') as f:
               for ip in final_ips:
-                  # 检查是否已包含括号，如果不包含则添加
-                  if ip.startswith('[') and ip.endswith(']'):
-                      f.write(f"{ip}\n")
-                  else:
-                      f.write(f"[{ip}]\n")
+                  f.write(f"[{ip}]#V6\n")
           
           print(f"✅ 成功更新，当前文件共有 {len(final_ips)} 个唯一 IPv6")
           EOF
