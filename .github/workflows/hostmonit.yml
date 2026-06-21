@@ -1,78 +1,88 @@
-name: Update CloudFlare HostMonit IPv6
+name: Update CloudFlare HostMonit IPs
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'
-  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
-  update-ips:
-    runs-on: ubuntu-latest
+  update-ips:
+    runs-on: ubuntu-latest
 
-    steps:
-      - name: 检出仓库
-        uses: actions/checkout@v4
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
 
-      - name: 设置 Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-      - name: 安装 Playwright
-        run: |
-          python -m pip install --upgrade pip
-          pip install playwright
-          playwright install --with-deps chromium
+      - name: 安装 Playwright
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright
+          playwright install --with-deps chromium
 
-      - name: 获取 IPv6 并写入文件
-        run: |
-          python - << 'EOF'
-          from playwright.sync_api import sync_playwright
-          import re
+      - name: 获取 IP 并写入文件
+        run: |
+          python - << 'EOF'
+          from playwright.sync_api import sync_playwright
+          import re
 
-          url = "https://stock.hostmonit.com/CloudFlareYesV6"
+          url = "https://stock.hostmonit.com/CloudFlareYes"
 
-          with sync_playwright() as p:
-              browser = p.chromium.launch(headless=True)
-              context = browser.new_context(
-                  user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-              )
-              page = context.new_page()
-              
-              print("正在访问页面...")
-              page.goto(url, wait_until="networkidle", timeout=60000)
-              page.wait_for_timeout(8000)
-              
-              content = page.content()
-              
-              # IPv6 正则表达式
-              ipv6_pattern = r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
-              matches = re.findall(ipv6_pattern, content)
-              unique_ips = sorted(set([m[0] for m in matches]))
-              
-              print(f"✅ 提取到 {len(unique_ips)} 个唯一 IPv6")
-              browser.close()
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+              context = browser.new_context(
+                  user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+              )
+              page = context.new_page()
+              
+              print("正在访问页面...")
+              page.goto(url, wait_until="networkidle", timeout=60000)
+              page.wait_for_timeout(8000)  # 额外等待内容加载
+              
+              content = page.content()
+              print(f"页面长度: {len(content)} 字符")
+              
+              # 超级强力 IPv4 正则（不管前后是什么）
+              ip_pattern = r'(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
+              ips = re.findall(ip_pattern, content)
+              unique_ips = sorted(set(ips))
+              
+              print(f"✅ 提取到 {len(unique_ips)} 个唯一 IP")
+              if unique_ips:
+                  print("前 10 个 IP:")
+                  for ip in unique_ips[:10]:
+                      print(ip)
+              else:
+                  print("❌ 未匹配到 IP，页面前 500 字符预览：")
+                  print(repr(content[:500]))
+              
+              browser.close()
 
-          if not unique_ips:
-              print("❌ 未获取到 IPv6")
-              exit(1)
+          if not unique_ips:
+              print("❌ 未获取到 IP")
+              exit(1)
 
-          with open('hostmonitv6.txt', 'w', encoding='utf-8') as f:
-              f.write('\n'.join(unique_ips) + '\n')
+          # 写入文件
+          with open('hostmonit.txt', 'w', encoding='utf-8') as f:
+              f.write('\n'.join(unique_ips) + '\n')
 
-          print(f"✅ 成功写入 {len(unique_ips)} 个 IPv6 到 hostmonitv6.txt")
-          EOF
+          print(f"✅ 成功写入 {len(unique_ips)} 个 IP 到 hostmonit.txt")
+          EOF
 
-      - name: 提交更新
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          if git diff --quiet hostmonitv6.txt 2>/dev/null; then
-            echo "IPv6 列表无变化"
-          else
-            git add hostmonitv6.txt
-            git commit -m "更新 CloudFlare 优化 IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
-            git push
-            echo "✅ 已提交更新"
-          fi
+      - name: 提交更新
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          if git diff --quiet hostmonit.txt 2>/dev/null; then
+            echo "IP 列表无变化"
+          else
+            git add hostmonit.txt
+            git commit -m "更新 CloudFlare 优化 IP 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            git push
+            echo "✅ 已提交更新"
+          fi
