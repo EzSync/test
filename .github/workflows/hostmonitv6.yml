@@ -29,7 +29,6 @@ jobs:
           python - << 'EOF'
           from playwright.sync_api import sync_playwright
           import re
-          import os
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
           output_path = "hostmonitv6.txt"
@@ -38,25 +37,25 @@ jobs:
               browser = p.chromium.launch(headless=True)
               page = browser.new_page()
               page.goto(url, wait_until="networkidle", timeout=60000)
-              page.wait_for_timeout(10000)
               
-              # 直接从浏览器提取渲染后的纯文本
-              full_text = page.evaluate("document.body.innerText")
+              # 给页面一点加载时间
+              page.wait_for_timeout(5000)
               
-              # 移除所有空格和换行符，将折行的 IP 还原
-              clean_text = re.sub(r'\s+', '', full_text)
+              # 直接获取所有 class 为 card-value 的元素
+              # 这些元素包含了 IP 地址以及其他一些数据（如速度、时间）
+              elements = page.query_selector_all(".card-value")
               
-              # 提取所有长字符且包含冒号的片段
-              found_ips = re.findall(r'([0-9a-fA-F:]{15,45})', clean_text)
+              ips = set()
+              for el in elements:
+                  text = el.inner_text().strip()
+                  # IPv6 正则匹配：检查字符串中是否包含 IPv6 地址特征
+                  # 只要包含至少 3 个冒号，且看起来像 IPv6 格式
+                  if text.count(':') >= 3 and len(text) > 15:
+                      # 清理掉可能存在的换行或额外空格
+                      clean_ip = re.sub(r'\s+', '', text)
+                      ips.add(clean_ip)
               
-              # 进一步清洗：只保留符合 IPv6 格式特征的地址
-              valid_ips = []
-              for ip in set(found_ips):
-                  # 校验：至少包含 3 个冒号，且字符串不以冒号开头或结尾
-                  if ip.count(':') >= 3 and re.match(r'^[0-9a-fA-F:]+$', ip):
-                      valid_ips.append(ip)
-              
-              unique_ips = sorted(valid_ips)
+              unique_ips = sorted(list(ips))
               browser.close()
 
           if unique_ips:
@@ -76,9 +75,9 @@ jobs:
           git add hostmonitv6.txt
           
           if git diff --staged --quiet; then
-            echo "IPv6 列表无变化，无需提交。"
+            echo "无变化，无需提交。"
           else
-            git commit -m "更新 CloudFlare IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            git commit -m "更新 IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
             git push
-            echo "✅ 变更已提交至仓库。"
+            echo "✅ 提交完成"
           fi
