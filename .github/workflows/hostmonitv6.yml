@@ -29,6 +29,7 @@ jobs:
           python - << 'EOF'
           from playwright.sync_api import sync_playwright
           import re
+          import os
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
           output_path = "hostmonitv6.txt"
@@ -38,30 +39,34 @@ jobs:
               page = browser.new_page()
               page.goto(url, wait_until="networkidle", timeout=60000)
               
-              # 给页面一点加载时间
-              page.wait_for_timeout(5000)
+              # 延长等待时间，让懒加载内容全部渲染
+              page.wait_for_timeout(15000)
               
-              # 直接获取所有 class 为 card-value 的元素
-              # 这些元素包含了 IP 地址以及其他一些数据（如速度、时间）
-              elements = page.query_selector_all(".card-value")
+              # 获取页面完整的 HTML 内容
+              html_content = page.content()
               
-              ips = set()
-              for el in elements:
-                  text = el.inner_text().strip()
-                  # IPv6 正则匹配：检查字符串中是否包含 IPv6 地址特征
-                  # 只要包含至少 3 个冒号，且看起来像 IPv6 格式
-                  if text.count(':') >= 3 and len(text) > 15:
-                      # 清理掉可能存在的换行或额外空格
-                      clean_ip = re.sub(r'\s+', '', text)
-                      ips.add(clean_ip)
+              # 正则匹配：查找所有看起来像 IPv6 的字符串
+              # IPv6 格式：8组十六进制数，允许使用冒号和双冒号压缩
+              # 这里使用更广泛的模式以确保捕获所有可能出现的地址格式
+              ipv6_pattern = r'(([0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{1,4})'
               
-              unique_ips = sorted(list(ips))
+              # 在整个 HTML 中查找
+              matches = re.findall(ipv6_pattern, html_content)
+              
+              # 提取匹配结果并去重
+              unique_ips = set()
+              for match in matches:
+                  ip = match[0]
+                  if len(ip) > 15: # 确保长度符合 IPv6 最小长度
+                      unique_ips.add(ip)
+              
+              sorted_ips = sorted(list(unique_ips))
               browser.close()
 
-          if unique_ips:
+          if sorted_ips:
               with open(output_path, 'w', encoding='utf-8') as f:
-                  f.write('\n'.join(unique_ips) + '\n')
-              print(f"✅ 成功提取 {len(unique_ips)} 个 IPv6")
+                  f.write('\n'.join(sorted_ips) + '\n')
+              print(f"✅ 成功提取 {len(sorted_ips)} 个 IPv6")
           else:
               print("❌ 未获取到 IPv6")
               exit(1)
@@ -79,5 +84,5 @@ jobs:
           else
             git commit -m "更新 IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
             git push
-            echo "✅ 提交完成"
+            echo "✅ 提交完成，共提取 $sorted_ips_count 个地址。"
           fi
