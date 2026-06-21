@@ -32,8 +32,8 @@ jobs:
           import os
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
-          # 确保路径是直接指向根目录下的 test 文件夹
-          output_path = "test/hostmonitv6.txt"
+          # 确保路径是直接指向根目录下
+          output_path = "hostmonitv6.txt"
 
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
@@ -68,8 +68,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          # 直接对 test/hostmonitv6.txt 进行操作
-          git add test/hostmonitv6.txt
+          # 直接对 hostmonitv6.txt 进行操作
+          git add hostmonitv6.txt
           
           if git diff --staged --quiet; then
             echo "IPv6 列表无变化，无需提交。"
