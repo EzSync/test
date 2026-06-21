@@ -28,8 +28,8 @@ jobs:
         run: |
           python - << 'EOF'
           from playwright.sync_api import sync_playwright
+          import json
           import re
-          import os
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
           output_path = "hostmonitv6.txt"
@@ -37,36 +37,45 @@ jobs:
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
               page = browser.new_page()
+              
+              # 拦截 API 请求
+              all_data = []
+              def handle_response(response):
+                  if "stock.hostmonit.com/api" in response.url: # 替换为实际 API 地址特征
+                      try:
+                          all_data.append(response.json())
+                      except:
+                          pass
+
+              page.on("response", handle_response)
               page.goto(url, wait_until="networkidle", timeout=60000)
+              page.wait_for_timeout(10000)
               
-              # 延长等待时间，让懒加载内容全部渲染
-              page.wait_for_timeout(15000)
+              # 如果上面的拦截没拿到，直接抓取页面可见的所有 IP 文本并去重
+              # 遍历页面所有符合 IPv6 格式的文本
+              content = page.content()
+              # 匹配 IPv6
+              found = re.findall(r'(([0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{1,4})', content)
               
-              # 获取页面完整的 HTML 内容
-              html_content = page.content()
+              ips = {f[0] for f in found if len(f[0]) > 15}
               
-              # 正则匹配：查找所有看起来像 IPv6 的字符串
-              # IPv6 格式：8组十六进制数，允许使用冒号和双冒号压缩
-              # 这里使用更广泛的模式以确保捕获所有可能出现的地址格式
-              ipv6_pattern = r'(([0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{1,4})'
+              # 强制滚动页面，确保懒加载触发
+              page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+              page.wait_for_timeout(5000)
               
-              # 在整个 HTML 中查找
-              matches = re.findall(ipv6_pattern, html_content)
-              
-              # 提取匹配结果并去重
-              unique_ips = set()
-              for match in matches:
-                  ip = match[0]
-                  if len(ip) > 15: # 确保长度符合 IPv6 最小长度
-                      unique_ips.add(ip)
-              
-              sorted_ips = sorted(list(unique_ips))
+              # 再次提取
+              content_after = page.content()
+              found_after = re.findall(r'(([0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{1,4})', content_after)
+              for f in found_after:
+                  if len(f[0]) > 15:
+                      ips.add(f[0])
+
               browser.close()
 
-          if sorted_ips:
+          if ips:
               with open(output_path, 'w', encoding='utf-8') as f:
-                  f.write('\n'.join(sorted_ips) + '\n')
-              print(f"✅ 成功提取 {len(sorted_ips)} 个 IPv6")
+                  f.write('\n'.join(sorted(list(ips))) + '\n')
+              print(f"✅ 成功提取 {len(ips)} 个唯一 IPv6")
           else:
               print("❌ 未获取到 IPv6")
               exit(1)
@@ -76,13 +85,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
           git add hostmonitv6.txt
-          
           if git diff --staged --quiet; then
-            echo "无变化，无需提交。"
+            echo "无变化"
           else
             git commit -m "更新 IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
             git push
-            echo "✅ 提交完成，共提取 $sorted_ips_count 个地址。"
+            echo "✅ 提交完成"
           fi
