@@ -24,56 +24,61 @@ jobs:
           pip install playwright
           playwright install --with-deps chromium
 
-      - name: 获取 IPv6 并写入文件
+      - name: 获取并更新 IPv6 列表
         run: |
           python - << 'EOF'
+          import os
           from playwright.sync_api import sync_playwright
           import re
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
           output_path = "hostmonitv6.txt"
 
+          # 1. 获取新抓取的 IP
+          new_ips = set()
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
               page = browser.new_page()
               page.goto(url, wait_until="networkidle", timeout=60000)
-              
-              # 等待页面 JS 渲染
               page.wait_for_timeout(10000)
               
-              # 获取页面所有 .card-value 元素
               elements = page.query_selector_all(".card-value")
-              
-              ips = []
               for el in elements:
                   text = el.inner_text().strip()
-                  # 校验是否为 IPv6 格式
                   if text.count(':') >= 3 and len(text) > 15:
-                      ips.append(text)
-              
+                      new_ips.add(text)
               browser.close()
 
-          if ips:
-              # 将所有抓取到的记录写入文件（不去重，保留运营商分类下的完整列表）
-              with open(output_path, 'w', encoding='utf-8') as f:
-                  f.write('\n'.join(ips) + '\n')
-              print(f"✅ 成功提取并写入 {len(ips)} 条 IPv6 记录")
-          else:
-              print("❌ 未获取到 IPv6")
-              exit(1)
+          # 2. 读取旧 IP
+          old_ips = set()
+          if os.path.exists(output_path):
+              with open(output_path, 'r', encoding='utf-8') as f:
+                  old_ips = set(line.strip() for line in f if line.strip())
+
+          # 3. 合并并保持去重
+          all_ips = old_ips.union(new_ips)
+          
+          # 4. 排序并限制数量为 15 个
+          # 优先保留最新的（假设新抓取的在前面）
+          sorted_ips = sorted(list(all_ips))
+          final_ips = sorted_ips[-15:] # 取最后 15 个
+
+          # 5. 写入文件
+          with open(output_path, 'w', encoding='utf-8') as f:
+              f.write('\n'.join(final_ips) + '\n')
+          
+          print(f"✅ 成功更新，当前文件共有 {len(final_ips)} 个唯一 IPv6")
           EOF
 
       - name: 提交更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
           git add hostmonitv6.txt
-          
           if git diff --staged --quiet; then
-            echo "IPv6 列表无变化，无需提交。"
+            echo "无变化，无需提交。"
           else
-            git commit -m "更新 CloudFlare IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            git commit -m "更新 IPv6 列表 (保持最多15个) ($(date -u +'%Y-%m-%d %H:%M UTC'))"
             git push
-            echo "✅ 变更已提交至仓库。"
+            echo "✅ 提交完成。"
           fi
