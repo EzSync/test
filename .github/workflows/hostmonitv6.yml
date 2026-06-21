@@ -45,27 +45,37 @@ jobs:
               elements = page.query_selector_all(".card-value")
               for el in elements:
                   text = el.inner_text().strip()
-                  if text.count(':') >= 3 and len(text) > 15:
-                      new_ips.add(text)
+                  # 为了去重，临时移除括号
+                  clean_ip = text.strip("[]")
+                  if clean_ip.count(':') >= 3 and len(clean_ip) > 15:
+                      new_ips.add(clean_ip)
               browser.close()
 
           # 2. 读取旧 IP
           old_ips = set()
           if os.path.exists(output_path):
               with open(output_path, 'r', encoding='utf-8') as f:
-                  old_ips = set(line.strip() for line in f if line.strip())
+                  for line in f:
+                      line = line.strip()
+                      if line:
+                          # 为了去重，临时移除括号
+                          old_ips.add(line.strip("[]"))
 
           # 3. 合并并保持去重
           all_ips = old_ips.union(new_ips)
           
           # 4. 排序并限制数量为 15 个
-          # 优先保留最新的（假设新抓取的在前面）
           sorted_ips = sorted(list(all_ips))
-          final_ips = sorted_ips[-15:] # 取最后 15 个
+          final_ips = sorted_ips[-15:]
 
-          # 5. 写入文件
+          # 5. 写入文件，检查并补全括号
           with open(output_path, 'w', encoding='utf-8') as f:
-              f.write('\n'.join(final_ips) + '\n')
+              for ip in final_ips:
+                  # 检查是否已包含括号，如果不包含则添加
+                  if ip.startswith('[') and ip.endswith(']'):
+                      f.write(f"{ip}\n")
+                  else:
+                      f.write(f"[{ip}]\n")
           
           print(f"✅ 成功更新，当前文件共有 {len(final_ips)} 个唯一 IPv6")
           EOF
