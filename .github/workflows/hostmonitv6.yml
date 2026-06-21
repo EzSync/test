@@ -38,38 +38,35 @@ jobs:
               browser = p.chromium.launch(headless=True)
               page = browser.new_page()
               page.goto(url, wait_until="networkidle", timeout=60000)
-              # 等待动态内容渲染
               page.wait_for_timeout(10000)
               
-              # 提取所有包含 IP 的容器文本
-              # 通常这类网站的 IP 都在特定类名或标签下，我们直接获取网页的完整 HTML 并进行清理
-              content = page.content()
+              # 关键点：该网站在页面上有翻页功能，且 IP 列表在 table 或类似结构中
+              # 我们通过 locator 获取所有包含 IP 特征的元素
+              # 观察网页结构，IP 通常在类名为 'ip-address' 或类似的容器中
+              # 这里我们使用 XPath 匹配所有看起来像 IPv6 的片段
+              elements = page.query_selector_all("*")
+              raw_texts = [el.inner_text() for el in elements if el.inner_text() and ":" in el.inner_text()]
               
-              # 清理 HTML 标签并处理换行导致的断裂
-              # 将 <br> 或空格/换行替换为空，直接提取连续的 IPv6 字符
-              # 只要包含冒号的字符序列，IPv6 必定包含冒号
-              # 使用更宽泛的匹配，再进行筛选
-              raw_ips = re.findall(r'([0-9a-fA-F:]{20,})', content.replace(' ', '').replace('\n', '').replace('</div>', ' ').replace('</span>', ' '))
+              ips = []
+              for text in raw_texts:
+                  # 针对可能被换行符截断的地址进行拼接
+                  # 找到所有匹配 IPv6 片段的正则
+                  found = re.findall(r'(([0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{1,4})', text)
+                  for f in found:
+                      ips.append(f[0])
               
-              valid_ips = []
-              for item in raw_ips:
-                  # 进一步清洗：移除可能残留的标签或非法字符
-                  clean_ip = re.sub(r'[^0-9a-fA-F:]', '', item)
-                  # 校验是否符合 IPv6 基本格式 (至少包含 3 个冒号，长度 15+)
-                  if clean_ip.count(':') >= 3 and len(clean_ip) > 15:
-                      valid_ips.append(clean_ip)
+              # 此时会得到很多碎片，因为它是拆分显示的
+              # 我们需要按出现顺序重新拼接，或者直接使用集合去重
+              # 鉴于每个 IP 是 8 段，这里简单处理：只保留长度合理的完整 IP
+              unique_ips = sorted(set([ip for ip in ips if ip.count(':') >= 3 and len(ip) > 15]))
               
-              unique_ips = sorted(set(valid_ips))
               browser.close()
 
           if unique_ips:
               with open(output_path, 'w', encoding='utf-8') as f:
                   f.write('\n'.join(unique_ips) + '\n')
-              print(f"✅ 成功写入 {len(unique_ips)} 个 IPv6 到 {output_path}")
+              print(f"✅ 成功写入 {len(unique_ips)} 个 IPv6")
           else:
-              # 打印部分内容用于调试
-              print("❌ 未获取到 IPv6，调试内容预览：")
-              print(content[:500])
               exit(1)
           EOF
 
@@ -79,9 +76,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add hostmonitv6.txt
           if git diff --staged --quiet; then
-            echo "IPv6 列表无变化，无需提交。"
+            echo "无变化"
           else
-            git commit -m "更新 CloudFlare IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            git commit -m "更新 IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
             git push
-            echo "✅ 变更已提交至仓库。"
+            echo "✅ 提交完成"
           fi
