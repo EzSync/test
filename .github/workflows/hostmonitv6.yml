@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  update-ips-v6:
+  update-ips:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,62 +24,43 @@ jobs:
           pip install playwright
           playwright install --with-deps chromium
 
-      - name: 获取 IPv6 并写入 hostmonitv6.txt
+      - name: 获取 IPv6 并写入文件
         run: |
           python - << 'EOF'
           from playwright.sync_api import sync_playwright
           import re
-          import time
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
 
           with sync_playwright() as p:
-              browser = p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'])
+              browser = p.chromium.launch(headless=True)
               context = browser.new_context(
-                  user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-                  viewport={'width': 1920, 'height': 4000},
-                  locale='en-US'
+                  user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
               )
               page = context.new_page()
               
-              print("正在访问 IPv6 页面...")
-              page.goto(url, wait_until="networkidle", timeout=120000)
-              
-              print("等待卡片加载...")
-              time.sleep(15)
-              
-              # 强力滚动加载所有卡片
-              for _ in range(8):
-                  page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-                  time.sleep(5)
+              print("正在访问页面...")
+              page.goto(url, wait_until="networkidle", timeout=60000)
+              page.wait_for_timeout(8000)
               
               content = page.content()
-              print(f"页面长度: {len(content)} 字符")
               
-              # 精确匹配页面格式 "IP 2606:..."
-              ipv6_pattern = r'IP\s+([0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4}){1,7})'
+              # IPv6 正则表达式
+              ipv6_pattern = r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
               matches = re.findall(ipv6_pattern, content)
+              unique_ips = sorted(set([m[0] for m in matches]))
               
-              unique_ips = sorted(set([ip.strip() for ip in matches if ':' in ip and len(ip) > 20]))
-              
-              print(f"✅ 成功提取到 {len(unique_ips)} 个唯一 IPv6 地址")
-              if unique_ips:
-                  print("前 8 个 IPv6 示例:")
-                  for ip in unique_ips[:8]:
-                      print(ip)
-              else:
-                  print("⚠️ 未匹配，页面前 800 字符预览：")
-                  print(repr(content[:800]))
+              print(f"✅ 提取到 {len(unique_ips)} 个唯一 IPv6")
+              browser.close()
 
           if not unique_ips:
               print("❌ 未获取到 IPv6")
               exit(1)
 
-          # 写入文件
           with open('hostmonitv6.txt', 'w', encoding='utf-8') as f:
               f.write('\n'.join(unique_ips) + '\n')
 
-          print(f"✅ 成功写入 {len(unique_ips)} 条 IPv6 到 hostmonitv6.txt")
+          print(f"✅ 成功写入 {len(unique_ips)} 个 IPv6 到 hostmonitv6.txt")
           EOF
 
       - name: 提交更新
@@ -91,7 +72,7 @@ jobs:
             echo "IPv6 列表无变化"
           else
             git add hostmonitv6.txt
-            git commit -m "更新 CloudFlare IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            git commit -m "更新 CloudFlare 优化 IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
             git push
             echo "✅ 已提交更新"
           fi
