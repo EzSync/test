@@ -32,25 +32,26 @@ jobs:
           import os
 
           url = "https://stock.hostmonit.com/CloudFlareYesV6"
-          # 确保路径是直接指向根目录下
           output_path = "hostmonitv6.txt"
 
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
-              context = browser.new_context(
-                  user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-              )
-              page = context.new_page()
+              page = browser.new_page()
               
               print("正在访问页面...")
               page.goto(url, wait_until="networkidle", timeout=60000)
-              page.wait_for_timeout(8000)
+              page.wait_for_timeout(10000)
               
-              content = page.content()
-              # IPv6 正则
-              ipv6_pattern = r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
-              matches = re.findall(ipv6_pattern, content)
-              unique_ips = sorted(set([m[0] for m in matches]))
+              # 获取页面文本并移除换行符，将折行的 IP 拼接起来
+              content = page.text_content("body")
+              content_clean = content.replace('\n', '').replace('\r', '')
+              
+              # 匹配 IPv6 的正则
+              ipv6_pattern = r'([0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{1,4}'
+              matches = re.findall(ipv6_pattern, content_clean)
+              
+              # 过滤掉非 IP 的干扰项，只取长度合理的匹配项
+              unique_ips = sorted(set([ip for ip in matches if len(ip) > 15]))
               
               browser.close()
 
@@ -68,7 +69,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          # 直接对 hostmonitv6.txt 进行操作
           git add hostmonitv6.txt
           
           if git diff --staged --quiet; then
