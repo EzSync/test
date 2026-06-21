@@ -1,4 +1,4 @@
-name: Fetch IPv4 with Registered Country Code
+name: IPv4Collect_Wetest
 
 on:
   schedule:
