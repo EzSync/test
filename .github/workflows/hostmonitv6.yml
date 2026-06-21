@@ -32,8 +32,9 @@ jobs:
           headers = {
               'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-              'Accept-Language': 'en-US,en;q=0.9',   # 强制英文版
+              'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8',  # 优先英文
               'Referer': 'https://stock.hostmonit.com/',
+              'Cache-Control': 'no-cache',
           }
 
           print("正在请求 IPv6 页面...")
@@ -43,11 +44,16 @@ jobs:
 
           content = response.text
 
-          # 强力匹配 IPv6
+          # 强力 IPv6 提取
           ipv6_pattern = r'IP\s+([0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4}){1,7})'
           matches = re.findall(ipv6_pattern, content)
 
-          unique_ips = sorted(set([ip.strip() for ip in matches if ip and ':' in ip]))
+          # 备用全 IPv6 正则
+          if len(matches) < 3:
+              ipv6_pattern2 = r'([0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4}){1,7})'
+              matches = re.findall(ipv6_pattern2, content)
+
+          unique_ips = sorted(set([ip.strip() for ip in matches if ':' in ip and len(ip) > 15]))
 
           print(f"✅ 成功提取到 {len(unique_ips)} 个唯一 IPv6 地址")
           if unique_ips:
@@ -55,8 +61,8 @@ jobs:
               for ip in unique_ips[:8]:
                   print(ip)
           else:
-              print("⚠️ 未匹配，页面前 400 字符预览：")
-              print(repr(content[:400]))
+              print("⚠️ 未匹配，页面前 500 字符预览：")
+              print(repr(content[:500]))
 
           if not unique_ips:
               print("❌ 未获取到 IPv6")
