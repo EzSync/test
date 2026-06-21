@@ -40,33 +40,31 @@ jobs:
               page.goto(url, wait_until="networkidle", timeout=60000)
               page.wait_for_timeout(10000)
               
-              # 关键点：该网站在页面上有翻页功能，且 IP 列表在 table 或类似结构中
-              # 我们通过 locator 获取所有包含 IP 特征的元素
-              # 观察网页结构，IP 通常在类名为 'ip-address' 或类似的容器中
-              # 这里我们使用 XPath 匹配所有看起来像 IPv6 的片段
-              elements = page.query_selector_all("*")
-              raw_texts = [el.inner_text() for el in elements if el.inner_text() and ":" in el.inner_text()]
+              # 直接从浏览器提取渲染后的纯文本
+              full_text = page.evaluate("document.body.innerText")
               
-              ips = []
-              for text in raw_texts:
-                  # 针对可能被换行符截断的地址进行拼接
-                  # 找到所有匹配 IPv6 片段的正则
-                  found = re.findall(r'(([0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{1,4})', text)
-                  for f in found:
-                      ips.append(f[0])
+              # 移除所有空格和换行符，将折行的 IP 还原
+              clean_text = re.sub(r'\s+', '', full_text)
               
-              # 此时会得到很多碎片，因为它是拆分显示的
-              # 我们需要按出现顺序重新拼接，或者直接使用集合去重
-              # 鉴于每个 IP 是 8 段，这里简单处理：只保留长度合理的完整 IP
-              unique_ips = sorted(set([ip for ip in ips if ip.count(':') >= 3 and len(ip) > 15]))
+              # 提取所有长字符且包含冒号的片段
+              found_ips = re.findall(r'([0-9a-fA-F:]{15,45})', clean_text)
               
+              # 进一步清洗：只保留符合 IPv6 格式特征的地址
+              valid_ips = []
+              for ip in set(found_ips):
+                  # 校验：至少包含 3 个冒号，且字符串不以冒号开头或结尾
+                  if ip.count(':') >= 3 and re.match(r'^[0-9a-fA-F:]+$', ip):
+                      valid_ips.append(ip)
+              
+              unique_ips = sorted(valid_ips)
               browser.close()
 
           if unique_ips:
               with open(output_path, 'w', encoding='utf-8') as f:
                   f.write('\n'.join(unique_ips) + '\n')
-              print(f"✅ 成功写入 {len(unique_ips)} 个 IPv6")
+              print(f"✅ 成功提取 {len(unique_ips)} 个 IPv6")
           else:
+              print("❌ 未获取到 IPv6")
               exit(1)
           EOF
 
@@ -74,11 +72,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
           git add hostmonitv6.txt
+          
           if git diff --staged --quiet; then
-            echo "无变化"
+            echo "IPv6 列表无变化，无需提交。"
           else
-            git commit -m "更新 IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            git commit -m "更新 CloudFlare IPv6 列表 ($(date -u +'%Y-%m-%d %H:%M UTC'))"
             git push
-            echo "✅ 提交完成"
+            echo "✅ 变更已提交至仓库。"
           fi
