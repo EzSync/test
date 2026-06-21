@@ -2,7 +2,7 @@ name: HostMonitv4 IPs
 
 on:
   schedule:
-    - cron: '0 23,5,9 * * *'
+    - cron: '5 23,5,9 * * *'
   workflow_dispatch:
 
 jobs:
