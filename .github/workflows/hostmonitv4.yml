@@ -18,18 +18,20 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 安装 Playwright
+      - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
-          pip install playwright
+          pip install playwright requests
           playwright install --with-deps chromium
 
       - name: 获取 IP 并合并更新
         run: |
           python - << 'EOF'
           import os
-          from playwright.sync_api import sync_playwright
           import re
+          import time
+          import requests
+          from playwright.sync_api import sync_playwright
 
           url = "https://stock.hostmonit.com/CloudFlareYes"
           file_path = 'hostmonitv4.txt'
@@ -47,26 +49,36 @@ jobs:
 
           ip_pattern = r'(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
           found_ips = re.findall(ip_pattern, content)
-          # 存入时去除可能的后缀以便去重
           new_ips = set(ip.split('#')[0] for ip in found_ips)
 
-          # 2. 读取旧 IP
+          # 2. 读取旧 IP 并获取去重集合
           old_ips = set()
           if os.path.exists(file_path):
               with open(file_path, 'r', encoding='utf-8') as f:
                   for line in f:
                       line = line.strip()
                       if line:
-                          # 读取时去除后缀以便去重
                           old_ips.add(line.split('#')[0])
 
-          # 3. 合并、去重并限制数量
+          # 3. 合并并限制数量 (取最后15个)
           final_ips = sorted(list(old_ips.union(new_ips)))[-15:]
 
-          # 4. 写入文件，统一加上 #CF.V4
+          # 4. 写入文件，获取并加上 countryCode
           with open(file_path, 'w', encoding='utf-8') as f:
               for ip in final_ips:
-                  f.write(f"{ip}#CF.V4\n")
+                  try:
+                      # 获取地理位置代码
+                      resp = requests.get(f"http://ip-api.com/json/{ip}?fields=status,countryCode", timeout=5)
+                      data = resp.json()
+                      country_code = data.get('countryCode', 'Unknown') if data.get('status') == 'success' else 'Unknown'
+                  except:
+                      country_code = 'Unknown'
+                  
+                  # 格式: ip#CF.V4.countryCode
+                  f.write(f"{ip}#CF.V4.{country_code}\n")
+                  
+                  # 遵守速率限制
+                  time.sleep(1.5)
 
           print(f"✅ 更新完成，当前共有 {len(final_ips)} 个 IP")
           EOF
@@ -76,7 +88,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          # 检查文件改动
           if git diff --quiet hostmonitv4.txt 2>/dev/null; then
             echo "IP 列表无变化"
           else
