@@ -2,7 +2,7 @@ name: Combine YAML Files
 
 on:
   schedule:
-    - cron: '0 3,15 * * *'
+    - cron: '0 3 * * *'
   workflow_dispatch:
 
 jobs:
