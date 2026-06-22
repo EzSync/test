@@ -6,7 +6,7 @@ on:
 
   schedule:
 
-    - cron: '25 22,4,8,12 * * *'
+    - cron: '35 22,4,10 * * *'
 
   workflow_dispatch:
 
