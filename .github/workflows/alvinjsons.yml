@@ -1,44 +1,45 @@
-name: Combine JSON Files
+name: Combine YAML Files
 
 on:
   schedule:
-    - cron: '0 3,15 * * *'  # Runs at 2:00 AM UTC every day
-  workflow_dispatch:  # Allows manual triggering of the workflow
+    - cron: '0 3,15 * * *'
+  workflow_dispatch:
 
 jobs:
-  combine-json:
+  combine-yaml:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Download JSON files
+      - name: Install yq
         run: |
-          curl -o config1.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/config.json
-          curl -o config2.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/1/config.json
-          curl -o config3.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/13/config.json
-          curl -o config4.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria/2/config.json
-          curl -o config5.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria2/config.json
-          curl -o config6.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria2/1/config.json
-          curl -o config7.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria2/13/config.json
-          curl -o config8.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/hysteria2/2/config.json
-          curl -o config9.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/singbox/config.json
-          curl -o config10.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/singbox/1/config.json
-          curl -o config11.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/xray/config.json
-          curl -o config12.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/xray/1/config.json
-          curl -o config13.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/xray/2/config.json
-          curl -o config14.json https://raw.githubusercontent.com/Alvin9999/pac2/refs/heads/master/xray/3/config.json
+          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
 
-      - name: Analyze and Combine JSON files
+      - name: Download and Combine files
         run: |
-          # Use jq to combine the JSON files into one
-          jq -s 'add' config1.json config2.json config3.json config4.json config5.json config6.json config7.json config8.json config9.json config10.json config11.json config12.json config13.json config14.json > alvinjson.json
+          urls=(
+            "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/1/config.yaml"
+            "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/2/config.yaml"
+            "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/3/config.yaml"
+            "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/4/config.yaml"
+            "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/5/config.yaml"
+            "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/6/config.yaml"
+            "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/1/config.yaml"
+            "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/2/config.yaml"
+            "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/3/config.yaml"
+            "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/4/config.yaml"
+          )
 
-      - name: Commit and push combined JSON
+          # Download and combine using yq
+          # We use eval-all to merge the array of files into one
+          yq eval-all '. as $item ireduce ({}; . * $item )' "${urls[@]}" > alvinconfig.yaml
+
+      - name: Commit and push
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add alvinjson.json
-          git commit -m "Update alvinjson.json with combined JSON files" || echo "No changes to commit"
+          git add alvinconfig.yaml
+          git commit -m "Update alvinconfig.yaml with combined YAML files" || echo "No changes to commit"
           git push
