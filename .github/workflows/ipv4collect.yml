@@ -1,63 +1,116 @@
 name: IPv4Collect_Wetest
 
+
+
 on:
+
   schedule:
-    - cron: '5 2,6,10,22 * * *'
+
+    - cron: '5 2,6,10,22 * * *'  # Runs daily at 23:05 UTC
+
   workflow_dispatch:
 
+
+
 jobs:
+
   update_ipv4_collect:
+
     name: Update IPv4 Collection
+
     runs-on: ubuntu-latest
 
+
+
     steps:
+
       - name: Checkout repository
+
         uses: actions/checkout@v4
 
+
+
       - name: Set up environment
+
         run: |
+
           sudo apt-get update -qq
+
           sudo apt-get install -y curl jq
+
       - name: Fetch, Extract, and Geolocate IPs
+
         id: fetch_ips
+
         shell: bash
+
         run: |
+
           # Define the URLs
+
           URL1="https://www.wetest.vip/page/cloudflare/address_v4.html"
+
           URL2="https://ip.164746.xyz/"
-          URL3="https://www.wetest.vip/page/cloudfront/address_v4.html"
-          
-          # Fetch and extract unique IPs from all three sources
-          CONTENT1=$(curl -s "$URL1")
-          CONTENT2=$(curl -s "$URL2")
-          CONTENT3=$(curl -s "$URL3")
-          
-          IP_LIST=$(echo -e "$CONTENT1\n$CONTENT2\n$CONTENT3" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b' | sort -u)
-          
+
+          # Fetch and extract unique IPs
+
+          CONTENT1=(curl−s"URL1")
+
+          CONTENT2=(curl−s"URL2")
+
+          IP_LIST=(echo−e"CONTENT1\n$CONTENT2" | grep -oP '\b(?:\d{1,3}\.){3}\d{1,3}\b' | sort -u)
+
           # Clear the file
+
           > ipv4collect.txt
-          
+
           # Loop through each IP
+
           for IP in $IP_LIST; do
-            # Fetch the countryCode
-            RESPONSE=$(curl -s "http://ip-api.com/json/$IP?fields=status,countryCode")
-            STATUS=$(echo "$RESPONSE" | jq -r '.status')
+
+            # We fetch the countryCode. 
+
+            # For most Cloudflare IPs, this API returns the registration country (US)
+
+            # unless the specific IP range is sub-delegated elsewhere.
+
+            RESPONSE=(curl−s"http://ip−api.com/json/IP?fields=status,countryCode")
+
+            STATUS=(echo"RESPONSE" | jq -r '.status')
+
             
+
             if [ "$STATUS" = "success" ]; then
-              REG_COUNTRY=$(echo "$RESPONSE" | jq -r '.countryCode')
-              echo "${IP}#${REG_COUNTRY}" >> ipv4collect.txt
+
+              REG_COUNTRY=(echo"RESPONSE" | jq -r '.countryCode')
+
+              echo "{IP}#{REG_COUNTRY}" >> ipv4collect.txt
+
             else
+
               echo "${IP}#Unknown" >> ipv4collect.txt
+
             fi
+
             
+
             # 1.5s delay to strictly stay under 45 requests/minute
+
             sleep 1.5
+
           done
-          
+
       - name: Commit and push changes
+
         uses: stefanzweifel/git-auto-commit-action@v5
+
         with:
+
           commit_message: "Update ipv4collect.txt with Registered Country Codes"
+
           file_pattern: ipv4collect.txt
+
           commit_user_name: GitHub Action
-          commit_user_email: action@github.com
+
+          commit_user_email: action@github.com 
+
