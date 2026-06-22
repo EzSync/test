@@ -6,7 +6,7 @@ on:
 
   schedule:
 
-    - cron: '5 2,6,10,22 * * *'  # Runs daily at 23:05 UTC
+    - cron: '5 22,4,10 * * *'  # Runs daily at 23:05 UTC
 
   workflow_dispatch:
 
