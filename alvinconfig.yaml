@@ -1,0 +1,92 @@
+secret: https://github.com/Alvin9999-newpac/fanqiang
+mixed-port: 7890
+allow-lan: false
+log-level: info
+dns:
+  enabled: true
+  nameserver:
+    - 119.29.29.29
+    - 223.5.5.5
+  fallback-filter:
+    geoip: false
+    ipcidr:
+      - 240.0.0.0/4
+      - 0.0.0.0/32
+proxies:
+  - name: https://github.com/Alvin9999-newpac/fanqiang
+    type: anytls
+    server: fan2.856098.xyz
+    port: 8443
+    password: dongtaiwang.com
+    client-fingerprint: chrome
+    udp: true
+    idle-session-check-interval: 30
+    idle-session-timeout: 30
+    min-idle-session: 0
+    alpn:
+      - h2
+      - http/1.1
+    skip-cert-verify: true
+proxy-groups:
+  - name: "\U0001F680 节点选择"
+    type: select
+    proxies:
+      - ♻️ 自动选择
+      - DIRECT
+      - https://github.com/Alvin9999-newpac/fanqiang
+  - name: ♻️ 自动选择
+    type: fallback
+    url: "https://www.gstatic.com/generate_204"
+    interval: 5
+    proxies:
+      - https://github.com/Alvin9999-newpac/fanqiang
+  - name: "\U0001F30D 国外媒体"
+    type: select
+    proxies:
+      - "\U0001F680 节点选择"
+      - ♻️ 自动选择
+      - "\U0001F3AF 全球直连"
+      - https://github.com/Alvin9999-newpac/fanqiang
+  - name: "\U0001F4F2 电报信息"
+    type: select
+    proxies:
+      - "\U0001F680 节点选择"
+      - "\U0001F3AF 全球直连"
+      - https://github.com/Alvin9999-newpac/fanqiang
+  - name: Ⓜ️ 微软服务
+    type: select
+    proxies:
+      - "\U0001F3AF 全球直连"
+      - "\U0001F680 节点选择"
+      - https://github.com/Alvin9999-newpac/fanqiang
+  - name: "\U0001F34E 苹果服务"
+    type: select
+    proxies:
+      - "\U0001F680 节点选择"
+      - "\U0001F3AF 全球直连"
+      - https://github.com/Alvin9999-newpac/fanqiang
+  - name: "\U0001F3AF 全球直连"
+    type: select
+    proxies:
+      - DIRECT
+      - "\U0001F680 节点选择"
+      - ♻️ 自动选择
+  - name: "\U0001F6D1 全球拦截"
+    type: select
+    proxies:
+      - REJECT
+      - DIRECT
+  - name: "\U0001F343 应用净化"
+    type: select
+    proxies:
+      - REJECT
+      - DIRECT
+  - name: "\U0001F41F 漏网之鱼"
+    type: select
+    proxies:
+      - "\U0001F680 节点选择"
+      - "\U0001F3AF 全球直连"
+      - ♻️ 自动选择
+      - https://github.com/Alvin9999-newpac/fanqiang
+rules:
+  - "MATCH,\U0001F680 节点选择"
