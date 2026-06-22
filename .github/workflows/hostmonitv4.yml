@@ -1,98 +1,174 @@
 name: HostMonitv4 IPs
 
+
+
 on:
+
   schedule:
-    - cron: '5 23,5,9 * * *'
+
+    - cron: '25 22,4,8,12 * * *'
+
   workflow_dispatch:
 
+
+
 jobs:
+
   update-ips:
+
     runs-on: ubuntu-latest
 
+
+
     steps:
+
       - name: 检出仓库
+
         uses: actions/checkout@v4
 
+
+
       - name: 设置 Python
+
         uses: actions/setup-python@v5
+
         with:
+
           python-version: '3.11'
 
-      - name: 安装依赖
+
+
+      - name: 安装 Playwright
+
         run: |
+
           python -m pip install --upgrade pip
-          pip install playwright requests
+
+          pip install playwright
+
           playwright install --with-deps chromium
 
+
+
       - name: 获取 IP 并合并更新
+
         run: |
+
           python - << 'EOF'
+
           import os
-          import re
-          import time
-          import requests
+
           from playwright.sync_api import sync_playwright
 
+          import re
+
+
+
           url = "https://stock.hostmonit.com/CloudFlareYes"
+
           file_path = 'hostmonitv4.txt'
 
+
+
           # 1. 抓取新 IP
+
           new_ips = set()
+
           with sync_playwright() as p:
+
               browser = p.chromium.launch(headless=True)
+
               context = browser.new_context(user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+
               page = context.new_page()
+
               page.goto(url, wait_until="networkidle", timeout=60000)
+
               page.wait_for_timeout(8000)
+
               content = page.content()
+
               browser.close()
 
+
+
           ip_pattern = r'(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
+
           found_ips = re.findall(ip_pattern, content)
+
+          # 存入时去除可能的后缀以便去重
+
           new_ips = set(ip.split('#')[0] for ip in found_ips)
 
-          # 2. 读取旧 IP 并获取去重集合
+
+
+          # 2. 读取旧 IP
+
           old_ips = set()
+
           if os.path.exists(file_path):
+
               with open(file_path, 'r', encoding='utf-8') as f:
+
                   for line in f:
+
                       line = line.strip()
+
                       if line:
+
+                          # 读取时去除后缀以便去重
+
                           old_ips.add(line.split('#')[0])
 
-          # 3. 合并并限制数量 (取最后15个)
+
+
+          # 3. 合并、去重并限制数量
+
           final_ips = sorted(list(old_ips.union(new_ips)))[-15:]
 
-          # 4. 写入文件，获取并加上 countryCode
+
+
+          # 4. 写入文件，统一加上 #CF.V4
+
           with open(file_path, 'w', encoding='utf-8') as f:
+
               for ip in final_ips:
-                  try:
-                      # 获取地理位置代码
-                      resp = requests.get(f"http://ip-api.com/json/{ip}?fields=status,countryCode", timeout=5)
-                      data = resp.json()
-                      country_code = data.get('countryCode', 'Unknown') if data.get('status') == 'success' else 'Unknown'
-                  except:
-                      country_code = 'Unknown'
-                  
-                  # 格式: ip#CF.V4.countryCode
-                  f.write(f"{ip}#CF.V4.{country_code}\n")
-                  
-                  # 遵守速率限制
-                  time.sleep(1.5)
+
+                  f.write(f"{ip}#CF.V4\n")
+
+
 
           print(f"✅ 更新完成，当前共有 {len(final_ips)} 个 IP")
+
           EOF
 
+
+
       - name: 提交更新
+
         run: |
+
           git config user.name "github-actions[bot]"
+
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           
+
+          # 检查文件改动
+
           if git diff --quiet hostmonitv4.txt 2>/dev/null; then
+
             echo "IP 列表无变化"
+
           else
+
             git add hostmonitv4.txt
-            git commit -m "更新 CloudFlare IPv4 列表 (共$(wc -l < hostmonitv4.txt)个) ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+
+            git commit -m "更新 CloudFlare IPv4 列表 (共(wc−l<hostmonitv4.txt)个)((date -u +'%Y-%m-%d %H:%M UTC'))"
+
             git push
+
             echo "✅ 已提交更新至 hostmonitv4.txt"
-          fi
+
+          fi 
+
