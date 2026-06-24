@@ -15,11 +15,81 @@ dns:
 proxies:
   - name: github.com/Alvin9999-newpac/fanqiang
     type: hysteria2
-    server: 62.210.124.132
-    port: 64772
+    server: clash-ip1.934618.xyz
+    port: 18271
     password: "github.com/Alvin9999-newpac/fanqiang"
-    sni: bing.com
-    skip-cert-verify: true
+    sni: clash-ip1.934618.xyz
+    skip-cert-verify: false
+    up: "11 Mbps"
+    down: "55 Mbps"
+proxy-groups:
+  - name: "\U0001F680 节点选择"
+    type: select
+    proxies:
+      - ♻️ 自动选择
+      - DIRECT
+      - github.com/Alvin9999-newpac/fanqiang
+  - name: ♻️ 自动选择
+    type: fallback
+    url: "https://www.gstatic.com/generate_204"
+    interval: 5
+    proxies:
+      - github.com/Alvin9999-newpac/fanqiang
+  - name: "\U0001F30D 国外媒体"
+    type: select
+    proxies:
+      - "\U0001F680 节点选择"
+      - ♻️ 自动选择
+      - "\U0001F3AF 全球直连"
+      - github.com/Alvin9999-newpac/fanqiang
+  - name: "\U0001F4F2 电报信息"
+    type: select
+    proxies:
+      - "\U0001F680 节点选择"
+      - "\U0001F3AF 全球直连"
+      - github.com/Alvin9999-newpac/fanqiang
+  - name: Ⓜ️ 微软服务
+    type: select
+    proxies:
+      - "\U0001F3AF 全球直连"
+      - "\U0001F680 节点选择"
+      - github.com/Alvin9999-newpac/fanqiang
+  - name: "\U0001F34E 苹果服务"
+    type: select
+    proxies:
+      - "\U0001F680 节点选择"
+      - "\U0001F3AF 全球直连"
+      - github.com/Alvin9999-newpac/fanqiang
+  - name: "\U0001F3AF 全球直连"
+    type: select
+    proxies:
+      - DIRECT
+      - "\U0001F680 节点选择"
+      - ♻️ 自动选择
+  - name: "\U0001F6D1 全球拦截"
+    type: select
+secret: github.com/Alvin9999-newpac/fanqiang
+mixed-port: 7890
+allow-lan: false
+log-level: info
+dns:
+  enabled: true
+  nameserver:
+    - 119.29.29.29
+    - 223.5.5.5
+  fallback-filter:
+    geoip: false
+    ipcidr:
+      - 240.0.0.0/4
+      - 0.0.0.0/32
+proxies:
+  - name: github.com/Alvin9999-newpac/fanqiang
+    type: hysteria2
+    server: clash-ip1.934618.xyz
+    port: 18271
+    password: "github.com/Alvin9999-newpac/fanqiang"
+    sni: clash-ip1.934618.xyz
+    skip-cert-verify: false
     up: "11 Mbps"
     down: "55 Mbps"
   - name: github.com/Alvin9999-newpac/fanqiang
