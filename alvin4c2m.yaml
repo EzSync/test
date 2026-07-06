@@ -1,4 +1,4 @@
-secret: github.com/Alvin9999-newpac/fanqiang
+secret: https://github.com/Alvin9999-newpac/fanqiang
 mixed-port: 7890
 allow-lan: false
 log-level: info
@@ -13,6 +13,32 @@ dns:
       - 240.0.0.0/4
       - 0.0.0.0/32
 proxies:
+  - name: https://github.com/Alvin9999-newpac/fanqiang
+    type: anytls
+    server: 198.200.57.154
+    port: 22556
+    password: github.com/Alvin9999-newpac/fanqiang
+    udp: true
+    idle-session-check-interval: 30
+    idle-session-timeout: 30
+    min-idle-session: 5
+    sni: bing.com
+    alpn:
+      - h2
+      - http/1.1
+    skip-cert-verify: true
+  - name: github.com/Alvin9999-newpac/fanqiang
+    type: hysteria
+    server: 163.172.117.163
+    port: 36699
+    auth-str: dongtaiwang.com
+    sni: bing.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
   - name: github.com/Alvin9999-newpac/fanqiang
     type: hysteria
     server: 62.210.70.191
@@ -27,9 +53,9 @@ proxies:
     down: "55 Mbps"
   - name: github.com/Alvin9999-newpac/fanqiang
     type: hysteria
-    server: 163.172.117.163
-    port: 36699
-    auth-str: dongtaiwang.com
+    server: 62.210.70.191
+    port: 23556
+    auth-str: github.com/Alvin9999-newpac/fanqiang
     sni: bing.com
     skip-cert-verify: true
     alpn:
@@ -37,30 +63,6 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
-  - name: https://github.com/Alvin9999-newpac/fanqiang
-    server: 5.178.101.117
-    port: 30006
-    type: tuic
-    uuid: 36106e0f-4d9a-470b-a3fd-535f3b7a1e92
-    password: dongtaiwang.com
-    sni: www.microsoft.com
-    alpn: [h3]
-    request-timeout: 8000
-    udp-relay-mode: native
-    skip-cert-verify: true
-    congestion-controller: bbr
-  - name: https://github.com/Alvin9999-newpac/fanqiang
-    server: 5.178.101.117
-    port: 30006
-    type: tuic
-    uuid: 36106e0f-4d9a-470b-a3fd-535f3b7a1e92
-    password: dongtaiwang.com
-    sni: www.microsoft.com
-    alpn: [h3]
-    request-timeout: 8000
-    udp-relay-mode: native
-    skip-cert-verify: true
-    congestion-controller: bbr
   - name: github.com/Alvin9999-newpac/fanqiang
     type: hysteria
     server: 2a14:7584:d097::a
@@ -91,38 +93,38 @@ proxy-groups:
     proxies:
       - ♻️ 自动选择
       - DIRECT
-      - github.com/Alvin9999-newpac/fanqiang
+      - https://github.com/Alvin9999-newpac/fanqiang
   - name: ♻️ 自动选择
     type: fallback
     url: "https://www.gstatic.com/generate_204"
     interval: 5
     proxies:
-      - github.com/Alvin9999-newpac/fanqiang
+      - https://github.com/Alvin9999-newpac/fanqiang
   - name: "\U0001F30D 国外媒体"
     type: select
     proxies:
       - "\U0001F680 节点选择"
       - ♻️ 自动选择
       - "\U0001F3AF 全球直连"
-      - github.com/Alvin9999-newpac/fanqiang
+      - https://github.com/Alvin9999-newpac/fanqiang
   - name: "\U0001F4F2 电报信息"
     type: select
     proxies:
       - "\U0001F680 节点选择"
       - "\U0001F3AF 全球直连"
-      - github.com/Alvin9999-newpac/fanqiang
+      - https://github.com/Alvin9999-newpac/fanqiang
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - "\U0001F3AF 全球直连"
       - "\U0001F680 节点选择"
-      - github.com/Alvin9999-newpac/fanqiang
+      - https://github.com/Alvin9999-newpac/fanqiang
   - name: "\U0001F34E 苹果服务"
     type: select
     proxies:
       - "\U0001F680 节点选择"
       - "\U0001F3AF 全球直连"
-      - github.com/Alvin9999-newpac/fanqiang
+      - https://github.com/Alvin9999-newpac/fanqiang
   - name: "\U0001F3AF 全球直连"
     type: select
     proxies:
@@ -145,6 +147,6 @@ proxy-groups:
       - "\U0001F680 节点选择"
       - "\U0001F3AF 全球直连"
       - ♻️ 自动选择
-      - github.com/Alvin9999-newpac/fanqiang
+      - https://github.com/Alvin9999-newpac/fanqiang
 rules:
   - "MATCH,\U0001F680 节点选择"
