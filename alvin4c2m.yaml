@@ -14,19 +14,17 @@ dns:
       - 0.0.0.0/32
 proxies:
   - name: https://github.com/Alvin9999-newpac/fanqiang
-    type: anytls
-    server: 198.200.57.154
-    port: 22556
-    password: github.com/Alvin9999-newpac/fanqiang
-    udp: true
-    idle-session-check-interval: 30
-    idle-session-timeout: 30
-    min-idle-session: 5
+    type: hysteria
+    server: 62.210.70.191
+    port: 23556
+    auth-str: github.com/Alvin9999-newpac/fanqiang
     sni: bing.com
-    alpn:
-      - h2
-      - http/1.1
     skip-cert-verify: true
+    alpn:
+      - h3
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
   - name: github.com/Alvin9999-newpac/fanqiang
     type: hysteria
     server: 163.172.117.163
