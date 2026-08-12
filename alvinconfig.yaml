@@ -1,4 +1,4 @@
-secret: https://github.com/Alvin9999-newpac/fanqiang
+secret: github.com/Alvin9999-newpac/fanqiang
 mixed-port: 7890
 allow-lan: false
 log-level: info
@@ -13,58 +13,56 @@ dns:
       - 240.0.0.0/4
       - 0.0.0.0/32
 proxies:
-  - name: https://github.com/Alvin9999-newpac/fanqiang
-    type: anytls
-    server: fan2.856098.xyz
-    port: 8443
-    password: dongtaiwang.com
-    client-fingerprint: chrome
-    udp: true
-    idle-session-check-interval: 30
-    idle-session-timeout: 30
-    min-idle-session: 0
+  - name: github.com/Alvin9999-newpac/fanqiang
+    type: hysteria
+    server: tw-25.497489.xyz
+    port: 10099
+    auth-str: github.com/Alvin9999-newpac/fanqiang
+    sni: tw-25.497489.xyz
+    skip-cert-verify: false
     alpn:
-      - h2
-      - http/1.1
-    skip-cert-verify: true
+      - h3
+    protocol: udp
+    up: "20 Mbps"
+    down: "20 Mbps"
 proxy-groups:
   - name: "\U0001F680 节点选择"
     type: select
     proxies:
       - ♻️ 自动选择
       - DIRECT
-      - https://github.com/Alvin9999-newpac/fanqiang
+      - github.com/Alvin9999-newpac/fanqiang
   - name: ♻️ 自动选择
     type: fallback
     url: "https://www.gstatic.com/generate_204"
     interval: 5
     proxies:
-      - https://github.com/Alvin9999-newpac/fanqiang
+      - github.com/Alvin9999-newpac/fanqiang
   - name: "\U0001F30D 国外媒体"
     type: select
     proxies:
       - "\U0001F680 节点选择"
       - ♻️ 自动选择
       - "\U0001F3AF 全球直连"
-      - https://github.com/Alvin9999-newpac/fanqiang
+      - github.com/Alvin9999-newpac/fanqiang
   - name: "\U0001F4F2 电报信息"
     type: select
     proxies:
       - "\U0001F680 节点选择"
       - "\U0001F3AF 全球直连"
-      - https://github.com/Alvin9999-newpac/fanqiang
+      - github.com/Alvin9999-newpac/fanqiang
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
       - "\U0001F3AF 全球直连"
       - "\U0001F680 节点选择"
-      - https://github.com/Alvin9999-newpac/fanqiang
+      - github.com/Alvin9999-newpac/fanqiang
   - name: "\U0001F34E 苹果服务"
     type: select
     proxies:
       - "\U0001F680 节点选择"
       - "\U0001F3AF 全球直连"
-      - https://github.com/Alvin9999-newpac/fanqiang
+      - github.com/Alvin9999-newpac/fanqiang
   - name: "\U0001F3AF 全球直连"
     type: select
     proxies:
@@ -87,6 +85,6 @@ proxy-groups:
       - "\U0001F680 节点选择"
       - "\U0001F3AF 全球直连"
       - ♻️ 自动选择
-      - https://github.com/Alvin9999-newpac/fanqiang
+      - github.com/Alvin9999-newpac/fanqiang
 rules:
   - "MATCH,\U0001F680 节点选择"
