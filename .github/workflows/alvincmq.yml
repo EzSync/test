@@ -1,4 +1,4 @@
-name: Merge ClashMeta&Quick YAML Nodes from GitLab
+name: Merge CM&Q YAML Nodes from GitLab
 
 on:
   schedule:
@@ -22,11 +22,15 @@ jobs:
 
       - name: Merge YAML files and deduplicate nodes
         run: |
+          # Create temp directory and switch to it
+          mkdir -p temp
+          cd temp
+
           # Start with the current alvincmq.yaml (or create an empty one if it doesn't exist)
-          cp -n alvincmq.yaml temp/alvincmq.yaml || true
+          cp -n ../alvincmq.yaml alvincmq.yaml || touch alvincmq.yaml
 
           # List of raw YAML URLs (one per line)
-          cat > temp/urls.txt << 'EOF'
+          cat > urls.txt << 'EOF'
           https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/1/config.yaml
           https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/2/config.yaml
           https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/3/config.yaml
@@ -46,23 +50,24 @@ jobs:
             fi
             echo "Fetching: $url"
             # Download the YAML, strip comments, and append
-            curl -s "$url" | yq eval-all 'select(fileIndex == 0) *+ select(fileIndex == 1)' - > temp/tmp.yaml
-            cat temp/tmp.yaml >> temp/alvincmq.yaml
-            rm temp/tmp.yaml
-          done < temp/urls.txt
+            curl -s "$url" | yq eval-all 'select(fileIndex == 0) *+ select(fileIndex == 1)' - > tmp.yaml
+            cat tmp.yaml >> alvincmq.yaml
+            rm tmp.yaml
+          done < urls.txt
 
           # Deduplicate while preserving the original order of first appearance
           yq eval-all '
             . as $item ireduce ({}; .[$item.name] = $item) |
             .[] |
             select(.name != null)
-          ' temp/alvincmq.yaml > temp/dedup.yaml
+          ' alvincmq.yaml > dedup.yaml
 
           # Restore the original comment at the top
-          echo 'Allvin clash meta files nodes:' > alvincmq.yaml
-          cat temp/dedup.yaml >> alvincmq.yaml
+          echo 'Allvin clash meta files nodes:' > ../alvincmq.yaml
+          cat dedup.yaml >> ../alvincmq.yaml
 
           # Clean up temp files
+          cd ..
           rm -rf temp
 
       - name: Commit and push changes
