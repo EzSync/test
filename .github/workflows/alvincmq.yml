@@ -1,8 +1,8 @@
-name: Merge ClashMeta2 and Quick YAML Nodes
+name: Merge YAML Nodes from GitLab
 
 on:
   schedule:
-    # Runs automatically every day at 03:00 (3 AM) UTC
+    # Runs automatically every day at 03:00 UTC
     - cron: '0 3 * * *'
   workflow_dispatch:  # Allows manual trigger from the Actions tab
 
@@ -12,11 +12,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Fetch the source file
-        run: |
-          mkdir -p temp
-          curl -L -o temp/Allvin.CM.Q.txt https://raw.githubusercontent.com/EzSync/test/main/Allvin.CM.Q.txt
 
       - name: Install yq (latest release)
         run: |
@@ -30,20 +25,31 @@ jobs:
           # Start with the current alvincmq.yaml (or create an empty one if it doesn't exist)
           cp -n alvincmq.yaml temp/alvincmq.yaml || true
 
-          # Remove the first comment line from each source file
-          sed -i '1d' temp/Allvin.CM.Q.txt
+          # List of raw YAML URLs (one per line)
+          cat > temp/urls.txt << 'EOF'
+          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/1/config.yaml
+          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/2/config.yaml
+          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/3/config.yaml
+          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/4/config.yaml
+          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/5/config.yaml
+          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/6/config.yaml
+          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/1/config.yaml
+          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/2/config.yaml
+          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/3/config.yaml
+          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/4/config.yaml
+          EOF
 
-          # Download and merge each URL (one per line) into the temp file
+          # Download and merge each YAML file into temp/alvincmq.yaml
           while IFS= read -r url || [[ -n "$url" ]]; do
             if [[ "$url" =~ ^[[:space:]]*# ]]; then
-              continue  # Skip comment lines
+              continue  # Skip any comment lines
             fi
             echo "Fetching: $url"
             # Download the YAML, strip comments, and append
             curl -s "$url" | yq eval-all 'select(fileIndex == 0) *+ select(fileIndex == 1)' - > temp/tmp.yaml
             cat temp/tmp.yaml >> temp/alvincmq.yaml
             rm temp/tmp.yaml
-          done < temp/Allvin.CM.Q.txt
+          done < temp/urls.txt
 
           # Deduplicate while preserving the original order of first appearance
           yq eval-all '
