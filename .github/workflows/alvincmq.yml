@@ -1,4 +1,4 @@
-name: Merge YAML Nodes from GitLab
+name: Merge ClashMeta&Quick YAML Nodes from GitLab
 
 on:
   schedule:
