@@ -1,0 +1,68 @@
+name: Merge ClashMeta2 and Quick YAML Nodes
+
+on:
+  schedule:
+    # Runs automatically every day at 03:00 (3 AM) UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:  # Allows manual trigger from the Actions tab
+
+jobs:
+  merge-nodes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch the source file
+        run: |
+          mkdir -p temp
+          curl -L -o temp/Allvin.CM.Q.txt https://raw.githubusercontent.com/EzSync/test/main/Allvin.CM.Q.txt
+
+      - name: Install yq (latest release)
+        run: |
+          sudo apt-get update && sudo apt-get install -y curl
+          curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq
+          chmod +x /usr/local/bin/yq
+          yq --version
+
+      - name: Merge YAML files and deduplicate nodes
+        run: |
+          # Start with the current alvincmq.yaml (or create an empty one if it doesn't exist)
+          cp -n alvincmq.yaml temp/alvincmq.yaml || true
+
+          # Remove the first comment line from each source file
+          sed -i '1d' temp/Allvin.CM.Q.txt
+
+          # Download and merge each URL (one per line) into the temp file
+          while IFS= read -r url || [[ -n "$url" ]]; do
+            if [[ "$url" =~ ^[[:space:]]*# ]]; then
+              continue  # Skip comment lines
+            fi
+            echo "Fetching: $url"
+            # Download the YAML, strip comments, and append
+            curl -s "$url" | yq eval-all 'select(fileIndex == 0) *+ select(fileIndex == 1)' - > temp/tmp.yaml
+            cat temp/tmp.yaml >> temp/alvincmq.yaml
+            rm temp/tmp.yaml
+          done < temp/Allvin.CM.Q.txt
+
+          # Deduplicate while preserving the original order of first appearance
+          yq eval-all '
+            . as $item ireduce ({}; .[$item.name] = $item) |
+            .[] |
+            select(.name != null)
+          ' temp/alvincmq.yaml > temp/dedup.yaml
+
+          # Restore the original comment at the top
+          echo 'Allvin clash meta files nodes:' > alvincmq.yaml
+          cat temp/dedup.yaml >> alvincmq.yaml
+
+          # Clean up temp files
+          rm -rf temp
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add alvincmq.yaml
+          git commit -m "ci: Merge & deduplicate YAML nodes (automated)" || echo "No changes to commit"
+          git push
