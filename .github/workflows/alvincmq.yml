@@ -1,4 +1,4 @@
-name: Merge Allvin CMQ Nodes
+name: Allvin CMQ Nodes Merge
 
 on:
   workflow_dispatch:
