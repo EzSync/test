@@ -1,79 +1,157 @@
-name: Merge CM&Q YAML Nodes from GitLab
+name: Merge Allvin CMQ Nodes
 
 on:
+  workflow_dispatch:
+
   schedule:
-    # Runs automatically every day at 03:00 UTC
-    - cron: '0 3 * * *'
-  workflow_dispatch:  # Allows manual trigger from the Actions tab
+    # 03:00 China Standard Time (UTC+8) = 19:00 UTC, previous day
+    - cron: "0 19 * * *"
+
+permissions:
+  contents: write
 
 jobs:
   merge-nodes:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install yq (latest release)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python packages
         run: |
-          sudo apt-get update && sudo apt-get install -y curl
-          curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq
-          chmod +x /usr/local/bin/yq
-          yq --version
+          python -m pip install --upgrade pip
+          pip install pyyaml requests
 
-      - name: Merge YAML files and deduplicate nodes
+      - name: Download, merge, and remove duplicate nodes
+        shell: bash
         run: |
-          # Create temp directory and switch to it
-          mkdir -p temp
-          cd temp
+          cat > merge_nodes.py <<'PY'
+          import hashlib
+          from pathlib import Path
 
-          # Start with the current alvincmq.yaml (or create an empty one if it doesn't exist)
-          cp -n ../alvincmq.yaml alvincmq.yaml || touch alvincmq.yaml
+          import requests
+          import yaml
 
-          # List of raw YAML URLs (one per line)
-          cat > urls.txt << 'EOF'
-          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/1/config.yaml
-          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/2/config.yaml
-          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/3/config.yaml
-          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/4/config.yaml
-          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/5/config.yaml
-          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/6/config.yaml
-          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/1/config.yaml
-          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/2/config.yaml
-          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/3/config.yaml
-          https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/4/config.yaml
-          EOF
+          OUTPUT_FILE = Path("alvincmq.yaml")
 
-          # Download and merge each YAML file into temp/alvincmq.yaml
-          while IFS= read -r url || [[ -n "$url" ]]; do
-            if [[ "$url" =~ ^[[:space:]]*# ]]; then
-              continue  # Skip any comment lines
-            fi
-            echo "Fetching: $url"
-            # Download the YAML, strip comments, and append
-            curl -s "$url" | yq eval-all 'select(fileIndex == 0) *+ select(fileIndex == 1)' - > tmp.yaml
-            cat tmp.yaml >> alvincmq.yaml
-            rm tmp.yaml
-          done < urls.txt
+          # Fixed list of subscription URLs
+          SUBSCRIPTION_URLS = [
+              "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/1/config.yaml",
+              "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/2/config.yaml",
+              "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/3/config.yaml",
+              "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/4/config.yaml",
+              "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/5/config.yaml",
+              "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/6/config.yaml",
+              "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/1/config.yaml",
+              "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/2/config.yaml",
+              "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/3/config.yaml",
+              "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/4/config.yaml",
+          ]
 
-          # Deduplicate while preserving the original order of first appearance
-          yq eval-all '
-            . as $item ireduce ({}; .[$item.name] = $item) |
-            .[] |
-            select(.name != null)
-          ' alvincmq.yaml > dedup.yaml
+          session = requests.Session()
+          session.headers.update(
+              {"User-Agent": "GitHub-Actions-Node-Merger/1.0"}
+          )
 
-          # Restore the original comment at the top
-          echo 'Allvin clash meta files nodes:' > ../alvincmq.yaml
-          cat dedup.yaml >> ../alvincmq.yaml
+          unique_proxies = []
+          seen_nodes = set()
+          failures = []
 
-          # Clean up temp files
-          cd ..
-          rm -rf temp
+          for url in SUBSCRIPTION_URLS:
+              try:
+                  response = session.get(url, timeout=45)
+                  response.raise_for_status()
 
-      - name: Commit and push changes
+                  parsed = yaml.safe_load(response.text)
+
+                  # Support both:
+                  #   { proxies: [ ... ] }
+                  #   [ ... ]
+                  if isinstance(parsed, dict):
+                      proxies = parsed.get("proxies", [])
+                  elif isinstance(parsed, list):
+                      proxies = parsed
+                  else:
+                      proxies = []
+
+                  if not isinstance(proxies, list):
+                      raise ValueError("The proxies section is not a YAML list")
+
+                  added = 0
+
+                  for proxy in proxies:
+                      if not isinstance(proxy, dict):
+                          continue
+
+                      # Deduplicate by full normalized node definition.
+                      normalized = yaml.safe_dump(
+                          proxy,
+                          allow_unicode=True,
+                          sort_keys=True,
+                          default_flow_style=False,
+                      )
+                      fingerprint = hashlib.sha256(
+                          normalized.encode("utf-8")
+                      ).hexdigest()
+
+                      if fingerprint not in seen_nodes:
+                          seen_nodes.add(fingerprint)
+                          unique_proxies.append(proxy)
+                          added += 1
+
+                  print(f"Processed {url}: added {added} unique node(s)")
+
+              except Exception as error:
+                  failures.append(f"{url} — {error}")
+                  print(f"WARNING: Could not process {url}: {error}")
+
+          if not unique_proxies:
+              raise RuntimeError(
+                  "No valid proxy nodes were collected; output file was not written."
+              )
+
+          output = {
+              "proxies": unique_proxies
+          }
+
+          OUTPUT_FILE.write_text(
+              yaml.safe_dump(
+                  output,
+                  allow_unicode=True,
+                  sort_keys=False,
+                  default_flow_style=False,
+                  width=1000,
+              ),
+              encoding="utf-8",
+          )
+
+          print(f"\nCreated {OUTPUT_FILE} with {len(unique_proxies)} unique node(s).")
+
+          if failures:
+              print("\nSources that could not be processed:")
+              for failure in failures:
+                  print(f"- {failure}")
+          PY
+
+          python merge_nodes.py
+
+      - name: Commit updated YAML file
+        shell: bash
         run: |
+          if git diff --quiet -- alvincmq.yaml; then
+            echo "alvincmq.yaml has not changed."
+            exit 0
+          fi
+
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add alvincmq.yaml
-          git commit -m "ci: Merge & deduplicate YAML nodes (automated)" || echo "No changes to commit"
+          git commit -m "chore: update merged CMQ nodes"
           git push
