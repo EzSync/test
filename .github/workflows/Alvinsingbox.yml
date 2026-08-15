@@ -1,0 +1,68 @@
+name: "Alvin Sing-box Workflow"
+
+on:
+  schedule:
+    - cron: '30 22 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  merge_json:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl jq
+
+    - name: Download and merge Sing-box JSON files
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        URL_1="https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/singbox/1/config.json"
+        URL_2="https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/singbox/2/config.json"
+
+        curl --fail --location --silent --show-error \
+          -o config1.json "$URL_1"
+
+        curl --fail --location --silent --show-error \
+          -o config2.json "$URL_2"
+
+        # Confirm both downloaded files are valid JSON.
+        jq empty config1.json
+        jq empty config2.json
+
+        # Keep config1's complete Sing-box structure, replace .outbounds
+        # with unique combined outbounds from both subscription files.
+        jq -s '
+          .[0] as $base
+          | (
+              [
+                .[]?.outbounds[]?
+                | select(type == "object")
+              ]
+              | unique_by(tojson)
+            ) as $merged_outbounds
+          | $base
+          | .outbounds = $merged_outbounds
+        ' config1.json config2.json > alvins.json
+
+        # Confirm the generated subscription is valid JSON.
+        jq empty alvins.json
+
+        echo "Created alvins.json with $(jq ".outbounds | length" alvins.json) unique outbounds."
+
+    - name: Commit and push changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "Auto-update: Merge Sing-box configurations"
+        file_pattern: alvins.json
+        commit_user_name: GitHub Action
+        commit_user_email: action@github.com
