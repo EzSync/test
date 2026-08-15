@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
   schedule:
-    # 11:00 Standard Time (UTC+8)
-    - cron: "0 3 * * *"
+    # 07:00 Standard Time (UTC+8)
+    - cron: "0 23 * * *"
 
 permissions:
   contents: write
