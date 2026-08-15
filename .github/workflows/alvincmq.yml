@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
   schedule:
-    # 03:00 China Standard Time (UTC+8) = 19:00 UTC, previous day
-    - cron: "0 19 * * *"
+    # 11:00 Standard Time (UTC+8)
+    - cron: "0 3 * * *"
 
 permissions:
   contents: write
