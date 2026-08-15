@@ -23,20 +23,32 @@ jobs:
 
     - name: Download and Merge YAML Files
       run: |
-        # Download the files
-        for i in {1..6}; do
-          curl -sL -o "config$i.yaml" "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/$i/config.yaml"
+        # Define the 10 subscription URLs
+        URLS=(
+          "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/1/config.yaml"
+          "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/2/config.yaml"
+          "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/3/config.yaml"
+          "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/4/config.yaml"
+          "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/5/config.yaml"
+          "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/6/config.yaml"
+          "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/1/config.yaml"
+          "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/2/config.yaml"
+          "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/3/config.yaml"
+          "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/quick/4/config.yaml"
+        )
+
+        # Download all files
+        for i in "${!URLS[@]}"; do
+          curl -sL -o "config$((i+1)).yaml" "${URLS[$i]}"
         done
 
-        # Correct Way to Merge: Create a base file and append proxies from others
-        # This assumes you want all 'proxies' from all files combined.
-        # We take the full structure of config1 and append the proxy lists from 2-6.
+        # Start from the first file as the base
         cp config1.yaml alvin4c2m.yaml
-        
-        for i in {2..6}; do
+
+        # Merge proxies from config2.yaml to config10.yaml into alvin4c2m.yaml
+        for i in {2..10}; do
           echo "Merging proxies from config$i.yaml..."
-          # This command appends only the 'proxies' array items to the main file
-          yq eval-all 'select(fileIndex == 0).proxies += select(fileIndex == 1).proxies | select(fileIndex == 0)' alvin4c2m.yaml config$i.yaml -i
+          yq eval-all 'select(fileIndex == 0).proxies += select(fileIndex == 1).proxies | select(fileIndex == 0)' alvin4c2m.yaml "config$i.yaml" -i
         done
 
     - name: Commit and push changes
