@@ -1,57 +1,41 @@
-name: Update UOUIN.txt
+name: Update UOUIN List
 
 on:
   schedule:
-    - cron: "0 8,22 * * *"
-  workflow_dispatch:
-
-permissions:
-  contents: write
+    - cron: '0 10,22 * * *' # 每天北京时间 6:00 和 18:00 运行 (UTC 22:00 和 10:00)
+  workflow_dispatch: # 支持手动触发
 
 jobs:
-  update-uouin:
+  update-file:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download and process source
-        shell: bash
+      - name: Generate and process UOUIN.txt
         run: |
-          set -euo pipefail
+          # 每次运行前清空或初始化 UOUIN.txt
+          > UOUIN.txt
 
-          curl -fsSL "https://090227.pages.dev/bestcf?isp=all&ips=20" \
-            | awk '
-              {
-                # 删除当前行中的所有空白字符
-                gsub(/[[:space:]]/, "", $0)
+          # 1 & 2 & 3. 下载内容、去掉空格、去掉第一个 '|' 及之后的部分，并写入文件
+          curl -s "https://090227.pages.dev/bestcf?isp=all&ips=20" | while IFS= read -r line; do
+            # 去掉行内所有空格
+            line=$(echo "$line" | tr -d '[:space:]')
+            
+            # 如果行为空则跳过
+            [ -z "$line" ] && continue
 
-                # 截取第一个 | 之前的内容
-                first = index($0, "|")
+            # 去掉第一个 '|' 及之后的部分（保留第一个 '|' 左边的内容）
+            processed_line=$(echo "$line" | cut -d'|' -f1)
 
-                if (first > 0) {
-                  print substr($0, 1, first - 1)
-                } else {
-                  print $0
-                }
-              }
-            ' > UOUIN.txt
+            # 写入 UOUIN.txt
+            echo "$processed_line" >> UOUIN.txt
+          done
 
-      - name: Commit and push UOUIN.txt
-        shell: bash
+      - name: Commit and push if changes
         run: |
-          set -euo pipefail
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add UOUIN.txt
-
-          if git diff --cached --quiet; then
-            echo "UOUIN.txt 没有变化。"
-            exit 0
-          fi
-
-          git commit -m "Update UOUIN.txt"
-          git push
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update UOUIN.txt" && git push)
