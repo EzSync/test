@@ -1,1 +1,6 @@
-https://bestcf.pages.dev/random-region/US/100.txt
+https://bestcf.pages.dev/random-region/US/20.txt
+https://bestcf.pages.dev/random-region/HK/20.txt
+https://bestcf.pages.dev/random-region/TW/10.txt
+https://bestcf.pages.dev/random-region/SG/10.txt
+https://bestcf.pages.dev/random-region/JP/10.txt
+https://bestcf.pages.dev/random-region/KR/10.txt
