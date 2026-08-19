@@ -1,74 +1,49 @@
-name: Update Cloudflare IP Files
+name: Update BestCF IP List
 
 on:
   schedule:
-    - cron: "0 10,22 * * *"
-  workflow_dispatch:
-
-permissions:
-  contents: write
+    - cron: '0 22,10 * * *' # 每天北京时间 6:00 和 18:00 (UTC 22:00 和 10:00)
+  workflow_dispatch: # 支持手动触发
 
 jobs:
-  update-ip-files:
+  update-file:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download and process bestcf.txt
-        shell: bash
+      - name: Process URLs and generate cfbestip.txt
         run: |
-          set -euo pipefail
+          # 1. 下载最新的源文件列表
+          curl -s "https://raw.githubusercontent.com/EzSync/test/refs/heads/main/bestcf.txt" > bestcf.txt
+          
+          # 2. 初始化目标文件
+          > cfbestip.txt
 
-          curl -fsSL \
-            "https://raw.githubusercontent.com/EzSync/test/refs/heads/main/bestcf.txt" \
-            -o bestcf.source.txt
-
-          awk '
-            {
-              # 删除每行中的所有空白字符
-              gsub(/[[:space:]]/, "", $0)
-
-              # 将 | 替换为 -
-              gsub(/\|/, "-", $0)
-
-              # IPv4 地址：只保留每行发现的第一个 IP
-              if (match($0, /([0-9]{1,3}\.){3}[0-9]{1,3}/)) {
-                ip = substr($0, RSTART, RLENGTH)
-                prefix = substr($0, 1, RSTART - 1)
-                suffix = substr($0, RSTART + RLENGTH)
-
-                # 删除同一行中的其他 IPv4 地址
-                gsub(/([0-9]{1,3}\.){3}[0-9]{1,3}/, "", suffix)
-
-                print prefix ip suffix
-              } else {
-                print $0
-              }
-            }
-          ' bestcf.source.txt > processed.txt
-
-          # 覆盖两个目标文件
-          cp processed.txt bestcf.txt
-          cp processed.txt cfbestip.txt
-
-          rm -f bestcf.source.txt processed.txt
+          # 3. 循环处理 bestcf.txt 中的每一个 URL
+          while IFS= read -r url || [ -n "$url" ]; do
+            [ -z "$url" ] && continue
+            
+            # 获取 URL 内容并处理每一行
+            curl -s "$url" | while IFS= read -r line; do
+              [ -z "$line" ] && continue
+              
+              # 处理逻辑：
+              # a. 替换 '|' 为 '-'
+              # b. 去掉空格
+              # c. 只保留第一个 '-' 之前的内容 (即只保留第一个IP)
+              processed=$(echo "$line" | sed 's/|/-/g' | tr -d '[:space:]' | cut -d'-' -f1)
+              
+              # 写入 cfbestip.txt
+              echo "$processed" >> cfbestip.txt
+            done
+          done < bestcf.txt
 
       - name: Commit and push changes
-        shell: bash
         run: |
-          set -euo pipefail
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add bestcf.txt cfbestip.txt
-
-          if git diff --cached --quiet; then
-            echo "文件没有变化。"
-            exit 0
-          fi
-
-          git commit -m "Update bestcf.txt and cfbestip.txt"
-          git push
+          # 如果文件有更新，则提交
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update cfbestip.txt" && git push)
