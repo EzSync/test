@@ -33,21 +33,38 @@ jobs:
               # b. 去掉每行中的空格
               processed_line=$(echo "$line" | sed 's/|/-/g' | tr -d '[:space:]')
               
-              # c. 校验这一行中是否包含合法的 IP 地址或域名
-              # 如果连一个 IP 或域名都没有，直接跳过（去掉这一行）
-              if echo "$processed_line" | grep -Eq '([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-fA-F:]+:+)+[0-9a-fA-F]+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+'; then
-                
-                # d. 检查如果一行中包含两个或更多 IP 地址或域名，则只保留第一个（即通过截取或过滤，使其整行只允许出现一个地址）
-                # 这里使用 awk 或 sed 确保整行中若出现第二个 IP/域名结构后面的内容被裁剪，或者根据您的需求保留其他说明文字但只允许存在一个地址
-                # 下面逻辑：通过对常见的 IP/域名模式匹配，截断第二个地址出现之后的内容，保留后面的其它附属说明（如端口、延迟等）
-                
-                # 写入处理后的完整行
-                echo "$processed_line" >> cfbestip.txt
+              # c. 核心去重与截断处理：
+              # 如果一行中由于拼接导致后面重复出现了相同的 IP/域名，利用 awk 提取第一个出现的 IP/域名，
+              # 并把从“第二个相同 IP/域名”或其连接符开始后面多余的重复部分切掉，只保留第一次出现的地址和中间的说明（如 #地区...）
+              cleaned_line=$(echo "$processed_line" | awk '
+                # 匹配 IPv4 或 域名 (含可选端口) 的正则
+                match($0, /[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]+)?|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:[0-9]+)?/) {
+                  # 找到第一个地址
+                  ip1 = substr($0, RSTART, RLENGTH)
+                  
+                  # 查找第一个地址在字符串中第一次出现的位置
+                  pos1 = RSTART
+                  
+                  # 在第一个地址之后，查找有没有第二次出现相同的地址
+                  rest = substr($0, pos1 + RLENGTH)
+                  if (index(rest, ip1) > 0) {
+                    # 如果后面重复出现了，就只截取到第二次出现之前的内容（或者去掉重复拼接部分）
+                    # 这里精确切掉从第二个 ip1 开始及之后的内容，只保留中间的备注（如 #地区...）
+                    # 重新组合：前半部分 + 中间说明（去掉结尾重复的 -ip1）
+                    sub("-"ip1".*", "", $0)
+                  }
+                  print $0
+                }
+              ')
+              
+              # 如果处理后不为空，则写入文件
+              if [ -n "$cleaned_line" ]; then
+                echo "$cleaned_line" >> cfbestip.txt
               fi
             done
           done < bestcf.txt
 
-          # 去重（可选）
+          # 去重
           sort -u cfbestip.txt -o cfbestip.txt
 
       - name: Commit and push changes
@@ -55,4 +72,4 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add bestcf.txt cfbestip.txt
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update cfbestip.txt retaining full line with single IP/domain" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update cfbestip.txt and remove trailing duplicate IP/domain" && git push)
