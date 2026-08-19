@@ -2,9 +2,7 @@ name: Update UOUIN.txt
 
 on:
   schedule:
-    # GitHub Actions 的 cron 使用 UTC
-    - cron: "0 22 * * *"
-    - cron: "0 8 * * *"
+    - cron: "0 8,22 * * *"
   workflow_dispatch:
 
 permissions:
@@ -26,25 +24,17 @@ jobs:
           curl -fsSL "https://090227.pages.dev/bestcf?isp=all&ips=20" \
             | awk '
               {
-                # 去掉当前行中的所有空白字符
+                # 删除当前行中的所有空白字符
                 gsub(/[[:space:]]/, "", $0)
 
-                # 查找第一个 |
+                # 截取第一个 | 之前的内容
                 first = index($0, "|")
-                if (first == 0) {
-                  next
-                }
 
-                # 从第一个 | 后的内容中查找第二个 |
-                rest = substr($0, first + 1)
-                second = index(rest, "|")
-                if (second == 0) {
-                  next
+                if (first > 0) {
+                  print substr($0, 1, first - 1)
+                } else {
+                  print $0
                 }
-
-                # 截取第二个 | 之前的内容，
-                # 并把第一个 | 替换为 -
-                print substr($0, 1, first - 1) "-" substr(rest, 1, second - 1)
               }
             ' > UOUIN.txt
 
