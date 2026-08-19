@@ -1,0 +1,63 @@
+name: Update UOUIN.txt
+
+on:
+  schedule:
+    - cron: "0 22,8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-uouin:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download and process source file
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          curl -fsSL "https://bestcf.pages.dev/uouin/all.txt" \
+            | awk '
+              NR == 1 {
+                next
+              }
+              {
+                first = index($0, "|")
+                if (first == 0) {
+                  next
+                }
+
+                rest = substr($0, first + 1)
+                second = index(rest, "|")
+
+                if (second == 0) {
+                  next
+                }
+
+                result = substr($0, 1, first - 1) "-" substr(rest, 1, second - 1)
+                print result
+              }
+            ' > UOUIN.txt
+
+      - name: Commit and push changes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add UOUIN.txt
+
+          if git diff --cached --quiet; then
+            echo "UOUIN.txt has no changes."
+            exit 0
+          fi
+
+          git commit -m "Update UOUIN.txt"
+          git push
