@@ -20,39 +20,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download and process source file
+      - name: Download and process source
         shell: bash
         run: |
           set -euo pipefail
 
-          curl -fsSL "https://bestcf.pages.dev/uouin/all.txt" \
+          curl -fsSL "https://090227.pages.dev/bestcf?isp=all&ips=20" \
             | awk '
-              NR == 1 {
-                next
-              }
               {
-                # 删除当前行中的所有空格
+                # 删除当前行中的所有空白字符
                 gsub(/[[:space:]]/, "", $0)
 
-                # 找到第一个 |
+                # 查找第一个 |
                 first = index($0, "|")
                 if (first == 0) {
                   next
                 }
 
-                # 在第一个 | 后的内容中寻找第二个 |
+                # 在第一个 | 后面查找第二个 |
                 rest = substr($0, first + 1)
                 second = index(rest, "|")
                 if (second == 0) {
                   next
                 }
 
-                # 保留第二个 | 之前的内容，并将第一个 | 替换为 -
+                # 截取第二个 | 之前的内容，
+                # 并将第一个 | 替换成 -
                 print substr($0, 1, first - 1) "-" substr(rest, 1, second - 1)
               }
             ' > UOUIN.txt
 
-      - name: Commit and push changes
+      - name: Commit and push UOUIN.txt
         shell: bash
         run: |
           set -euo pipefail
