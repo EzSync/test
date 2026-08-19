@@ -15,7 +15,7 @@ jobs:
 
       - name: Process URLs and generate cfbestip.txt
         run: |
-          # 1. 下载最新的源文件列表
+          # 1. 下载最新的源文件列表并替换
           curl -s "https://raw.githubusercontent.com/EzSync/test/refs/heads/main/bestcf.txt" > bestcf.txt
           
           # 2. 初始化目标文件
@@ -29,14 +29,15 @@ jobs:
             curl -s "$url" | while IFS= read -r line; do
               [ -z "$line" ] && continue
               
-              # 处理逻辑：
               # a. 替换 '|' 为 '-'
               # b. 去掉空格
               # c. 只保留第一个 '-' 之前的内容 (即只保留第一个IP)
               processed=$(echo "$line" | sed 's/|/-/g' | tr -d '[:space:]' | cut -d'-' -f1)
               
-              # 写入 cfbestip.txt
-              echo "$processed" >> cfbestip.txt
+              # d. 校验是否包含合法的 IP 地址（支持基础 IPv4 和 IPv6 格式），不包含则跳过
+              if echo "$processed" | grep -Eq '([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-fA-F:]+:+)+[0-9a-fA-F]+'; then
+                echo "$processed" >> cfbestip.txt
+              fi
             done
           done < bestcf.txt
 
@@ -45,5 +46,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add bestcf.txt cfbestip.txt
-          # 如果文件有更新，则提交
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update cfbestip.txt" && git push)
+          # 如果文件有更新，则自动提交
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update cfbestip.txt and filter non-IP lines" && git push)
