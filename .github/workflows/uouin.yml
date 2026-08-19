@@ -2,7 +2,11 @@ name: Update UOUIN.txt
 
 on:
   schedule:
-    - cron: "0 22,8 * * *"
+    # GitHub Actions 使用 UTC：
+    # 02:00 UTC = 中国标准时间 10:00
+    # 14:00 UTC = 中国标准时间 22:00
+    - cron: "0 2 * * *"
+    - cron: "0 14 * * *"
   workflow_dispatch:
 
 permissions:
@@ -27,20 +31,24 @@ jobs:
                 next
               }
               {
+                # 删除当前行中的所有空格
+                gsub(/[[:space:]]/, "", $0)
+
+                # 找到第一个 |
                 first = index($0, "|")
                 if (first == 0) {
                   next
                 }
 
+                # 在第一个 | 后的内容中寻找第二个 |
                 rest = substr($0, first + 1)
                 second = index(rest, "|")
-
                 if (second == 0) {
                   next
                 }
 
-                result = substr($0, 1, first - 1) "-" substr(rest, 1, second - 1)
-                print result
+                # 保留第二个 | 之前的内容，并将第一个 | 替换为 -
+                print substr($0, 1, first - 1) "-" substr(rest, 1, second - 1)
               }
             ' > UOUIN.txt
 
@@ -55,7 +63,7 @@ jobs:
           git add UOUIN.txt
 
           if git diff --cached --quiet; then
-            echo "UOUIN.txt has no changes."
+            echo "UOUIN.txt 没有变化。"
             exit 0
           fi
 
