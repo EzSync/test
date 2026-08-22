@@ -1,0 +1,118 @@
+name: Update CF Domains
+
+on:
+  schedule:
+    - cron: '0 23 * * *' # 每天 UTC 23:00 运行（对应北京时间每天 7:00）
+  workflow_dispatch: # 支持手动运行
+
+jobs:
+  update-domains:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run script to fetch and update domains
+        run: |
+          python - << 'EOF'
+          import re
+          import requests
+          from bs4 import BeautifulSoup  # 仅使用标准库/requests/bs4
+
+          url = "https://vps789.com/ranking/"
+          headers = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+          }
+
+          try:
+              response = requests.get(url, headers=headers, timeout=15)
+              response.raise_for_status()
+          except Exception as e:
+              print(f"Error fetching webpage: {e}")
+              exit(1)
+
+          soup = BeautifulSoup(response.text, 'html.parser')
+          
+          # 提取页面中的 20 个优选 IP 域名
+          fetched_domains = []
+          # 匹配 Cloudflare 优选 IP 表格中的域名行
+          for a_tag in soup.find_all('a', href=True):
+              href = a_tag['href']
+              text = a_tag.get_text().strip()
+              # 根据页面结构，过滤出符合域名特征的条目
+              if 'id=11' in href and '.' in text and ' ' not in text and 'ms' not in text and '%' not in text:
+                  if text not in fetched_domains:
+                      fetched_domains.append(text)
+
+          # 如果网页结构直接抓取有限，确保精准截取前20个（或从文本匹配）
+          print(f"Successfully extracted {len(fetched_domains)} domains.")
+
+          # 读取现有的 cfdoms.txt（如果存在）
+          existing_lines = []
+          try:
+              with open('cfdoms.txt', 'r', encoding='utf-8') as f:
+                  for line in f:
+                      clean_line = line.strip()
+                      if clean_line:
+                          existing_lines.append(clean_line)
+          except FileNotFoundError:
+              pass
+
+          # 处理新抓取的域名：规范化格式，每行确保只有一个 #CFdom 后缀
+          new_entries = []
+          for domain in fetched_domains:
+              # 去除可能已存在的后缀防止重复
+              base_domain = re.sub(r'\s*#CFdom\s*$', '', domain).strip()
+              if base_domain:
+                  new_entries.append(f"{base_domain} #CFdom")
+
+          # 处理已有行：同样规范化并去重
+          processed_existing = []
+          for line in existing_lines:
+              base_domain = re.sub(r'\s*#CFdom\s*$', '', line).strip()
+              if base_domain:
+                  processed_existing.append(f"{base_domain} #CFdom")
+
+          # 合并新旧数据，去重（基于完整行或基础域名去重均可，这里按完整行去重）
+          combined = processed_existing + new_entries
+          
+          # 严格去重保持顺序
+          unique_combined = []
+          seen_domains = set()
+          for item in combined:
+              base = item.split()[0]
+              if base not in seen_domains:
+                  seen_domains.add(base)
+                  unique_combined.append(item)
+
+          # 排序
+          unique_combined.sort()
+
+          # 限制最多 30 个
+          final_lines = unique_combined[:30]
+
+          # 写入 cfdoms.txt
+          with open('cfdoms.txt', 'w', encoding='utf-8') as f:
+              for line in final_lines:
+                  f.write(line + '\n')
+
+          print(f"Updated cfdoms.txt with {len(final_lines)} lines.")
+          EOF
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add cfdoms.txt
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update cfdoms.txt automatically" && git push)
