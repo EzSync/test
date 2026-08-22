@@ -1,12 +1,10 @@
 123.cf.090227.xyz#OptDom
 777.ai7777777.xyz#OptDom
 bestcf.030101.xyz#OptDom
-bestcf.030101.xyz#OptDom
 cdn.2020111.xyz#OptDom
 cdns.doon.eu.org#OptDom
 cf.0sm.com#OptDom
 cf.877771.xyz#OptDom
-cf.877774.xyz#OptDom
 cf.877774.xyz#OptDom
 cf.900501.xyz#OptDom
 cf.cloudflare.182682.xyz#OptDom
