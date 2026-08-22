@@ -30,14 +30,18 @@ jobs:
           import requests
           from bs4 import BeautifulSoup
 
-          # 修正为正确的完整网址
           url = "https://vps789.com/ranking/"
+          # 模拟真实主流浏览器的请求头，避免被 Cloudflare 防火墙/WAF 直接拦截
           headers = {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+              "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+              "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+              "Referer": "https://vps789.com/",
+              "Connection": "keep-alive"
           }
 
           try:
-              response = requests.get(url, headers=headers, timeout=15)
+              response = requests.get(url, headers=headers, timeout=20)
               response.raise_for_status()
           except Exception as e:
               print(f"Error fetching webpage: {e}")
@@ -45,12 +49,12 @@ jobs:
 
           soup = BeautifulSoup(response.text, 'html.parser')
           
-          # 精准提取页面中属于 CloudFlare 优选 IP 表格的域名
+          # 精准提取页面中属于 CloudFlare 优选 IP 表格的域名 (href 带有 id=11)
           fetched_domains = []
           for a_tag in soup.find_all('a', href=True):
               href = a_tag['href']
               text = a_tag.get_text().strip()
-              # 根据页面结构，href 通常带有 id=11，同时文本符合域名格式
+              # 匹配带有 id=11 且符合域名特征的条目
               if 'id=11' in href and '.' in text and ' ' not in text and 'ms' not in text and '%' not in text:
                   if text not in fetched_domains:
                       fetched_domains.append(text)
