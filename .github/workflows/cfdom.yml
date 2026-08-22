@@ -29,8 +29,7 @@ jobs:
           import re
           import requests
 
-          # 使用 vps789 的后端 API 接口，避开 Cloudflare 的 HTML 网页防火墙拦截
-          api_url = "https://vps789.com/api/ranking/cf" # 如果该路径有变，可直接替换为实际 API
+          api_url = "https://vps789.com/api/ranking/cf"
           headers = {
               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
               "Accept": "application/json, text/plain, */*"
@@ -41,7 +40,6 @@ jobs:
               response = requests.get(api_url, headers=headers, timeout=15)
               if response.status_code == 200:
                   data = response.json()
-                  # 解析 API 返回的域名列表（适配常见 JSON 结构）
                   items = data.get('data', []) or data.get('list', [])
                   for item in items:
                       domain = item.get('domain') or item.get('ip') or item.get('host')
@@ -50,8 +48,7 @@ jobs:
           except Exception as e:
               print(f"API request warning/failed: {e}")
 
-          # 备用方案：如果 API 路径调整，直接硬编码或通过公共代理获取，
-          # 也可以直接在这里内置您当前页面获取到的这 20 个固定优选 IP 作为兜底保障：
+          # 兜底默认列表
           if not fetched_domains:
               print("Falling back to standard domains list...")
               fetched_domains = [
@@ -77,26 +74,28 @@ jobs:
           except FileNotFoundError:
               pass
 
-          # 规范化新抓取的域名：确保每行有且仅有一个 #CFdom 后缀
+          # 规范化新抓取的域名：确保域名与 #CFdom 之间没有空格
           new_entries = []
           for domain in fetched_domains:
+              # 清除旧的可能存在的标签和空格
               base_domain = re.sub(r'\s*#CFdom\s*$', '', domain).strip()
               if base_domain:
-                  new_entries.append(f"{base_domain} #CFdom")
+                  new_entries.append(f"{base_domain}#CFdom")
 
           # 规范化已有行
           processed_existing = []
           for line in existing_lines:
               base_domain = re.sub(r'\s*#CFdom\s*$', '', line).strip()
               if base_domain:
-                  processed_existing.append(f"{base_domain} #CFdom")
+                  processed_existing.append(f"{base_domain}#CFdom")
 
           # 合并并严格去重
           combined = processed_existing + new_entries
           unique_combined = []
           seen_domains = set()
           for item in combined:
-              base = item.split()[0]
+              # 按 # 分割以获取纯域名来进行去重
+              base = item.split('#')[0]
               if base not in seen_domains:
                   seen_domains.add(base)
                   unique_combined.append(item)
@@ -104,7 +103,7 @@ jobs:
           # 排序
           unique_combined.sort()
 
-          # 保证行数最多 30 个
+          # 保持行数最多 30 个
           final_lines = unique_combined[:30]
 
           # 写入文件
@@ -120,4 +119,4 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add cfdoms.txt
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update cfdoms.txt automatically" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update cfdoms.txt format without space" && git push)
