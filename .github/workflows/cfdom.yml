@@ -28,7 +28,7 @@ jobs:
           python - << 'EOF'
           import re
           import requests
-          from bs4 import BeautifulSoup  # 仅使用标准库/requests/bs4
+          from bs4 import BeautifulSoup
 
           url = "https://vps789.com/ranking/"
           headers = {
@@ -44,18 +44,16 @@ jobs:
 
           soup = BeautifulSoup(response.text, 'html.parser')
           
-          # 提取页面中的 20 个优选 IP 域名
+          # 精准提取页面中属于 CloudFlare 优选 IP 表格的域名
           fetched_domains = []
-          # 匹配 Cloudflare 优选 IP 表格中的域名行
           for a_tag in soup.find_all('a', href=True):
               href = a_tag['href']
               text = a_tag.get_text().strip()
-              # 根据页面结构，过滤出符合域名特征的条目
+              # 匹配带有 id=11 且符合域名格式（包含点、不含空格及无用字符）的条目
               if 'id=11' in href and '.' in text and ' ' not in text and 'ms' not in text and '%' not in text:
                   if text not in fetched_domains:
                       fetched_domains.append(text)
 
-          # 如果网页结构直接抓取有限，确保精准截取前20个（或从文本匹配）
           print(f"Successfully extracted {len(fetched_domains)} domains.")
 
           # 读取现有的 cfdoms.txt（如果存在）
@@ -69,27 +67,25 @@ jobs:
           except FileNotFoundError:
               pass
 
-          # 处理新抓取的域名：规范化格式，每行确保只有一个 #CFdom 后缀
+          # 规范化新抓取的域名：确保每行只有一个 #CFdom
           new_entries = []
           for domain in fetched_domains:
-              # 去除可能已存在的后缀防止重复
               base_domain = re.sub(r'\s*#CFdom\s*$', '', domain).strip()
               if base_domain:
                   new_entries.append(f"{base_domain} #CFdom")
 
-          # 处理已有行：同样规范化并去重
+          # 规范化已有行
           processed_existing = []
           for line in existing_lines:
               base_domain = re.sub(r'\s*#CFdom\s*$', '', line).strip()
               if base_domain:
                   processed_existing.append(f"{base_domain} #CFdom")
 
-          # 合并新旧数据，去重（基于完整行或基础域名去重均可，这里按完整行去重）
+          # 合并并严格按域名去重（优先保留新获取的或者维护已有顺序）
           combined = processed_existing + new_entries
-          
-          # 严格去重保持顺序
           unique_combined = []
           seen_domains = set()
+          # 倒序遍历或正序遍历去重，这里采用保留最新结构并去重
           for item in combined:
               base = item.split()[0]
               if base not in seen_domains:
@@ -99,10 +95,10 @@ jobs:
           # 排序
           unique_combined.sort()
 
-          # 限制最多 30 个
+          # 保持行数最多 30 个
           final_lines = unique_combined[:30]
 
-          # 写入 cfdoms.txt
+          # 写入文件
           with open('cfdoms.txt', 'w', encoding='utf-8') as f:
               for line in final_lines:
                   f.write(line + '\n')
