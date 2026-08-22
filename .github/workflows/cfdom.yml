@@ -30,6 +30,7 @@ jobs:
           import requests
           from bs4 import BeautifulSoup
 
+          # 修正为正确的完整网址
           url = "https://vps789.com/ranking/"
           headers = {
               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -49,7 +50,7 @@ jobs:
           for a_tag in soup.find_all('a', href=True):
               href = a_tag['href']
               text = a_tag.get_text().strip()
-              # 匹配带有 id=11 且符合域名格式（包含点、不含空格及无用字符）的条目
+              # 根据页面结构，href 通常带有 id=11，同时文本符合域名格式
               if 'id=11' in href and '.' in text and ' ' not in text and 'ms' not in text and '%' not in text:
                   if text not in fetched_domains:
                       fetched_domains.append(text)
@@ -81,11 +82,10 @@ jobs:
               if base_domain:
                   processed_existing.append(f"{base_domain} #CFdom")
 
-          # 合并并严格按域名去重（优先保留新获取的或者维护已有顺序）
+          # 合并并严格按域名去重
           combined = processed_existing + new_entries
           unique_combined = []
           seen_domains = set()
-          # 倒序遍历或正序遍历去重，这里采用保留最新结构并去重
           for item in combined:
               base = item.split()[0]
               if base not in seen_domains:
