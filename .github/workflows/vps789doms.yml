@@ -21,37 +21,72 @@ jobs:
           python3 -c '
           import re
           import urllib.request
-          import json
+          from html.parser import HTMLParser
 
-          # 使用稳定的免费网页解析代理或直接解析公开内容
-          target_url = "https://vps789.com/cfip/"
-          # 通过自带 API 或稳定的通用抓取方式
-          api_url = f"https://r.jina.ai/{target_url}"
-          
+          # 自定义 HTML 解析器，只精准提取表格第一列（CF优选IP/CNAME域名）的内容
+          class VPS789Parser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.in_table = False
+                  self.in_row = False
+                  self.in_first_cell = False
+                  self.cell_data = []
+                  self.domains = set()
+
+              def handle_starttag(self, tag, attrs):
+                  if tag == "table":
+                      self.in_table = True
+                  elif self.in_table and tag == "tr":
+                      self.in_row = True
+                      self.cell_index = 0
+                  elif self.in_row and tag == "td":
+                      if self.cell_index == 0:
+                          self.in_first_cell = True
+                      self.cell_index += 1
+
+              def handle_endtag(self, tag):
+                  if tag == "table":
+                      self.in_table = False
+                  elif tag == "tr":
+                      self.in_row = False
+                  elif tag == "td":
+                      if self.in_first_cell:
+                          self.in_first_cell = False
+                          text = "".join(self.cell_data).strip()
+                          self.cell_data = []
+                          # 严格校验是否为域名格式（含点且不含空格、数字后缀等）
+                          if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", text):
+                              self.domains.add(text)
+
+              def handle_data(self, data):
+                  if self.in_first_cell:
+                      self.cell_data.append(data)
+
+          url = "https://vps789.com/cfip/"
           req = urllib.request.Request(
-              api_url,
+              url,
               headers={
-                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                  "Accept": "application/json"
+                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
               }
           )
 
           try:
-              with urllib.request.urlopen(req, timeout=25) as response:
-                  result = json.loads(response.read().decode("utf-8"))
-                  content = result.get("data", {}).get("content", "")
+              with urllib.request.urlopen(req, timeout=15) as response:
+                  html_content = response.read().decode("utf-8")
               
-              # 在返回的文本内容中通过正则精准匹配优选域名
-              candidates = re.findall(r"\b([a-zA-Z0-9][-a-zA-Z0-9]{0,62}(?:\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+)\b", content)
+              parser = VPS789Parser()
+              parser.feed(html_content)
               
-              # 过滤掉一些常见的公共后缀或非目标域名，保留真正需要的 CNAME 域名
-              exclude_words = {"vps789.com", "github.com", "githubusercontent.com", "cloudflare.com"}
-              domains = sorted(list(set([d for d in candidates if d.lower() not in exclude_words and "." in d])))
+              sorted_domains = sorted(list(parser.domains))
               
+              if not sorted_domains:
+                  print("警告：未抓取到任何域名，请检查网页结构。")
+                  exit(1)
+
               with open("vps789doms.txt", "w", encoding="utf-8") as f:
-                  for domain in domains:
+                  for domain in sorted_domains:
                       f.write(domain + "\n")
-              print(f"成功获取并写入了 {len(domains)} 个域名。")
+              print(f"成功获取并写入了 {len(sorted_domains)} 个纯净域名。")
           except Exception as e:
               print(f"获取失败: {e}")
               exit(1)
@@ -65,6 +100,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "域名无变化，无需提交"
           else
-            git commit -m "Update vps789doms.txt"
+            git commit -m "Update vps789doms.txt (Clean domains)"
             git push
           fi
