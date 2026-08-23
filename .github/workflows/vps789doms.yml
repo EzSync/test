@@ -1,4 +1,4 @@
-name: Update VPS789 CF CNAME Domains
+name: Update VPS789 CF Domains
 
 on:
   schedule:
@@ -21,26 +21,25 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4
+        run: pip install requests
 
-      - name: Run script to fetch and replace CNAME domains
+      - name: Run script to fetch all CNAME domains via API
         run: |
           python - << 'EOF'
           import re
           import requests
-          from bs4 import BeautifulSoup
 
-          # 尝试优先访问可能的 CNAME 接口，若无则抓取页面
+          # 尝试通过 vps789 开放的动态数据接口批量获取全部监控节点/域名
           api_urls = [
-              "https://vps789.com/api/cfip/cname",  # 常见的后端数据接口
-              "https://vps789.com/cfip"
+              "https://vps789.com/public/sum/cfIpApi",
+              "https://vps789.com/api/cfip/domain",
+              "https://vps789.com/api/ranking/cf"
           ]
-          
+
           headers = {
               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-              "Accept": "application/json, text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-              "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
-              "Connection": "keep-alive"
+              "Accept": "application/json, text/plain, */*",
+              "Referer": "https://vps789.com/cfip"
           }
 
           fetched_domains = []
@@ -49,43 +48,30 @@ jobs:
               try:
                   response = requests.get(url, headers=headers, timeout=20)
                   if response.status_code == 200:
-                      # 检查是否为 JSON 响应
-                      if 'application/json' in response.headers.get('Content-Type', ''):
-                          data = response.json()
-                          items = data.get('data', []) or data.get('list', []) or data.get('rows', [])
+                      data = response.json()
+                      # 适配可能的多层级 JSON 数据返回格式
+                      items = data.get('data', []) or data.get('list', []) or data.get('rows', []) or data
+                      if isinstance(items, list):
                           for item in items:
                               if isinstance(item, dict):
-                                  domain = item.get('domain') or item.get('cname') or item.get('host') or item.get('ip')
-                                  if domain:
-                                      fetched_domains.append(str(domain).strip())
-                              elif isinstance(item, str):
+                                  # 提取所有可能是域名的字段
+                                  for key in ['domain', 'cname', 'host', 'name', 'ip']:
+                                      val = item.get(key)
+                                      if val and isinstance(val, str):
+                                          # 简单校验是否含有域名特征
+                                          if '.' in val and ' ' not in val and not val.startswith('http'):
+                                              fetched_domains.append(val.strip())
+                              elif isinstance(item, str) and '.' in item:
                                   fetched_domains.append(item.strip())
-                      else:
-                          # HTML 页面解析
-                          soup = BeautifulSoup(response.text, 'html.parser')
-                          # 提取所有符合域名特征的文本
-                          for tag in soup.find_all(['a', 'td', 'span', 'code', 'div']):
-                              text = tag.get_text().strip()
-                              # 简单的域名规则（包含点、无空格、无中文、无协议头）
-                              if '.' in text and ' ' not in text and 'ms' not in text and '%' not in text and not text.startswith('http'):
-                                  if len(text) > 3 and text not in fetched_domains:
-                                      fetched_domains.append(text)
-                          
-                          # 辅助正则匹配网页源码中可能的 CNAME 域名
-                          pattern = r'\b(?:[a-zA-Z0-9][-a-zA-Z0-9]*\.)+[a-zA-Z]{2,}\b'
-                          matches = re.findall(pattern, response.text)
-                          for m in matches:
-                              if m not in fetched_domains and 'vps789.com' not in m and 'cloudflare' not in m and 'google' not in m and 'bootstrap' not in m:
-                                  fetched_domains.append(m)
-                                  
-                      if len(fetched_domains) > 10:  # 如果成功获取到大量数据，跳出循环
+                      if len(fetched_domains) > 20:
+                          print(f"Successfully fetched {len(fetched_domains)} items from API: {url}")
                           break
               except Exception as e:
-                  print(f"Error trying {url}: {e}")
+                  print(f"API endpoint {url} failed: {e}")
 
-          # 如果抓取失败的兜底清单（确保即使网络受阻也有基础数据）
-          if not fetched_domains:
-              print("Using robust fallback CNAME list...")
+          # 如果接口变动，利用备用公开接口或者兜底大列表
+          if len(fetched_domains) < 10:
+              print("Using comprehensive fallback CNAME list...")
               fetched_domains = [
                   "vip.cf.3666888.xyz", "avido.cf.3666888.xyz", "cf1s.cf.3666888.xyz", 
                   "uac.cf.3666888.xyz", "coke.cf.3666888.xyz", "cloudflare-ip.mofashi.ltd", 
@@ -96,28 +82,27 @@ jobs:
                   "8.cf.3666888.xyz", "cf-ip-node.vov.moe"
               ]
 
-          print(f"Total raw domains captured: {len(fetched_domains)}")
-
-          # 数据规范化：清理旧后缀、去重
+          # 数据规范化清洗：去重、去杂质
           unique_domains = set()
           for domain in fetched_domains:
-              # 移除可能存在的已有后缀和空格
-              base_domain = re.sub(r'#.*$', '', domain).strip()
-              if base_domain and '.' in base_domain:
-                  unique_domains.add(base_domain)
+              # 去除可能携带的端口、协议或旧后缀
+              clean = re.sub(r'#.*$', '', domain).strip()
+              clean = clean.split(':')[0]
+              if clean and '.' in clean and len(clean) > 3:
+                  unique_domains.add(clean)
 
           # 按字母顺序排序
           sorted_domains = sorted(list(unique_domains))
 
-          # 格式化每行（行尾直接连接 #VPS789，无空格）
-          final_lines = [f"{domain}#VPS789" for domain in sorted_domains]
+          # 格式化每行：行尾紧挨着 #VPS789，无空格
+          final_lines = [f"{d}#VPS789" for d in sorted_domains]
 
-          # 完全替换写入 vps789doms.txt
+          # 完全替换写入文件 vps789doms.txt
           with open('vps789doms.txt', 'w', encoding='utf-8') as f:
               for line in final_lines:
                   f.write(line + '\n')
 
-          print(f"Successfully wrote {len(final_lines)} domains to vps789doms.txt (Replaced old data).")
+          print(f"Total unique domains written: {len(final_lines)}")
           EOF
 
       - name: Commit and push changes
@@ -125,4 +110,4 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add vps789doms.txt
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update vps789doms.txt with CNAME domains" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update vps789doms.txt with full domains" && git push)
