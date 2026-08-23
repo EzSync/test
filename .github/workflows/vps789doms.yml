@@ -1,0 +1,108 @@
+name: Update VPS789 CF Domains
+
+on:
+  schedule:
+    - cron: '0 22 * * *' # 每天 UTC 22:00 运行（对应北京时间每天 6:00）
+  workflow_dispatch: # 支持手动运行
+
+jobs:
+  update-vps789-domains:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run script to fetch and replace domains
+        run: |
+          python - << 'EOF'
+          import re
+          import requests
+          from bs4 import BeautifulSoup
+
+          # 目标页面
+          url = "https://vps789.com/cfip"
+          headers = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+              "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+              "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+              "Connection": "keep-alive"
+          }
+
+          fetched_domains = []
+          try:
+              response = requests.get(url, headers=headers, timeout=20)
+              response.raise_for_status()
+              
+              soup = BeautifulSoup(response.text, 'html.parser')
+              
+              # 尝试通过 API 或页面中的结构寻找 CF优选IP 的域名
+              # 页面通常会通过表格或列表渲染，我们遍历所有链接或文本提取符合域名规则的条目
+              for a_tag in soup.find_all(['a', 'span', 'td', 'div'], href=True):
+                  text = a_tag.get_text().strip()
+                  # 简单的域名规则过滤（包含点、不含空格、不含中文等）
+                  if '.' in text and ' ' not in text and 'ms' not in text and '%' not in text and not text.startswith('http'):
+                      if text not in fetched_domains:
+                          fetched_domains.append(text)
+                          
+              # 如果直接解析标签没拿到，尝试通过正则在网页源码中直接抓取符合格式的域名
+              if not fetched_domains:
+                  pattern = r'\b(?:[a-zA-Z0-9][-a-zA-Z0-9]*\.)+[a-zA-Z]{2,}\b'
+                  matches = re.findall(pattern, response.text)
+                  for m in matches:
+                      if m not in fetched_domains and 'vps789.com' not in m and 'cloudflare' not in m and 'google' not in m:
+                          fetched_domains.append(m)
+
+          except Exception as e:
+              print(f"Error fetching webpage: {e}")
+
+          # 兜底默认列表（如果因 Cloudflare 防护或网络波动导致未抓取到时使用）
+          if not fetched_domains:
+              print("Falling back to backup vps789 domains list...")
+              fetched_domains = [
+                  "vip.cf.3666888.xyz", "avido.cf.3666888.xyz", "cf1s.cf.3666888.xyz", 
+                  "uac.cf.3666888.xyz", "coke.cf.3666888.xyz", "cloudflare-ip.mofashi.ltd", 
+                  "cf.cf.3666888.xyz", "www.galgamex.net", "bbs.alipansou.com", 
+                  "cfyx.aliyun.20237737.xyz"
+              ]
+
+          print(f"Fetched {len(fetched_domains)} raw domains.")
+
+          # 规范化：清理已有后缀，去重，并严格以格式 '域名#VPS789' 保存
+          unique_domains = set()
+          for domain in fetched_domains:
+              # 去除可能已存在的旧后缀
+              base_domain = re.sub(r'#.*$', '', domain).strip()
+              if base_domain:
+                  unique_domains.add(base_domain)
+
+          # 排序
+          sorted_domains = sorted(list(unique_domains))
+
+          # 组装最终行（行尾紧挨着 #VPS789，无空格）
+          final_lines = [f"{domain}#VPS789" for domain in sorted_domains]
+
+          # 完全替换写入 vps189doms.txt
+          with open('vps189doms.txt', 'w', encoding='utf-8') as f:
+              for line in final_lines:
+                  f.write(line + '\n')
+
+          print(f"Successfully updated vps189doms.txt with {len(final_lines)} domains (replaced old content).")
+          EOF
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add vps189doms.txt
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update vps189doms.txt (replace and format)" && git push)
