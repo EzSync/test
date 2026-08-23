@@ -1,15 +1,17 @@
-name: Update VPS789 CF Domains
+name: Update VPS789 Domains
 
 on:
   schedule:
-    - cron: '0 22 * * *' # 每天 UTC 22:00 运行（对应北京时间每天 6:00）
-  workflow_dispatch: # 支持手动运行
+    # 每天北京时间 6:00 运行 (UTC时间 22:00)
+    - cron: '0 22 * * *'
+  workflow_dispatch: # 支持手动触发运行
 
 jobs:
-  update-vps789-cname:
+  update-domains:
     runs-on: ubuntu-latest
+    
     permissions:
-      contents: write
+      contents: write # 赋予提交代码的权限
 
     steps:
       - name: Checkout repository
@@ -21,93 +23,112 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install requests
-
-      - name: Run script to fetch all CNAME domains via API
         run: |
-          python - << 'EOF'
+          pip install requests beautifulsoup4
+
+      - name: Fetch and Parse Domains
+        run: |
+          python -c '
           import re
           import requests
+          from bs4 import BeautifulSoup
 
-          # 尝试通过 vps789 开放的动态数据接口批量获取全部监控节点/域名
-          api_urls = [
-              "https://vps789.com/public/sum/cfIpApi",
-              "https://vps789.com/api/cfip/domain",
-              "https://vps789.com/api/ranking/cf"
-          ]
-
+          url = "https://vps789.com/cfip/"
           headers = {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-              "Accept": "application/json, text/plain, */*",
-              "Referer": "https://vps789.com/cfip"
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
           }
 
-          fetched_domains = []
+          try:
+              response = requests.get(url, headers=headers, timeout=15)
+              response.raise_for_status()
+              
+              soup = BeautifulSoup(response.text, "html.parser")
+              domains = set()
+              
+              # 匹配页面表格中的第一列所有文本内容，提取出域名
+              for tr in soup.find_all("tr"):
+                  tds = tr.find_all("td")
+                  if len(tds) > 0:
+                      text = tds[0].get_text(strip=True)
+                      # 简单的域名校验正则（包含字母、数字、点、横杠）
+                      if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", text):
+                          domains.add(text)
+                          
+              # 排序并写入文件
+              sorted_domains = sorted(list(domains))
+              with open("vps789doms.txt", "w", encoding="utf-8") as f:
+                  for domain in sorted_domains:
+                      f.write(domain + "\n")
+              print(f"成功获取并写入了 {len(sorted_domains)} 个域名。")
+          except Exception as e:
+              print(f"获取失败: {e}")
+              exit(1)
+          '
 
-          for url in api_urls:
-              try:
-                  response = requests.get(url, headers=headers, timeout=20)
-                  if response.status_code == 200:
-                      data = response.json()
-                      # 适配可能的多层级 JSON 数据返回格式
-                      items = data.get('data', []) or data.get('list', []) or data.get('rows', []) or data
-                      if isinstance(items, list):
-                          for item in items:
-                              if isinstance(item, dict):
-                                  # 提取所有可能是域名的字段
-                                  for key in ['domain', 'cname', 'host', 'name', 'ip']:
-                                      val = item.get(key)
-                                      if val and isinstance(val, str):
-                                          # 简单校验是否含有域名特征
-                                          if '.' in val and ' ' not in val and not val.startswith('http'):
-                                              fetched_domains.append(val.strip())
-                              elif isinstance(item, str) and '.' in item:
-                                  fetched_domains.append(item.strip())
-                      if len(fetched_domains) > 20:
-                          print(f"Successfully fetched {len(fetched_domains)} items from API: {url}")
-                          break
-              except Exception as e:
-                  print(f"API endpoint {url} failed: {e}")
-
-          # 如果接口变动，利用备用公开接口或者兜底大列表
-          if len(fetched_domains) < 10:
-              print("Using comprehensive fallback CNAME list...")
-              fetched_domains = [
-                  "vip.cf.3666888.xyz", "avido.cf.3666888.xyz", "cf1s.cf.3666888.xyz", 
-                  "uac.cf.3666888.xyz", "coke.cf.3666888.xyz", "cloudflare-ip.mofashi.ltd", 
-                  "cf.cf.3666888.xyz", "www.galgamex.net", "bbs.alipansou.com", 
-                  "cfyx.aliyun.20237737.xyz", "yx.cf.090227.xyz", "cfsaas.080112.xyz", 
-                  "cdn.7zz.cn", "auto.dolby.dpdns.org", "blog.646474.xyz", 
-                  "fw8je9.cf.3666888.xyz", "6.cf.3666888.xyz", "www.mfyx.cn", 
-                  "8.cf.3666888.xyz", "cf-ip-node.vov.moe"
-              ]
-
-          # 数据规范化清洗：去重、去杂质
-          unique_domains = set()
-          for domain in fetched_domains:
-              # 去除可能携带的端口、协议或旧后缀
-              clean = re.sub(r'#.*$', '', domain).strip()
-              clean = clean.split(':')[0]
-              if clean and '.' in clean and len(clean) > 3:
-                  unique_domains.add(clean)
-
-          # 按字母顺序排序
-          sorted_domains = sorted(list(unique_domains))
-
-          # 格式化每行：行尾紧挨着 #VPS789，无空格
-          final_lines = [f"{d}#VPS789" for d in sorted_domains]
-
-          # 完全替换写入文件 vps789doms.txt
-          with open('vps789doms.txt', 'w', encoding='utf-8') as f:
-              for line in final_lines:
-                  f.write(line + '\n')
-
-          print(f"Total unique domains written: {len(final_lines)}")
-          EOF
-
-      - name: Commit and push changes
+      - name: Commit and Push changes
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add vps789doms.txt
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update vps789doms.txt with full domains" && git push)
+          # 检查是否有改动，有改动才提交
+          if git diff --staged --quiet; then
+            echo "没有发现域名变动，无需提交。"
+          else
+            git commit -m "Auto-update vps789doms.txt ($(date -u +'%Y-%m-%d %H:%M:%S UTC'))"
+            git push
+          - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Fetch and Parse Domains
+        run: |
+          python -c '
+          import re
+          import requests
+          from bs4 import BeautifulSoup
+
+          url = "https://vps789.com/cfip/"
+          headers = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+          }
+
+          try:
+              response = requests.get(url, headers=headers, timeout=15)
+              response.raise_for_status()
+              
+              soup = BeautifulSoup(response.text, "html.parser")
+              domains = set()
+              
+              for tr in soup.find_all("tr"):
+                  tds = tr.find_all("td")
+                  if len(tds) > 0:
+                      text = tds[0].get_text(strip=True)
+                      if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", text):
+                          domains.add(text)
+                          
+              sorted_domains = sorted(list(domains))
+              with open("vps789doms.txt", "w", encoding="utf-8") as f:
+                  for domain in sorted_domains:
+                      f.write(domain + "\n")
+              print(f"成功获取并写入了 {len(sorted_domains)} 个域名。")
+          except Exception as e:
+              print(f"获取失败: {e}")
+              exit(1)
+          '
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add vps789doms.txt
+          if git diff --staged --quiet; then
+            echo "域名无变化，无需提交"
+          else
+            git commit -m "Update vps789doms.txt"
+            git push
+          fi
