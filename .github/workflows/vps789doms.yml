@@ -16,53 +16,65 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
       - name: Run Script to Fetch and Save Domains
         run: |
           python3 -c '
           import re
-          import urllib.request
-          import json
+          import requests
 
-          # 使用稳定的代理/渲染通道抓取动态网页内容
-          target_url = "https://vps789.com/cfip/"
-          api_url = f"https://r.jina.ai/{target_url}"
+          # 尝试通过其后端接口或通用 API 获取原始数据
+          api_urls = [
+              "https://vps789.com/api/cfip",  # 假设的常见 API 路径
+              "https://vps789.com/cfip/data"
+          ]
           
-          req = urllib.request.Request(
-              api_url,
-              headers={
-                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                  "Accept": "application/json"
-              }
-          )
+          # 如果直接请求主页面，可以通过更换请求头或查找其数据源地址解决
+          # 另外一种稳定方式：通过官方备用接口或直接解析
+          url = "https://vps789.com/cfip/"
+          headers = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+              "Referer": "https://vps789.com/cfip/",
+              "Accept": "application/json, text/javascript, */*; q=0.01",
+              "X-Requested-With": "XMLHttpRequest"
+          }
 
           try:
-              with urllib.request.urlopen(req, timeout=30) as response:
-                  result = json.loads(response.read().decode("utf-8"))
-                  content = result.get("data", {}).get("content", "")
+              # 先尝试模拟 Ajax 异步请求
+              response = requests.get("https://vps789.com/cfip/list", headers=headers, timeout=15)
+              if response.status_code != 200:
+                  # 如果没有专属数据接口，改用通用抓取并带上完整浏览器头
+                  response = requests.get(url, headers=headers, timeout=15)
               
-              # 匹配所有可能的域名
-              candidates = re.findall(r"\b([a-zA-Z0-9][-a-zA-Z0-9]{0,62}(?:\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+)\b", content)
+              response.raise_for_status()
+              text_content = response.text
               
-              # 严格清洗规则：
-              # 1. 必须包含小数点
-              # 2. 排除常见干扰词（如vps789自身、jina等）
-              # 3. 排除纯数字组合、带有单位（如MB、ms）或不符合标准域名的杂质
-              exclude_words = {"vps789.com", "jina.ai", "github.com", "githubusercontent.com", "cloudflare.com"}
+              # 正则提取所有符合规范的优选 CNAME 域名
+              candidates = re.findall(r"\b([a-zA-Z0-9][-a-zA-Z0-9]{0,62}(?:\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+)\b", text_content)
               
-              clean_domains = set()
+              # 清洗过滤杂质
+              exclude_words = {"vps789.com", "github.com", "cloudflare.com", "google.com", "telegram.org"}
+              domains = set()
               for d in candidates:
                   d_lower = d.lower()
                   if d_lower in exclude_words:
                       continue
-                  if "." in d and not d.replace(".", "").isdigit():
-                      # 必须符合标准的域名结构
+                  if "." in d and not d.replace(".", "").isdigit() and not d.endswith("MB"):
                       if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", d):
-                          clean_domains.add(d)
+                          domains.add(d)
 
-              sorted_domains = sorted(list(clean_domains))
+              sorted_domains = sorted(list(domains))
               
               if not sorted_domains:
-                  print("警告：未成功解析出任何有效域名！")
+                  print("警告：未解析到有效域名。")
                   exit(1)
 
               with open("vps789doms.txt", "w", encoding="utf-8") as f:
@@ -82,6 +94,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "域名无变化，无需提交"
           else
-            git commit -m "Update vps789doms.txt (Clean domains)"
+            git commit -m "Update vps789doms.txt (API fetch)"
             git push
           fi
