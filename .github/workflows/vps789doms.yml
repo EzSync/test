@@ -124,6 +124,29 @@ jobs:
           print(f"移除无效行：{removed_count} 行")
           PY
 
+      - name: Append VPS789 Tag
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          file_path = Path("vps789doms.txt")
+          tag = "#VPS789"
+
+          with file_path.open("r", encoding="utf-8") as f:
+              lines = [
+                  f"{line.strip()}{tag}"
+                  for line in f
+                  if line.strip()
+              ]
+
+          with file_path.open("w", encoding="utf-8") as f:
+              f.write("\n".join(lines))
+              if lines:
+                  f.write("\n")
+
+          print(f"已为 {len(lines)} 行添加 {tag}")
+          PY
+
       - name: Commit and Push changes
         run: |
           git config --global user.name "github-actions[bot]"
