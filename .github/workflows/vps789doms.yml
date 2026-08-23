@@ -2,120 +2,46 @@ name: Update VPS789 Domains
 
 on:
   schedule:
-    # 每天北京时间 6:00 运行 (UTC时间 22:00)
     - cron: '0 22 * * *'
-  workflow_dispatch: # 支持手动触发运行
+  workflow_dispatch:
 
 jobs:
   update-domains:
     runs-on: ubuntu-latest
     
     permissions:
-      contents: write # 赋予提交代码的权限
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
+      - name: Run Script to Fetch and Save Domains
         run: |
-          pip install requests beautifulsoup4
-
-      - name: Fetch and Parse Domains
-        run: |
-          python -c '
+          python3 -c '
           import re
-          import requests
-          from bs4 import BeautifulSoup
+          import urllib.request
 
           url = "https://vps789.com/cfip/"
-          headers = {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-          }
+          req = urllib.request.Request(
+              url,
+              headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+          )
 
           try:
-              response = requests.get(url, headers=headers, timeout=15)
-              response.raise_for_status()
+              with urllib.request.urlopen(req, timeout=15) as response:
+                  html_content = response.read().decode("utf-8")
               
-              soup = BeautifulSoup(response.text, "html.parser")
-              domains = set()
+              # 用正则提取所有表格单元格里的文本，并过滤出符合域名规则的纯净文本
+              # 匹配形如 xxx.xx 或者 xxx.xxx.xx 的域名
+              candidates = re.findall(r">([a-zA-Z0-9][-a-zA-Z0-9]{0,62}(?:\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+)<", html_content)
               
-              # 匹配页面表格中的第一列所有文本内容，提取出域名
-              for tr in soup.find_all("tr"):
-                  tds = tr.find_all("td")
-                  if len(tds) > 0:
-                      text = tds[0].get_text(strip=True)
-                      # 简单的域名校验正则（包含字母、数字、点、横杠）
-                      if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", text):
-                          domains.add(text)
-                          
-              # 排序并写入文件
-              sorted_domains = sorted(list(domains))
+              domains = sorted(list(set(candidates)))
+              
               with open("vps789doms.txt", "w", encoding="utf-8") as f:
-                  for domain in sorted_domains:
+                  for domain in domains:
                       f.write(domain + "\n")
-              print(f"成功获取并写入了 {len(sorted_domains)} 个域名。")
-          except Exception as e:
-              print(f"获取失败: {e}")
-              exit(1)
-          '
-
-      - name: Commit and Push changes
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add vps789doms.txt
-          # 检查是否有改动，有改动才提交
-          if git diff --staged --quiet; then
-            echo "没有发现域名变动，无需提交。"
-          else
-            git commit -m "Auto-update vps789doms.txt ($(date -u +'%Y-%m-%d %H:%M:%S UTC'))"
-            git push
-          - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install requests beautifulsoup4
-
-      - name: Fetch and Parse Domains
-        run: |
-          python -c '
-          import re
-          import requests
-          from bs4 import BeautifulSoup
-
-          url = "https://vps789.com/cfip/"
-          headers = {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-          }
-
-          try:
-              response = requests.get(url, headers=headers, timeout=15)
-              response.raise_for_status()
-              
-              soup = BeautifulSoup(response.text, "html.parser")
-              domains = set()
-              
-              for tr in soup.find_all("tr"):
-                  tds = tr.find_all("td")
-                  if len(tds) > 0:
-                      text = tds[0].get_text(strip=True)
-                      if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", text):
-                          domains.add(text)
-                          
-              sorted_domains = sorted(list(domains))
-              with open("vps789doms.txt", "w", encoding="utf-8") as f:
-                  for domain in sorted_domains:
-                      f.write(domain + "\n")
-              print(f"成功获取并写入了 {len(sorted_domains)} 个域名。")
+              print(f"成功获取并写入了 {len(domains)} 个域名。")
           except Exception as e:
               print(f"获取失败: {e}")
               exit(1)
