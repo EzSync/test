@@ -2,6 +2,7 @@ name: Update VPS789 Domains
 
 on:
   schedule:
+    # 每天北京时间 6:00 运行 (UTC时间 22:00)
     - cron: '0 22 * * *'
   workflow_dispatch:
 
@@ -23,64 +24,47 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests
+          pip install requests beautifulsoup4
 
-      - name: Run Script to Fetch and Save Domains
+      - name: Fetch and Parse Domains
         run: |
           python3 -c '
           import re
           import requests
+          from bs4 import BeautifulSoup
 
-          # 尝试通过其后端接口或通用 API 获取原始数据
-          api_urls = [
-              "https://vps789.com/api/cfip",  # 假设的常见 API 路径
-              "https://vps789.com/cfip/data"
-          ]
-          
-          # 如果直接请求主页面，可以通过更换请求头或查找其数据源地址解决
-          # 另外一种稳定方式：通过官方备用接口或直接解析
           url = "https://vps789.com/cfip/"
           headers = {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-              "Referer": "https://vps789.com/cfip/",
-              "Accept": "application/json, text/javascript, */*; q=0.01",
-              "X-Requested-With": "XMLHttpRequest"
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
           }
 
           try:
-              # 先尝试模拟 Ajax 异步请求
-              response = requests.get("https://vps789.com/cfip/list", headers=headers, timeout=15)
-              if response.status_code != 200:
-                  # 如果没有专属数据接口，改用通用抓取并带上完整浏览器头
-                  response = requests.get(url, headers=headers, timeout=15)
-              
+              response = requests.get(url, headers=headers, timeout=20)
               response.raise_for_status()
-              text_content = response.text
               
-              # 正则提取所有符合规范的优选 CNAME 域名
-              candidates = re.findall(r"\b([a-zA-Z0-9][-a-zA-Z0-9]{0,62}(?:\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+)\b", text_content)
-              
-              # 清洗过滤杂质
-              exclude_words = {"vps789.com", "github.com", "cloudflare.com", "google.com", "telegram.org"}
+              soup = BeautifulSoup(response.text, "html.parser")
               domains = set()
-              for d in candidates:
-                  d_lower = d.lower()
-                  if d_lower in exclude_words:
-                      continue
-                  if "." in d and not d.replace(".", "").isdigit() and not d.endswith("MB"):
-                      if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", d):
-                          domains.add(d)
-
+              
+              # 遍历页面表格中的每一行，提取第一列（CF优选IP / CNAME 域名）
+              for tr in soup.find_all("tr"):
+                  tds = tr.find_all("td")
+                  if len(tds) > 0:
+                      text = tds[0].get_text(strip=True)
+                      # 严格清洗：排除带有延迟、纯数字、MB/s单位等杂质，仅保留合法域名
+                      if "." in text and " " not in text and not text.endswith("MB") and not text.replace(".", "").isdigit():
+                          if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", text):
+                              domains.add(text)
+                              
               sorted_domains = sorted(list(domains))
               
               if not sorted_domains:
-                  print("警告：未解析到有效域名。")
+                  print("错误：未匹配到任何有效域名！")
                   exit(1)
 
               with open("vps789doms.txt", "w", encoding="utf-8") as f:
                   for domain in sorted_domains:
                       f.write(domain + "\n")
-              print(f"成功获取并写入了 {len(sorted_domains)} 个纯净域名。")
+              print(f"成功获取并写入了 {len(sorted_domains)} 个纯净域名到 vps789doms.txt。")
           except Exception as e:
               print(f"获取失败: {e}")
               exit(1)
@@ -94,6 +78,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "域名无变化，无需提交"
           else
-            git commit -m "Update vps789doms.txt (API fetch)"
+            git commit -m "Update vps789doms.txt (Automated)"
             git push
           fi
