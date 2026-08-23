@@ -41,7 +41,7 @@ jobs:
                       self.cell_index = 0
                   elif self.in_row and tag == "td":
                       if self.cell_index == 0:
-                          self.in_first_cell = True
+                      	  self.in_first_cell = True
                       self.cell_index += 1
 
               def handle_endtag(self, tag):
@@ -54,7 +54,7 @@ jobs:
                           self.in_first_cell = False
                           text = "".join(self.cell_data).strip()
                           self.cell_data = []
-                          # 严格校验是否为标准的纯净域名
+                          # 严格校验：必须含有圆点、不包含空格、不是纯数字、不含单位，且符合域名规范
                           if "." in text and " " not in text and not text.endswith("MB") and not text.replace(".", "").isdigit():
                               if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", text):
                                   self.domains.add(text)
@@ -72,7 +72,7 @@ jobs:
           )
 
           try:
-              with urllib.request.urlopen(req, timeout=15) as response:
+              with urllib.request.urlopen(req, timeout=20) as response:
                   html_content = response.read().decode("utf-8")
               
               parser = VPS789Parser()
