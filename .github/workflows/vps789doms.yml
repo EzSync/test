@@ -23,12 +23,12 @@ jobs:
           import urllib.request
           from html.parser import HTMLParser
 
-          # 自定义 HTML 解析器，只精准提取表格第一列（CF优选IP/CNAME域名）的内容
           class VPS789Parser(HTMLParser):
               def __init__(self):
                   super().__init__()
                   self.in_table = False
                   self.in_row = False
+                  self.cell_index = 0
                   self.in_first_cell = False
                   self.cell_data = []
                   self.domains = set()
@@ -54,17 +54,18 @@ jobs:
                           self.in_first_cell = False
                           text = "".join(self.cell_data).strip()
                           self.cell_data = []
-                          # 严格校验是否为域名格式（含点且不含空格、数字后缀等）
-                          if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", text):
-                              self.domains.add(text)
+                          # 严格检查：必须含有圆点、不包含空格、且不能以数字开头或包含 MB 等单位
+                          if "." in text and " " not in text and not text.endswith("MB") and not text.replace(".", "").isdigit():
+                              if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", text):
+                                  self.domains.add(text)
 
               def handle_data(self, data):
                   if self.in_first_cell:
                       self.cell_data.append(data)
 
-          url = "https://vps789.com/cfip/"
+          target_url = "https://vps789.com/cfip/"
           req = urllib.request.Request(
-              url,
+              target_url,
               headers={
                   "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
               }
@@ -80,7 +81,7 @@ jobs:
               sorted_domains = sorted(list(parser.domains))
               
               if not sorted_domains:
-                  print("警告：未抓取到任何域名，请检查网页结构。")
+                  print("警告：未抓取到任何域名！")
                   exit(1)
 
               with open("vps789doms.txt", "w", encoding="utf-8") as f:
