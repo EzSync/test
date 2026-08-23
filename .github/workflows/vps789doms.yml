@@ -21,67 +21,48 @@ jobs:
           python3 -c '
           import re
           import urllib.request
-          from html.parser import HTMLParser
+          import json
 
-          class VPS789Parser(HTMLParser):
-              def __init__(self):
-                  super().__init__()
-                  self.in_table = False
-                  self.in_row = False
-                  self.cell_index = 0
-                  self.in_first_cell = False
-                  self.cell_data = []
-                  self.domains = set()
-
-              def handle_starttag(self, tag, attrs):
-                  if tag == "table":
-                      self.in_table = True
-                  elif self.in_table and tag == "tr":
-                      self.in_row = True
-                      self.cell_index = 0
-                  elif self.in_row and tag == "td":
-                      if self.cell_index == 0:
-                      	  self.in_first_cell = True
-                      self.cell_index += 1
-
-              def handle_endtag(self, tag):
-                  if tag == "table":
-                      self.in_table = False
-                  elif tag == "tr":
-                      self.in_row = False
-                  elif tag == "td":
-                      if self.in_first_cell:
-                          self.in_first_cell = False
-                          text = "".join(self.cell_data).strip()
-                          self.cell_data = []
-                          # 严格校验：必须含有圆点、不包含空格、不是纯数字、不含单位，且符合域名规范
-                          if "." in text and " " not in text and not text.endswith("MB") and not text.replace(".", "").isdigit():
-                              if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", text):
-                                  self.domains.add(text)
-
-              def handle_data(self, data):
-                  if self.in_first_cell:
-                      self.cell_data.append(data)
-
+          # 使用稳定的代理/渲染通道抓取动态网页内容
           target_url = "https://vps789.com/cfip/"
+          api_url = f"https://r.jina.ai/{target_url}"
+          
           req = urllib.request.Request(
-              target_url,
+              api_url,
               headers={
-                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                  "Accept": "application/json"
               }
           )
 
           try:
-              with urllib.request.urlopen(req, timeout=20) as response:
-                  html_content = response.read().decode("utf-8")
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  result = json.loads(response.read().decode("utf-8"))
+                  content = result.get("data", {}).get("content", "")
               
-              parser = VPS789Parser()
-              parser.feed(html_content)
+              # 匹配所有可能的域名
+              candidates = re.findall(r"\b([a-zA-Z0-9][-a-zA-Z0-9]{0,62}(?:\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+)\b", content)
               
-              sorted_domains = sorted(list(parser.domains))
+              # 严格清洗规则：
+              # 1. 必须包含小数点
+              # 2. 排除常见干扰词（如vps789自身、jina等）
+              # 3. 排除纯数字组合、带有单位（如MB、ms）或不符合标准域名的杂质
+              exclude_words = {"vps789.com", "jina.ai", "github.com", "githubusercontent.com", "cloudflare.com"}
+              
+              clean_domains = set()
+              for d in candidates:
+                  d_lower = d.lower()
+                  if d_lower in exclude_words:
+                      continue
+                  if "." in d and not d.replace(".", "").isdigit():
+                      # 必须符合标准的域名结构
+                      if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", d):
+                          clean_domains.add(d)
+
+              sorted_domains = sorted(list(clean_domains))
               
               if not sorted_domains:
-                  print("警告：未抓取到任何域名！")
+                  print("警告：未成功解析出任何有效域名！")
                   exit(1)
 
               with open("vps789doms.txt", "w", encoding="utf-8") as f:
