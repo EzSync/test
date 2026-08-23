@@ -54,7 +54,7 @@ jobs:
                           self.in_first_cell = False
                           text = "".join(self.cell_data).strip()
                           self.cell_data = []
-                          # 严格检查：必须含有圆点、不包含空格、且不能以数字开头或包含 MB 等单位
+                          # 严格校验是否为标准的纯净域名
                           if "." in text and " " not in text and not text.endswith("MB") and not text.replace(".", "").isdigit():
                               if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", text):
                                   self.domains.add(text)
