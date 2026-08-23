@@ -2,14 +2,13 @@ name: Update VPS789 Domains
 
 on:
   schedule:
-    # 每天北京时间 6:00 运行 (UTC时间 22:00)
     - cron: '0 22 * * *'
   workflow_dispatch:
 
 jobs:
   update-domains:
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: write
 
@@ -17,67 +16,124 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install requests beautifulsoup4
-
-      - name: Fetch and Parse Domains
+      - name: Run Script to Fetch and Save Domains
         run: |
           python3 -c '
           import re
-          import requests
-          from bs4 import BeautifulSoup
+          import urllib.request
+          import json
 
-          url = "https://vps789.com/cfip/"
-          headers = {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-          }
+          target_url = "https://vps789.com/cfip/"
+          api_url = f"https://r.jina.ai/{target_url}"
+
+          req = urllib.request.Request(
+              api_url,
+              headers={
+                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                  "Accept": "application/json"
+              }
+          )
 
           try:
-              response = requests.get(url, headers=headers, timeout=20)
-              response.raise_for_status()
-              
-              soup = BeautifulSoup(response.text, "html.parser")
-              domains = set()
-              
-              # 遍历页面表格中的每一行，提取第一列（CF优选IP / CNAME 域名）
-              for tr in soup.find_all("tr"):
-                  tds = tr.find_all("td")
-                  if len(tds) > 0:
-                      text = tds[0].get_text(strip=True)
-                      # 严格清洗：排除带有延迟、纯数字、MB/s单位等杂质，仅保留合法域名
-                      if "." in text and " " not in text and not text.endswith("MB") and not text.replace(".", "").isdigit():
-                          if re.match(r"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$", text):
-                              domains.add(text)
-                              
-              sorted_domains = sorted(list(domains))
-              
-              if not sorted_domains:
-                  print("错误：未匹配到任何有效域名！")
-                  exit(1)
+              with urllib.request.urlopen(req, timeout=25) as response:
+                  result = json.loads(response.read().decode("utf-8"))
+                  content = result.get("data", {}).get("content", "")
+
+              candidates = re.findall(
+                  r"\b([a-zA-Z0-9][-a-zA-Z0-9]{0,62}(?:\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+)\b",
+                  content
+              )
+
+              exclude_words = {
+                  "vps789.com",
+                  "github.com",
+                  "githubusercontent.com",
+                  "cloudflare.com"
+              }
+
+              domains = sorted({
+                  d.lower()
+                  for d in candidates
+                  if d.lower() not in exclude_words
+              })
 
               with open("vps789doms.txt", "w", encoding="utf-8") as f:
-                  for domain in sorted_domains:
+                  for domain in domains:
                       f.write(domain + "\n")
-              print(f"成功获取并写入了 {len(sorted_domains)} 个纯净域名到 vps789doms.txt。")
+
+              print(f"成功获取并写入了 {len(domains)} 个候选域名。")
+
           except Exception as e:
               print(f"获取失败: {e}")
               exit(1)
           '
 
+      - name: Validate and Clean Domains
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          input_file = Path("vps789doms.txt")
+          temp_file = Path("vps789doms.txt.tmp")
+
+          # 要求：
+          # 1. 每行必须是完整域名
+          # 2. 至少包含一个点号
+          # 3. 每个标签长度为 1-63
+          # 4. 标签不能以连字符开头或结尾
+          # 5. 顶级域名至少包含两个字母
+          # 6. 总长度不超过 253 个字符
+          domain_pattern = re.compile(
+              r"^(?=.{1,253}$)"
+              r"(?:[A-Za-z0-9]"
+              r"(?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+"
+              r"[A-Za-z]{2,63}$"
+          )
+
+          excluded = {
+              "vps789.com",
+              "github.com",
+              "githubusercontent.com",
+              "cloudflare.com"
+          }
+
+          valid_domains = set()
+          removed_count = 0
+
+          with input_file.open("r", encoding="utf-8") as f:
+              for raw_line in f:
+                  domain = raw_line.strip().lower().rstrip(".")
+
+                  if (
+                      domain
+                      and domain not in excluded
+                      and domain_pattern.fullmatch(domain)
+                  ):
+                      valid_domains.add(domain)
+                  else:
+                      removed_count += 1
+
+          with temp_file.open("w", encoding="utf-8") as f:
+              for domain in sorted(valid_domains):
+                  f.write(domain + "\n")
+
+          temp_file.replace(input_file)
+
+          print(f"保留有效域名：{len(valid_domains)} 个")
+          print(f"移除无效行：{removed_count} 行")
+          PY
+
       - name: Commit and Push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
           git add vps789doms.txt
+
           if git diff --staged --quiet; then
             echo "域名无变化，无需提交"
           else
-            git commit -m "Update vps789doms.txt (Automated)"
+            git commit -m "Update vps789doms.txt"
             git push
           fi
