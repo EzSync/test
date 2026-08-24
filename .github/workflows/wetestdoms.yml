@@ -17,7 +17,6 @@ jobs:
           cat << 'EOF' > update.py
           import urllib.request
           import re
-          from html.parser import HTMLParser
 
           url = "https://www.wetest.vip/page/cloudflare/cname.html"
           req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -29,16 +28,13 @@ jobs:
               print(f"Failed to fetch URL: {e}")
               exit(1)
 
-          # 提取网页中符合域名特征的字符串
           found = []
-          # 查找所有类似域名的文本标签
           all_tokens = re.findall(r">([^<]+)<", html)
           for token in all_tokens:
               t = token.strip()
               if re.match(r"^(\*\.)?[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*)+$", t):
                   found.append(t)
           
-          # 补充通用正则匹配页面中的域名
           raw_domains = re.findall(r'(?<![wW])[a-zA-Z0-9][-a-zA-Z0-9]*\.(?:com|net|org|cn|cc|xyz|vip|top|me|co|io|us|info|biz|mobi|asia|tel|tv|to|is|la|in|ru|de|uk|ca|au|jp|kr|br|fr|it|es|nl|se|no|fi|dk|pl|cz|hu|ro|gr|pt|ua|ch|at|be|lu|ie|nz|sg|my|th|id|ph|vn|hk|tw)(?:\.[a-zA-Z]{2,})?', html)
           
           processed = set()
@@ -46,15 +42,12 @@ jobs:
               d = d.strip()
               if not d or len(d) < 4 or "." not in d:
                   continue
-              # 规则2：如果某域名开头是 "*.，则把 "*. 换成 "abe."
               if d.startswith("*."):
                   d = "abe." + d[2:]
               processed.add(d)
 
-          # 规则5：去重、排序
           sorted_domains = sorted(list(processed))
           
-          # 规则1 & 3：写入 wetestdoms.txt，一行一个，行尾加上 #wetest（确保只有一个）
           with open("wetestdoms.txt", "w", encoding="utf-8") as f:
               for d in sorted_domains:
                   clean_d = d.split("#")[0].strip()
@@ -66,41 +59,15 @@ jobs:
       - name: Run update script
         run: python3 update.py
 
-      - name: Commit and push if changes
+      - name: Commit and push changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add wetestdoms.txt
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update wetestdoms.txt [skip ci]" && git push)          
-          # Let us filter unique domains and apply rules:
-          # 1. replace *. with abe. if starts with *.
-          # 2. append #wetest
-          # 3. deduplicate and sort
-          
-          processed = set()
-          for d in found + list(re.findall(r'(?<![wW])[a-zA-Z0-9][-a-zA-Z0-9]*\.(?:com|net|org|cn|cc|xyz|vip|top|me|co|io|us|info|biz|mobi|asia|tel|tv|tv|cc|to|is|la|in|ru|de|uk|ca|au|jp|kr|br|fr|it|es|nl|se|no|fi|dk|pl|cz|hu|ro|gr|pt|ua|ch|at|be|lu|ie|nz|sg|my|th|id|ph|vn|hk|tw)(?:\.[a-zA-Z]{2,})?', html)):
-              d = d.strip()
-              if not d or len(d) < 4 or "." not in d:
-                  continue
-              if d.startswith("*."):
-                  d = "abe." + d[2:]
-              processed.add(d)
-
-          # Sort and deduplicate
-          sorted_domains = sorted(list(processed))
-          
-          with open("wetestdoms.txt", "w") as f:
-              for d in sorted_domains:
-                  # Ensure exactly one #wetest at the end
-                  # Remove any existing #wetest first just in case
-                  clean_d = d.split("#")[0].strip()
-                  f.write(f"{clean_d} #wetest\n")
-          print(f"Successfully generated wetestdoms.txt with {len(sorted_domains)} domains.")
-          '
-
-      - name: Commit and push if changes
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add wetestdoms.txt
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update wetestdoms.txt [skip ci]" && git push)
+          git status
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update wetestdoms.txt [skip ci]"
+            git push
+          fi
