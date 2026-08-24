@@ -48,10 +48,11 @@ jobs:
 
           sorted_domains = sorted(list(processed))
           
+          # 去掉 #wetest 之前的空格，格式变为: 域名#wetest
           with open("wetestdoms.txt", "w", encoding="utf-8") as f:
               for d in sorted_domains:
                   clean_d = d.split("#")[0].strip()
-                  f.write(f"{clean_d} #wetest\n")
+                  f.write(f"{clean_d}#wetest\n")
                   
           print(f"Successfully generated wetestdoms.txt with {len(sorted_domains)} domains.")
           EOF
