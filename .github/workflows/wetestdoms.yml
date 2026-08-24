@@ -1,0 +1,113 @@
+name: Update Wetest Domains
+
+on:
+  schedule:
+    - cron: '30 22 * * *' # Beijing time 6:30 AM is 22:30 UTC of previous day
+  workflow_dispatch:
+
+jobs:
+  update-domains:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch and process domains
+        run: |
+          # Fetch the HTML page and extract domains after "鍦板潃鍚嶇О"
+          # Depending on the HTML structure, let's use python or curl/grep/sed to extract domains.
+          python3 -c '
+          import urllib.request
+          import re
+
+          url = "https://www.wetest.vip/page/cloudflare/cname.html"
+          req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+          
+          try:
+              with urllib.request.urlopen(req) as resp:
+                  html = resp.read().decode("utf-8")
+          except Exception as e:
+              print(f"Failed to fetch URL: {e}")
+              exit(1)
+
+          # Find domains appearing after "鍦板潃鍚嶇О" or standard domain patterns / table cells
+          # Let us use regex to find potential domains or text following 鍦板潃鍚嶇О
+          # Let us look for patterns or general domain extraction from the page
+          # Users say: 姣忎竴涓兘鍦ㄢ€滃湴鍧€鍚嶇О鈥濆彸杈�
+          
+          # Let us search for common patterns or extract all text/tags
+          from html.parser import HTMLParser
+
+          class SimpleParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.text_list = []
+              def handle_data(self, data):
+                  self.text_list.append(data.strip())
+
+          parser = SimpleParser()
+          parser.feed(html)
+          
+          domains = set()
+          # Let us search for strings that look like domains or follow 鍦板潃鍚嶇О
+          # Or we can write a flexible regex on the raw HTML or text
+          # Let us extract all potential domain names or lines
+          # Usually these are cloudflare cname domains like *.example.com or sub.domain.com
+          
+          # Let us find all occurrences using regex for domains or specific table cells
+          # Let us use regex to find domains in the HTML or text
+          matches = re.findall(r"([a-zA-Z0-9][-a-zA-Z0-9]*\.)+[a-zA-Z]{2,}", html)
+          
+          # Refined extraction: look for items next to 鍦板潃鍚嶇О or specific patterns
+          # Let us extract lines or tokens that look like domains
+          all_tokens = re.findall(r">([^<]+)<", html)
+          found = []
+          for i, token in enumerate(all_tokens):
+              if "鍦板潃鍚嶇О" in token or i > 0 and "鍦板潃鍚嶇О" in all_tokens[i-1]:
+                  # check surrounding tokens
+                  pass
+          
+          # Let us write a robust python snippet in the workflow that extracts valid domain names from the page text
+          lines = []
+          for token in all_tokens:
+              t = token.strip()
+              # check if it looks like a domain or contains dots and valid chars
+              if re.match(r"^(\*\.)?[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*)+$", t):
+                  found.append(t)
+          
+          # If direct token match is sparse, let us use a broader regex on the whole HTML text
+          # Cloudflare cname domains
+          raw_matches = re.findall(r'(?:[a-zA-Z0-9_.-]+)', html)
+          
+          # Let us filter unique domains and apply rules:
+          # 1. replace *. with abe. if starts with *.
+          # 2. append #wetest
+          # 3. deduplicate and sort
+          
+          processed = set()
+          for d in found + list(re.findall(r'(?<![wW])[a-zA-Z0-9][-a-zA-Z0-9]*\.(?:com|net|org|cn|cc|xyz|vip|top|me|co|io|us|info|biz|mobi|asia|tel|tv|tv|cc|to|is|la|in|ru|de|uk|ca|au|jp|kr|br|fr|it|es|nl|se|no|fi|dk|pl|cz|hu|ro|gr|pt|ua|ch|at|be|lu|ie|nz|sg|my|th|id|ph|vn|hk|tw)(?:\.[a-zA-Z]{2,})?', html)):
+              d = d.strip()
+              if not d or len(d) < 4 or "." not in d:
+                  continue
+              if d.startswith("*."):
+                  d = "abe." + d[2:]
+              processed.add(d)
+
+          # Sort and deduplicate
+          sorted_domains = sorted(list(processed))
+          
+          with open("wetestdoms.txt", "w") as f:
+              for d in sorted_domains:
+                  # Ensure exactly one #wetest at the end
+                  # Remove any existing #wetest first just in case
+                  clean_d = d.split("#")[0].strip()
+                  f.write(f"{clean_d} #wetest\n")
+          print(f"Successfully generated wetestdoms.txt with {len(sorted_domains)} domains.")
+          '
+
+      - name: Commit and push if changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add wetestdoms.txt
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update wetestdoms.txt [skip ci]" && git push)
