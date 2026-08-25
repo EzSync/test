@@ -2,7 +2,7 @@ name: Update Wetest Cnames
 
 on:
   schedule:
-    - cron: '30 22 * * *' # 北京时间每天 06:30
+    - cron: '30 21 * * *' # 北京时间每天 05:30
   workflow_dispatch:
 
 jobs:
