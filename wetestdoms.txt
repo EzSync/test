@@ -37,7 +37,6 @@ f3058171cad.002404.xyz#wetest
 freeyx.cloudflare88.eu.org#wetest
 github.com#wetest
 hosuyun.com#wetest
-jidog.com#wetest
 licdn.top#wetest
 marisalnc.com#wetest
 panguidc.com#wetest
