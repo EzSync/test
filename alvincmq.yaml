@@ -2,8 +2,8 @@ proxies:
 - name: https://github.com/Alvin9999-newpac/fanqiang
   type: hysteria
   server: 62.210.70.191
-  port: 23556
-  auth-str: github.com/Alvin9999-newpac/fanqiang
+  port: 24667
+  auth-str: dongtaiwang.com
   sni: bing.com
   skip-cert-verify: true
   alpn:
