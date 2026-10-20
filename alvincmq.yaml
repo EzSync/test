@@ -47,12 +47,18 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: https://github.com/Alvin9999-newpac/fanqiang
-  type: anytls
-  server: anytls2.864106.xyz
-  port: 19000
-  password: github.com/Alvin9999-newpac/fanqiang
-  sni: anytls2.864106.xyz
+- name: github.com/Alvin9999-newpac/fanqiang
+  type: hysteria
+  server: tw-25.497489.xyz
+  port: 10099
+  auth-str: github.com/Alvin9999-newpac/fanqiang
+  sni: tw-25.497489.xyz
+  skip-cert-verify: false
+  alpn:
+  - h3
+  protocol: udp
+  up: 20 Mbps
+  down: 20 Mbps
 - name: github.com/Alvin9999-newpac/fanqiang
   type: hysteria
   server: 198.200.57.142
@@ -74,15 +80,3 @@ proxies:
   password: github.com/Alvin9999-newpac/fanqiang
   udp: true
   multiplexing: MULTIPLEXING_LOW
-- name: github.com/Alvin9999-newpac/fanqiang
-  type: hysteria
-  server: tw-25.497489.xyz
-  port: 10099
-  auth-str: github.com/Alvin9999-newpac/fanqiang
-  sni: tw-25.497489.xyz
-  skip-cert-verify: false
-  alpn:
-  - h3
-  protocol: udp
-  up: 20 Mbps
-  down: 20 Mbps
