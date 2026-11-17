@@ -35,6 +35,7 @@ eu.org
 f3058171cad.002404.xyz
 freeyx.cloudflare88.eu.org
 github.com
+hosuyun.cn
 hosuyun.com
 licdn.top
 marisalnc.com
@@ -47,3 +48,4 @@ tzpro.xyz
 wetest.vip
 xirancdn.us
 xn--b6gac.eu.org
+y1yun.net
