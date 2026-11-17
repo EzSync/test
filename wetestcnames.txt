@@ -29,7 +29,6 @@ cfip.cfcdn.vip
 cfip.xxxxxxxx.tk
 cloudflare-ip.mofashi.ltd
 cloudflare.9jy.cc
-cmzi.com
 cname.xirancdn.us
 cnamefuckxxs.yuchen.icu
 eu.org
@@ -48,4 +47,3 @@ tzpro.xyz
 wetest.vip
 xirancdn.us
 xn--b6gac.eu.org
-y1yun.net
