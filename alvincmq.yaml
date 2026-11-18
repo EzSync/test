@@ -1,20 +1,8 @@
 proxies:
-- name: https://github.com/Alvin9999-newpac/fanqiang
+- name: https://alvin9999.com
   type: hysteria
-  server: 62.210.28.175
+  server: 62.210.124.132
   port: 24667
-  auth-str: dongtaiwang.com
-  sni: bing.com
-  skip-cert-verify: true
-  alpn:
-  - h3
-  protocol: udp
-  up: 11 Mbps
-  down: 55 Mbps
-- name: github.com/Alvin9999-newpac/fanqiang
-  type: hysteria
-  server: 163.172.117.163
-  port: 36699
   auth-str: dongtaiwang.com
   sni: bing.com
   skip-cert-verify: true
@@ -41,6 +29,18 @@ proxies:
   port: 54177
   auth-str: dongtaiwang.com
   sni: apple.com
+  skip-cert-verify: true
+  alpn:
+  - h3
+  protocol: udp
+  up: 11 Mbps
+  down: 55 Mbps
+- name: https://alvin9999.com
+  type: hysteria
+  server: 38.6.222.130
+  port: 11008
+  auth-str: dongtaiwang.com
+  sni: bing.com
   skip-cert-verify: true
   alpn:
   - h3
