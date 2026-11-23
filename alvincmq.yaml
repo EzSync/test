@@ -11,30 +11,56 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: github.com/Alvin9999-newpac/fanqiang
-  type: hysteria
-  server: 62.210.70.191
-  port: 23556
-  auth-str: github.com/Alvin9999-newpac/fanqiang
-  sni: bing.com
+- name: https://alvin9999.com
+  type: hysteria2
+  server: 2001:bc8:32d7:17b::10
+  port: 22000
+  password: dongtaiwang.com
+  sni: www.microsoft.com
   skip-cert-verify: true
   alpn:
   - h3
-  protocol: udp
-  up: 11 Mbps
-  down: 55 Mbps
-- name: github.com/Alvin9999-newpac/fanqiang
-  type: hysteria
-  server: 2a14:7584:d097::a
-  port: 54177
-  auth-str: dongtaiwang.com
-  sni: apple.com
+  udp: true
+- name: https://alvin9999.com
+  type: hysteria2
+  server: 2001:bc8:32d7:17b::11
+  port: 22000
+  password: dongtaiwang.com
+  sni: www.microsoft.com
   skip-cert-verify: true
   alpn:
   - h3
-  protocol: udp
-  up: 11 Mbps
-  down: 55 Mbps
+  udp: true
+- name: https://alvin9999.com
+  type: hysteria2
+  server: 2001:bc8:32d7:17b::13
+  port: 22000
+  password: dongtaiwang.com
+  sni: www.microsoft.com
+  skip-cert-verify: true
+  alpn:
+  - h3
+  udp: true
+- name: https://alvin9999.com
+  type: hysteria2
+  server: 2001:bc8:32d7:17b::15
+  port: 22000
+  password: dongtaiwang.com
+  sni: www.microsoft.com
+  skip-cert-verify: true
+  alpn:
+  - h3
+  udp: true
+- name: https://alvin9999.com
+  type: hysteria2
+  server: 2001:bc8:32d7:17b::16
+  port: 22000
+  password: dongtaiwang.com
+  sni: www.microsoft.com
+  skip-cert-verify: true
+  alpn:
+  - h3
+  udp: true
 - name: https://alvin9999.com
   type: hysteria
   server: 38.6.222.131
@@ -59,24 +85,13 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: github.com/Alvin9999-newpac/fanqiang
-  type: mieru
-  server: 198.200.57.152
-  port: 33556
-  transport: TCP
-  username: Alvin9999-newpac
-  password: github.com/Alvin9999-newpac/fanqiang
-  udp: true
-  multiplexing: MULTIPLEXING_LOW
-- name: github.com/Alvin9999-newpac/fanqiang
-  type: hysteria
-  server: tw-25.497489.xyz
-  port: 10099
-  auth-str: github.com/Alvin9999-newpac/fanqiang
-  sni: tw-25.497489.xyz
-  skip-cert-verify: false
+- name: https://alvin9999.com
+  type: hysteria2
+  server: 198.247.124.187
+  port: 23456
+  password: dongtaiwang.com
+  sni: www.bing.com
+  skip-cert-verify: true
   alpn:
   - h3
-  protocol: udp
-  up: 20 Mbps
-  down: 20 Mbps
+  udp: true
