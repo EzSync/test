@@ -90,6 +90,18 @@ proxies:
   server: 198.247.124.187
   port: 23456
   password: dongtaiwang.com
+  up: 10
+  down: 10
+  sni: www.bing.com
+  skip-cert-verify: true
+  alpn:
+  - h3
+  udp: true
+- name: https://alvin9999.com
+  type: hysteria2
+  server: 198.247.124.187
+  port: 23456
+  password: dongtaiwang.com
   sni: www.bing.com
   skip-cert-verify: true
   alpn:
